@@ -13,9 +13,9 @@ interface AppLogoProps {
 }
 
 const AppLogo = memo(function AppLogo({
-  src = '/assets/images/app_logo.png',
+  src = '/logo/novastore-logo.png',
   iconName = 'SparklesIcon',
-  size = 64,
+  size = 100,
   className = '',
   onClick,
 }: AppLogoProps) {

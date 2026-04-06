@@ -12,10 +12,7 @@ export default function Footer() {
           {/* Left: Logo + tagline */}
           <div className="space-y-4 lg:max-w-xs">
             <Link href="/homepage" className="flex items-center gap-2.5">
-              <AppLogo size={36} />
-              <span className="font-display font-800 text-2xl tracking-tightest text-[#1C1C1C]">
-                NovaStore
-              </span>
+              <AppLogo size={250} />
             </Link>
             <p className="text-sm text-[#5A5A5A] leading-relaxed">
               Tecnología premium seleccionada para profesionales y creadores.

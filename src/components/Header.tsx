@@ -44,10 +44,7 @@ export default function Header() {
         <div className="max-w-[1440px] mx-auto px-6 lg:px-12 h-[72px] flex items-center justify-between gap-6">
           {/* Logo */}
           <Link href="/homepage" className="flex items-center gap-2.5 shrink-0 z-10 group">
-            <AppLogo size={32} />
-            <span className="font-display font-800 text-xl tracking-tightest text-[#1C1C1C] hidden sm:block group-hover:text-[#2563EB] transition-colors duration-300">
-              NovaStore
-            </span>
+            <AppLogo size={137} />
           </Link>
 
           {/* Center Nav */}
@@ -126,8 +123,7 @@ export default function Header() {
             {/* Mobile header */}
             <div className="flex items-center justify-between px-6 h-[72px] border-b border-[#DDD9D3]">
               <Link href="/homepage" className="flex items-center gap-2.5" onClick={() => setMobileOpen(false)}>
-                <AppLogo size={32} />
-                <span className="font-display font-800 text-xl tracking-tightest text-[#1C1C1C]">NovaStore</span>
+                <AppLogo size={50} />
               </Link>
               <button
                 aria-label="Cerrar menú"
