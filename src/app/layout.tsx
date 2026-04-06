@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Metadata, Viewport } from 'next';
+import AuthSessionSync from '@/features/auth/components/AuthSessionSync';
 import '../styles/tailwind.css';
 
 export const viewport: Viewport = {
@@ -29,7 +30,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>
+        <AuthSessionSync />
+        {children}
+      </body>
     </html>
   );
 }

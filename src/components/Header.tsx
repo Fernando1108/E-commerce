@@ -2,10 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import AppLogo from '@/components/ui/AppLogo';
 import Icon from '@/components/ui/AppIcon';
 import { useCart } from '@/hooks/useCart';
+import { clearAuthCookie } from '@/features/auth/utils/auth-cookie';
+import { useAuthStore } from '@/store/auth-store';
 
 const navLinks = [
   { label: 'Tienda', href: '/products' },
@@ -15,9 +18,14 @@ const navLinks = [
 ];
 
 export default function Header() {
+  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [isReady, setIsReady] = useState(false);
   const { itemCount } = useCart();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const logout = useAuthStore((state) => state.logout);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40);
@@ -33,6 +41,38 @@ export default function Header() {
     }
     return () => { document.body.style.overflow = ''; };
   }, [mobileOpen]);
+
+  useEffect(() => {
+    setIsReady(true);
+  }, []);
+
+  const handleLogout = () => {
+    setAccountMenuOpen(false);
+    if (!isAuthenticated) {
+      router.push('/auth/login');
+      return;
+    }
+
+    clearAuthCookie();
+    logout();
+    setMobileOpen(false);
+    router.push('/auth/login');
+  };
+
+  const handleAccountButtonClick = () => {
+    if (!isAuthenticated) {
+      router.push('/auth/login');
+      return;
+    }
+
+    setAccountMenuOpen((current) => !current);
+  };
+
+  const handleProfileNavigation = () => {
+    setAccountMenuOpen(false);
+    setMobileOpen(false);
+    router.push('/profile');
+  };
 
   return (
     <>
@@ -74,12 +114,38 @@ export default function Header() {
             </button>
 
             {/* Account */}
-            <button
-              aria-label="Mi cuenta"
-              className="hidden sm:flex size-9 items-center justify-center text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
-            >
-              <Icon name="UserIcon" size={20} variant="outline" />
-            </button>
+            <div className="relative hidden sm:block">
+              <button
+                aria-label={isReady && isAuthenticated ? 'Abrir menú de cuenta' : 'Mi cuenta'}
+                className="flex size-9 items-center justify-center text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
+                onClick={handleAccountButtonClick}
+                type="button"
+                title={isReady && isAuthenticated ? 'Mi cuenta' : 'Iniciar sesión'}
+              >
+                <Icon name="UserIcon" size={20} variant="outline" />
+              </button>
+
+              {isReady && isAuthenticated && accountMenuOpen && (
+                <div className="absolute right-0 top-full mt-3 min-w-[190px] border border-[#DDD9D3] bg-white shadow-[0_18px_50px_rgba(28,28,28,0.08)]">
+                  <button
+                    type="button"
+                    onClick={handleProfileNavigation}
+                    className="flex w-full items-center justify-between px-4 py-3 text-left text-[11px] font-black uppercase tracking-[0.22em] text-[#1C1C1C] transition hover:bg-[#F5F3EE]"
+                  >
+                    Mi perfil
+                    <Icon name="UserIcon" size={16} variant="outline" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="flex w-full items-center justify-between border-t border-[#E6E1DA] px-4 py-3 text-left text-[11px] font-black uppercase tracking-[0.22em] text-[#8A8A8A] transition hover:bg-[#F5F3EE] hover:text-[#1C1C1C]"
+                  >
+                    Cerrar sesión
+                    <Icon name="ArrowLeftStartOnRectangleIcon" size={16} variant="outline" />
+                  </button>
+                </div>
+              )}
+            </div>
 
             {/* Cart */}
             <Link
@@ -161,10 +227,35 @@ export default function Header() {
             {/* Mobile bottom */}
             <div className="mt-auto px-6 pb-10 flex flex-col gap-4">
               <div className="flex gap-4">
-                <button className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#8A8A8A]">
-                  <Icon name="UserIcon" size={18} variant="outline" />
-                  Mi Cuenta
-                </button>
+                {isReady && isAuthenticated ? (
+                  <>
+                    <button
+                      className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#8A8A8A]"
+                      onClick={handleProfileNavigation}
+                      type="button"
+                    >
+                      <Icon name="UserIcon" size={18} variant="outline" />
+                      Mi Perfil
+                    </button>
+                    <button
+                      className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#8A8A8A]"
+                      onClick={handleLogout}
+                      type="button"
+                    >
+                      <Icon name="ArrowLeftStartOnRectangleIcon" size={18} variant="outline" />
+                      Cerrar sesión
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#8A8A8A]"
+                    onClick={handleAccountButtonClick}
+                    type="button"
+                  >
+                    <Icon name="UserIcon" size={18} variant="outline" />
+                    Mi Cuenta
+                  </button>
+                )}
                 <Link
                   href="/cart"
                   onClick={() => setMobileOpen(false)}
