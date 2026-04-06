@@ -8,7 +8,8 @@ import Icon from '@/components/ui/AppIcon';
 import { useCart } from '@/hooks/useCart';
 import { validateCoupon } from '@/lib/supabase/services';
 import { formatPrice } from '@/lib/utils';
-import { useRouter } from 'next/navigation';
+import { PayPalButtons } from '@paypal/react-paypal-js';
+import PayPalProvider from '@/lib/paypal/PayPalProvider';
 
 const SHIPPING_THRESHOLD = 100;
 const SHIPPING_COST = 9.95;
@@ -41,34 +42,6 @@ function QtyButton({
 /* ─── Component ──────────────────────────────────────────────── */
 export default function CartPage() {
   const { items, removeItem, updateQuantity, clearCart, total, itemCount } = useCart();
-  const router = useRouter();
-
-  const handleCheckout = async () => {
-    try {
-      const response = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          items: items.map(item => ({
-            name: item.product?.name || 'Producto',
-            price: item.product?.price || 0,
-            quantity: item.quantity,
-            image_url: item.product?.image_url,
-          })),
-        }),
-      })
-
-      const data = await response.json()
-
-      if (data.url) {
-        window.location.href = data.url
-      } else {
-        alert(data.error || 'Error al procesar el pago')
-      }
-    } catch (error) {
-      alert('Error de conexión')
-    }
-  }
 
   const [couponInput, setCouponInput] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<null | {
@@ -581,24 +554,50 @@ export default function CartPage() {
                 </div>
 
                 {/* CTA Buttons */}
-                <div className="px-8 pb-8 flex flex-col gap-3">
-                  <motion.button
-                    whileHover={{ scale: 1.015 }}
-                    whileTap={{ scale: 0.985 }}
-                    onClick={handleCheckout}
-                    className="w-full py-4 bg-[#1C1C1C] text-white text-[10px] font-black uppercase tracking-[0.22em] hover:bg-[#2563EB] transition-all duration-300 flex items-center justify-center gap-3 relative overflow-hidden group"
-                  >
-                    <Icon name="LockClosedIcon" size={13} variant="outline" />
-                    Finalizar Compra
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
-                    className="w-full py-4 border border-[#DDD9D3] text-[#1C1C1C] text-[10px] font-bold uppercase tracking-[0.2em] hover:border-[#1C1C1C] hover:text-[#1C1C1C] transition-all duration-300 flex items-center justify-center gap-2"
-                  >
-                    <Icon name="CreditCardIcon" size={13} variant="outline" />
-                    Pago Express
-                  </motion.button>
+                <div className="px-8 pb-8">
+                  <PayPalProvider>
+                    <PayPalButtons
+                      style={{ layout: 'vertical', shape: 'rect', label: 'pay' }}
+                      disabled={items.length === 0}
+                      createOrder={async () => {
+                        const res = await fetch('/api/paypal/create-order', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            items: items.map(item => ({
+                              name: item.product?.name || 'Producto',
+                              price: item.product?.price || 0,
+                              quantity: item.quantity,
+                            })),
+                            total: items.reduce((sum, item) => sum + (item.product?.price || 0) * item.quantity, 0),
+                          }),
+                        })
+                        const data = await res.json()
+                        return data.id
+                      }}
+                      onApprove={async (data) => {
+                        const res = await fetch('/api/paypal/capture-order', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            orderID: data.orderID,
+                            cartItems: items,
+                            total: items.reduce((sum, item) => sum + (item.product?.price || 0) * item.quantity, 0),
+                          }),
+                        })
+                        const result = await res.json()
+                        if (result.status === 'COMPLETED') {
+                          const { useCartStore } = await import('@/store/cart-store')
+                          useCartStore.getState().clearCart()
+                          window.location.href = '/checkout/success'
+                        }
+                      }}
+                      onError={(err) => {
+                        console.error('PayPal error:', err)
+                        alert('Error procesando el pago')
+                      }}
+                    />
+                  </PayPalProvider>
                 </div>
 
                 {/* Trust Signals */}

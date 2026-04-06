@@ -1,22 +1,19 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { useCartStore } from '@/store/cart-store'
 
 export default function CheckoutSuccessPage() {
-  const searchParams = useSearchParams()
-  const sessionId = searchParams.get('session_id')
   const clearCart = useCartStore((state) => state.clearCart)
   const [cleared, setCleared] = useState(false)
 
   useEffect(() => {
-    if (sessionId && !cleared) {
+    if (!cleared) {
       clearCart()
       setCleared(true)
     }
-  }, [sessionId, cleared, clearCart])
+  }, [cleared, clearCart])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
