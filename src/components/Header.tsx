@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import AppLogo from '@/components/ui/AppLogo';
 import Icon from '@/components/ui/AppIcon';
 import { useCart } from '@/hooks/useCart';
+import { useAuth } from '@/hooks/useAuth';
 
 const navLinks = [
   { label: 'Tienda', href: '/products' },
@@ -18,6 +19,7 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { itemCount } = useCart();
+  const { user, signOut } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40);
@@ -77,12 +79,31 @@ export default function Header() {
             </button>
 
             {/* Account */}
-            <button
-              aria-label="Mi cuenta"
-              className="hidden sm:flex size-9 items-center justify-center text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
-            >
-              <Icon name="UserIcon" size={20} variant="outline" />
-            </button>
+            {user ? (
+              <div className="hidden sm:flex items-center gap-2">
+                <Link
+                  href="/account"
+                  aria-label="Mi cuenta"
+                  className="flex size-9 items-center justify-center text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
+                >
+                  <Icon name="UserIcon" size={20} variant="outline" />
+                </Link>
+                <button
+                  onClick={() => signOut()}
+                  className="text-[10px] font-bold uppercase tracking-widest text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
+                >
+                  Salir
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/auth/login"
+                aria-label="Iniciar sesión"
+                className="hidden sm:flex size-9 items-center justify-center text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
+              >
+                <Icon name="UserIcon" size={20} variant="outline" />
+              </Link>
+            )}
 
             {/* Cart */}
             <Link
@@ -165,10 +186,33 @@ export default function Header() {
             {/* Mobile bottom */}
             <div className="mt-auto px-6 pb-10 flex flex-col gap-4">
               <div className="flex gap-4">
-                <button className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#8A8A8A]">
-                  <Icon name="UserIcon" size={18} variant="outline" />
-                  Mi Cuenta
-                </button>
+                {user ? (
+                  <div className="flex items-center gap-3">
+                    <Link
+                      href="/account"
+                      onClick={() => setMobileOpen(false)}
+                      className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
+                    >
+                      <Icon name="UserIcon" size={18} variant="outline" />
+                      Mi Cuenta
+                    </Link>
+                    <button
+                      onClick={() => { signOut(); setMobileOpen(false); }}
+                      className="text-[11px] font-bold uppercase tracking-widest text-[#8A8A8A] hover:text-red-500 transition-colors"
+                    >
+                      Cerrar sesión
+                    </button>
+                  </div>
+                ) : (
+                  <Link
+                    href="/auth/login"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
+                  >
+                    <Icon name="UserIcon" size={18} variant="outline" />
+                    Iniciar sesión
+                  </Link>
+                )}
                 <Link
                   href="/cart"
                   onClick={() => setMobileOpen(false)}

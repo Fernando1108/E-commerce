@@ -8,6 +8,7 @@ import Icon from '@/components/ui/AppIcon';
 import { useCart } from '@/hooks/useCart';
 import { validateCoupon } from '@/lib/supabase/services';
 import { formatPrice } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 const SHIPPING_THRESHOLD = 100;
 const SHIPPING_COST = 9.95;
@@ -40,6 +41,34 @@ function QtyButton({
 /* ─── Component ──────────────────────────────────────────────── */
 export default function CartPage() {
   const { items, removeItem, updateQuantity, clearCart, total, itemCount } = useCart();
+  const router = useRouter();
+
+  const handleCheckout = async () => {
+    try {
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: items.map(item => ({
+            name: item.product?.name || 'Producto',
+            price: item.product?.price || 0,
+            quantity: item.quantity,
+            image_url: item.product?.image_url,
+          })),
+        }),
+      })
+
+      const data = await response.json()
+
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        alert(data.error || 'Error al procesar el pago')
+      }
+    } catch (error) {
+      alert('Error de conexión')
+    }
+  }
 
   const [couponInput, setCouponInput] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<null | {
@@ -556,6 +585,7 @@ export default function CartPage() {
                   <motion.button
                     whileHover={{ scale: 1.015 }}
                     whileTap={{ scale: 0.985 }}
+                    onClick={handleCheckout}
                     className="w-full py-4 bg-[#1C1C1C] text-white text-[10px] font-black uppercase tracking-[0.22em] hover:bg-[#2563EB] transition-all duration-300 flex items-center justify-center gap-3 relative overflow-hidden group"
                   >
                     <Icon name="LockClosedIcon" size={13} variant="outline" />
