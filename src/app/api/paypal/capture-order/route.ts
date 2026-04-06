@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { sendOrderConfirmation } from '@/lib/email'
 
 const PAYPAL_API = process.env.NODE_ENV === 'production'
   ? 'https://api-m.paypal.com'
@@ -66,6 +67,23 @@ export async function POST(request: Request) {
         order_id: orderId,
         total: total,
       })
+
+      // Enviar email de confirmación (non-blocking)
+      try {
+        await sendOrderConfirmation({
+          to: user.email!,
+          customerName: user.user_metadata?.name || 'Cliente',
+          orderId: orderId,
+          total: total,
+          items: cartItems.map((item: any) => ({
+            name: item.product?.name || 'Producto',
+            quantity: item.quantity,
+            price: item.product?.price || 0,
+          })),
+        })
+      } catch (emailError) {
+        console.error('Email error (non-blocking):', emailError)
+      }
 
       return NextResponse.json({
         status: 'COMPLETED',
