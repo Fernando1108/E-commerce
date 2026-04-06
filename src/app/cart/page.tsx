@@ -5,72 +5,12 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
-
-/* ─── Types ──────────────────────────────────────────────────── */
-interface CartItem {
-  id: number;
-  name: string;
-  subtitle: string;
-  price: number;
-  originalPrice?: number;
-  quantity: number;
-  image: string;
-  alt: string;
-  color: string;
-  sku: string;
-}
-
-/* ─── Mock Cart Data ─────────────────────────────────────────── */
-const initialCartItems: CartItem[] = [
-  {
-    id: 1,
-    name: 'Monitor Ultra 4K 32"',
-    subtitle: 'Panel IPS · Negro Espacial',
-    price: 649,
-    originalPrice: 799,
-    quantity: 1,
-    image: 'https://img.rocket.new/generatedImages/rocket_gen_img_1f449c7d4-1772443026055.png',
-    alt: 'Monitor Ultra 4K 32 pulgadas en escritorio blanco con iluminación de estudio',
-    color: 'Negro Espacial',
-    sku: 'NS-MON-4K-32',
-  },
-  {
-    id: 2,
-    name: 'Teclado Mecánico Pro',
-    subtitle: 'Switches Cherry MX · Retroiluminado RGB',
-    price: 189,
-    originalPrice: 229,
-    quantity: 2,
-    image: 'https://images.unsplash.com/photo-1679533662330-457ca8447e7d',
-    alt: 'Teclado mecánico profesional con retroiluminación RGB sobre superficie oscura',
-    color: 'Grafito',
-    sku: 'NS-KB-MECH-PRO',
-  },
-  {
-    id: 3,
-    name: 'Auriculares Studio XR',
-    subtitle: 'Cancelación activa de ruido · Inalámbrico',
-    price: 299,
-    originalPrice: undefined,
-    quantity: 1,
-    image: 'https://img.rocket.new/generatedImages/rocket_gen_img_14edb55e2-1764708667214.png',
-    alt: 'Auriculares premium de estudio con cancelación de ruido sobre fondo neutro',
-    color: 'Plata Ártico',
-    sku: 'NS-HP-STUDIO-XR',
-  },
-];
+import { useCart } from '@/hooks/useCart';
+import { validateCoupon } from '@/lib/supabase/services';
+import { formatPrice } from '@/lib/utils';
 
 const SHIPPING_THRESHOLD = 100;
 const SHIPPING_COST = 9.95;
-
-const VALID_COUPONS: Record<string, { label: string; discount: number; type: 'percent' | 'fixed' }> = {
-  NOVA20: { label: '20% de descuento', discount: 20, type: 'percent' },
-  BIENVENIDO: { label: '€15 de descuento', discount: 15, type: 'fixed' },
-};
-
-function formatEUR(amount: number) {
-  return `€${amount.toFixed(2).replace('.', ',')}`;
-}
 
 /* ─── Quantity Button ─────────────────────────────────────────── */
 function QtyButton({
@@ -99,50 +39,54 @@ function QtyButton({
 
 /* ─── Component ──────────────────────────────────────────────── */
 export default function CartPage() {
-  const [items, setItems] = useState<CartItem[]>(initialCartItems);
+  const { items, removeItem, updateQuantity, clearCart, total, itemCount } = useCart();
+
   const [couponInput, setCouponInput] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<null | {
     code: string;
     label: string;
     discount: number;
-    type: 'percent' | 'fixed';
+    type: string;
   }>(null);
   const [couponError, setCouponError] = useState('');
   const [couponSuccess, setCouponSuccess] = useState('');
-  const [removingId, setRemovingId] = useState<number | null>(null);
-  const [qtyFlash, setQtyFlash] = useState<number | null>(null);
-
-  /* ── Quantity ── */
-  const updateQty = (id: number, delta: number) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, quantity: Math.max(1, Math.min(10, item.quantity + delta)) } : item
-      )
-    );
-    setQtyFlash(id);
-    setTimeout(() => setQtyFlash(null), 300);
-  };
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [removingId, setRemovingId] = useState<string | null>(null);
 
   /* ── Remove ── */
-  const removeItem = (id: number) => {
-    setRemovingId(id);
+  const handleRemoveItem = (productId: string) => {
+    setRemovingId(productId);
     setTimeout(() => {
-      setItems((prev) => prev.filter((item) => item.id !== id));
+      removeItem(productId);
       setRemovingId(null);
     }, 380);
   };
 
   /* ── Coupon ── */
-  const applyCoupon = () => {
+  const applyCoupon = async () => {
     const code = couponInput.trim().toUpperCase();
     setCouponError('');
     setCouponSuccess('');
     if (!code) { setCouponError('Introduce un código de cupón.'); return; }
-    const found = VALID_COUPONS[code];
-    if (!found) { setCouponError('Código no válido. Inténtalo de nuevo.'); return; }
-    setAppliedCoupon({ code, ...found });
-    setCouponSuccess(`¡Cupón aplicado! ${found.label}`);
-    setCouponInput('');
+
+    setCouponLoading(true);
+    try {
+      const coupon = await validateCoupon(code);
+      if (!coupon || !coupon.is_valid) {
+        setCouponError('Código no válido o expirado. Inténtalo de nuevo.');
+        setCouponLoading(false);
+        return;
+      }
+      const label = coupon.type === 'percent'
+        ? `${coupon.value}% de descuento`
+        : `${formatPrice(coupon.value)} de descuento`;
+      setAppliedCoupon({ code: coupon.code, label, discount: coupon.value, type: coupon.type });
+      setCouponSuccess(`¡Cupón aplicado! ${label}`);
+      setCouponInput('');
+    } catch {
+      setCouponError('Error al validar el cupón. Inténtalo de nuevo.');
+    }
+    setCouponLoading(false);
   };
 
   const removeCoupon = () => {
@@ -152,19 +96,14 @@ export default function CartPage() {
   };
 
   /* ── Totals ── */
-  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const savings = items.reduce(
-    (sum, item) => (item.originalPrice ? sum + (item.originalPrice - item.price) * item.quantity : sum),
-    0
-  );
+  const subtotal = total;
   const shipping = subtotal >= SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
   let couponDiscount = 0;
   if (appliedCoupon) {
     couponDiscount =
       appliedCoupon.type === 'percent' ? subtotal * (appliedCoupon.discount / 100) : appliedCoupon.discount;
   }
-  const total = Math.max(0, subtotal + shipping - couponDiscount);
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+  const grandTotal = Math.max(0, subtotal + shipping - couponDiscount);
   const shippingProgress = Math.min(100, (subtotal / SHIPPING_THRESHOLD) * 100);
 
   return (
@@ -245,9 +184,7 @@ export default function CartPage() {
         <section className="max-w-[1440px] mx-auto px-6 lg:px-14 py-12 lg:py-20">
           <div className="grid grid-cols-1 xl:grid-cols-[1fr_440px] gap-12 xl:gap-16 items-start">
 
-            {/* ══════════════════════════════════════════════
-                LEFT: Cart Items
-            ══════════════════════════════════════════════ */}
+            {/* LEFT: Cart Items */}
             <div className="flex flex-col gap-8">
 
               {/* Items header bar */}
@@ -259,7 +196,7 @@ export default function CartPage() {
               >
                 <div className="flex items-center gap-3">
                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#5A5A5A]">
-                    {totalItems} {totalItems === 1 ? 'Artículo' : 'Artículos'}
+                    {itemCount} {itemCount === 1 ? 'Artículo' : 'Artículos'}
                   </span>
                   <span className="w-px h-3 bg-[#DDD9D3]" />
                   <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#8A8A8A]">
@@ -267,7 +204,7 @@ export default function CartPage() {
                   </span>
                 </div>
                 <button
-                  onClick={() => setItems([])}
+                  onClick={clearCart}
                   className="group flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#8A8A8A] hover:text-red-500 transition-colors duration-200"
                 >
                   <Icon name="TrashIcon" size={11} variant="outline" className="group-hover:text-red-500 transition-colors" />
@@ -277,131 +214,127 @@ export default function CartPage() {
 
               {/* Cart Items List */}
               <AnimatePresence mode="popLayout">
-                {items.map((item, index) => (
-                  <motion.div
-                    key={item.id}
-                    layout
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{
-                      opacity: removingId === item.id ? 0 : 1,
-                      y: 0,
-                      x: removingId === item.id ? 60 : 0,
-                    }}
-                    exit={{ opacity: 0, x: 60, height: 0, marginBottom: 0 }}
-                    transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1], delay: index * 0.05 }}
-                    className="group relative bg-white border border-[#DDD9D3] hover:border-[#1C1C1C] transition-all duration-500 overflow-hidden"
-                  >
-                    {/* Top accent line */}
-                    <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#2563EB]/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    {/* Left accent bar */}
-                    <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-gradient-to-b from-[#2563EB]/0 via-[#2563EB]/40 to-[#2563EB]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                {items.map((item, index) => {
+                  const p = item.product;
+                  const itemPrice = p?.price ?? 0;
+                  const itemOriginalPrice = p?.original_price ?? null;
+                  const lineTotal = itemPrice * item.quantity;
 
-                    <div className="flex gap-0 sm:gap-0">
-                      {/* Product Image */}
-                      <Link
-                        href={`/product/${item.id}`}
-                        className="shrink-0 relative overflow-hidden bg-[#EFEDE9] w-[100px] h-[120px] sm:w-[130px] sm:h-[150px]"
-                      >
-                        <AppImage
-                          src={item.image}
-                          alt={item.alt}
-                          fill
-                          className="object-cover transition-transform duration-700 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0 bg-[#2563EB]/0 group-hover:bg-[#2563EB]/3 transition-colors duration-500" />
-                      </Link>
+                  return (
+                    <motion.div
+                      key={item.id}
+                      layout
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{
+                        opacity: removingId === item.product_id ? 0 : 1,
+                        y: 0,
+                        x: removingId === item.product_id ? 60 : 0,
+                      }}
+                      exit={{ opacity: 0, x: 60, height: 0, marginBottom: 0 }}
+                      transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1], delay: index * 0.05 }}
+                      className="group relative bg-white border border-[#DDD9D3] hover:border-[#1C1C1C] transition-all duration-500 overflow-hidden"
+                    >
+                      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#2563EB]/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-gradient-to-b from-[#2563EB]/0 via-[#2563EB]/40 to-[#2563EB]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                      {/* Product Info */}
-                      <div className="flex-1 min-w-0 flex flex-col justify-between p-5 sm:p-6">
-                        {/* Top row: name + remove */}
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="min-w-0 flex-1">
-                            <Link
-                              href={`/product/${item.id}`}
-                              className="font-display italic font-700 text-lg sm:text-xl text-[#1C1C1C] tracking-editorial leading-tight hover:text-[#2563EB] transition-colors duration-200 line-clamp-1 block"
-                            >
-                              {item.name}
-                            </Link>
-                            <p className="text-[#8A8A8A] text-[11px] font-medium mt-1.5 tracking-wide">
-                              {item.subtitle}
-                            </p>
-                            <div className="flex items-center gap-3 mt-2">
-                              <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[#8A8A8A] border border-[#DDD9D3] px-2 py-0.5">
-                                {item.color}
-                              </span>
-                              <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-[#8A8A8A]">
-                                SKU: {item.sku}
-                              </span>
+                      <div className="flex gap-0 sm:gap-0">
+                        {/* Product Image */}
+                        <Link
+                          href={`/product/${item.product_id}`}
+                          className="shrink-0 relative overflow-hidden bg-[#EFEDE9] w-[100px] h-[120px] sm:w-[130px] sm:h-[150px]"
+                        >
+                          <AppImage
+                            src={p?.image_url || '/assets/images/no_image.png'}
+                            alt={p?.name || 'Producto'}
+                            fill
+                            className="object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-[#2563EB]/0 group-hover:bg-[#2563EB]/3 transition-colors duration-500" />
+                        </Link>
+
+                        {/* Product Info */}
+                        <div className="flex-1 min-w-0 flex flex-col justify-between p-5 sm:p-6">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="min-w-0 flex-1">
+                              <Link
+                                href={`/product/${item.product_id}`}
+                                className="font-display italic font-700 text-lg sm:text-xl text-[#1C1C1C] tracking-editorial leading-tight hover:text-[#2563EB] transition-colors duration-200 line-clamp-1 block"
+                              >
+                                {p?.name || 'Producto'}
+                              </Link>
+                              {p?.category_name && (
+                                <p className="text-[#8A8A8A] text-[11px] font-medium mt-1.5 tracking-wide">
+                                  {p.category_name}
+                                </p>
+                              )}
                             </div>
-                          </div>
-                          {/* Remove button */}
-                          <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            onClick={() => removeItem(item.id)}
-                            aria-label={`Eliminar ${item.name}`}
-                            className="shrink-0 size-8 flex items-center justify-center text-[#8A8A8A] hover:text-red-500 hover:bg-red-50 rounded-sm transition-all duration-200"
-                          >
-                            <Icon name="XMarkIcon" size={14} variant="outline" />
-                          </motion.button>
-                        </div>
-
-                        {/* Bottom row: quantity + price */}
-                        <div className="flex items-center justify-between gap-4 mt-5">
-                          {/* Quantity Controls */}
-                          <div className="flex items-center gap-0 border border-[#DDD9D3] bg-[#F8F7F5] rounded-sm overflow-hidden">
-                            <QtyButton
-                              onClick={() => updateQty(item.id, -1)}
-                              disabled={item.quantity <= 1}
-                              ariaLabel="Reducir cantidad"
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              onClick={() => handleRemoveItem(item.product_id)}
+                              aria-label={`Eliminar ${p?.name}`}
+                              className="shrink-0 size-8 flex items-center justify-center text-[#8A8A8A] hover:text-red-500 hover:bg-red-50 rounded-sm transition-all duration-200"
                             >
-                              <Icon name="MinusIcon" size={11} variant="outline" />
-                            </QtyButton>
-                            <motion.span
-                              key={`${item.id}-${item.quantity}`}
-                              initial={{ scale: 1.25, opacity: 0.6 }}
-                              animate={{ scale: 1, opacity: 1 }}
-                              transition={{ duration: 0.2, ease: 'easeOut' }}
-                              className="w-11 text-center text-[#1C1C1C] text-sm font-bold tabular-nums border-x border-[#DDD9D3] py-2 select-none"
-                            >
-                              {item.quantity}
-                            </motion.span>
-                            <QtyButton
-                              onClick={() => updateQty(item.id, 1)}
-                              disabled={item.quantity >= 10}
-                              ariaLabel="Aumentar cantidad"
-                            >
-                              <Icon name="PlusIcon" size={11} variant="outline" />
-                            </QtyButton>
+                              <Icon name="XMarkIcon" size={14} variant="outline" />
+                            </motion.button>
                           </div>
 
-                          {/* Price */}
-                          <div className="text-right">
-                            <motion.div
-                              key={`price-${item.id}-${item.quantity}`}
-                              initial={{ opacity: 0.5, y: -4 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ duration: 0.25, ease: 'easeOut' }}
-                              className="font-display italic font-700 text-2xl text-[#1C1C1C] tracking-editorial"
-                            >
-                              {formatEUR(item.price * item.quantity)}
-                            </motion.div>
-                            {item.originalPrice && (
-                              <div className="text-[#8A8A8A] text-[11px] line-through mt-0.5 tabular-nums">
-                                {formatEUR(item.originalPrice * item.quantity)}
-                              </div>
-                            )}
-                            {item.originalPrice && (
-                              <div className="text-[#2563EB] text-[9px] font-black uppercase tracking-[0.18em] mt-0.5">
-                                Ahorro {formatEUR((item.originalPrice - item.price) * item.quantity)}
-                              </div>
-                            )}
+                          <div className="flex items-center justify-between gap-4 mt-5">
+                            {/* Quantity Controls */}
+                            <div className="flex items-center gap-0 border border-[#DDD9D3] bg-[#F8F7F5] rounded-sm overflow-hidden">
+                              <QtyButton
+                                onClick={() => updateQuantity(item.product_id, item.quantity - 1)}
+                                disabled={item.quantity <= 1}
+                                ariaLabel="Reducir cantidad"
+                              >
+                                <Icon name="MinusIcon" size={11} variant="outline" />
+                              </QtyButton>
+                              <motion.span
+                                key={`${item.id}-${item.quantity}`}
+                                initial={{ scale: 1.25, opacity: 0.6 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                transition={{ duration: 0.2, ease: 'easeOut' }}
+                                className="w-11 text-center text-[#1C1C1C] text-sm font-bold tabular-nums border-x border-[#DDD9D3] py-2 select-none"
+                              >
+                                {item.quantity}
+                              </motion.span>
+                              <QtyButton
+                                onClick={() => updateQuantity(item.product_id, item.quantity + 1)}
+                                disabled={item.quantity >= 10}
+                                ariaLabel="Aumentar cantidad"
+                              >
+                                <Icon name="PlusIcon" size={11} variant="outline" />
+                              </QtyButton>
+                            </div>
+
+                            {/* Price */}
+                            <div className="text-right">
+                              <motion.div
+                                key={`price-${item.id}-${item.quantity}`}
+                                initial={{ opacity: 0.5, y: -4 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.25, ease: 'easeOut' }}
+                                className="font-display italic font-700 text-2xl text-[#1C1C1C] tracking-editorial"
+                              >
+                                {formatPrice(lineTotal)}
+                              </motion.div>
+                              {itemOriginalPrice && (
+                                <div className="text-[#8A8A8A] text-[11px] line-through mt-0.5 tabular-nums">
+                                  {formatPrice(itemOriginalPrice * item.quantity)}
+                                </div>
+                              )}
+                              {itemOriginalPrice && (
+                                <div className="text-[#2563EB] text-[9px] font-black uppercase tracking-[0.18em] mt-0.5">
+                                  Ahorro {formatPrice((itemOriginalPrice - itemPrice) * item.quantity)}
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  );
+                })}
               </AnimatePresence>
 
               {/* ── Coupon Field ── */}
@@ -411,7 +344,6 @@ export default function CartPage() {
                 transition={{ duration: 0.45, delay: 0.2 }}
                 className="bg-white border border-[#DDD9D3] overflow-hidden"
               >
-                {/* Coupon header */}
                 <div className="px-6 py-4 border-b border-[#DDD9D3] flex items-center gap-3">
                   <div className="size-7 rounded-sm bg-[#EFF6FF] flex items-center justify-center">
                     <Icon name="TagIcon" size={13} variant="outline" className="text-[#2563EB]" />
@@ -470,9 +402,10 @@ export default function CartPage() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.97 }}
                         onClick={applyCoupon}
-                        className="px-7 py-3.5 bg-[#EFEDE9] border border-[#DDD9D3] text-[#1C1C1C] text-[10px] font-black uppercase tracking-[0.22em] hover:bg-[#2563EB] hover:border-[#2563EB] hover:text-white transition-all duration-300 whitespace-nowrap"
+                        disabled={couponLoading}
+                        className="px-7 py-3.5 bg-[#EFEDE9] border border-[#DDD9D3] text-[#1C1C1C] text-[10px] font-black uppercase tracking-[0.22em] hover:bg-[#2563EB] hover:border-[#2563EB] hover:text-white transition-all duration-300 whitespace-nowrap disabled:opacity-50"
                       >
-                        Aplicar
+                        {couponLoading ? 'Validando...' : 'Aplicar'}
                       </motion.button>
                     </div>
                   )}
@@ -509,9 +442,7 @@ export default function CartPage() {
               </div>
             </div>
 
-            {/* ══════════════════════════════════════════════
-                RIGHT: Order Summary
-            ══════════════════════════════════════════════ */}
+            {/* RIGHT: Order Summary */}
             <div className="xl:sticky xl:top-[96px]">
               <motion.div
                 initial={{ opacity: 0, y: 24 }}
@@ -519,7 +450,7 @@ export default function CartPage() {
                 transition={{ duration: 0.55, delay: 0.18, ease: [0.16, 1, 0.3, 1] }}
                 className="bg-white border border-[#DDD9D3] overflow-hidden"
               >
-                {/* ── Card Header ── */}
+                {/* Card Header */}
                 <div className="relative px-8 py-7 border-b border-[#DDD9D3] overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-br from-[#EFEDE9] via-transparent to-transparent" />
                   <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#1C1C1C] via-[#DDD9D3] to-transparent" />
@@ -531,36 +462,20 @@ export default function CartPage() {
                       Tu Compra
                     </h2>
                     <p className="text-[#8A8A8A] text-[10px] mt-1.5">
-                      {totalItems} {totalItems === 1 ? 'artículo' : 'artículos'} seleccionados
+                      {itemCount} {itemCount === 1 ? 'artículo' : 'artículos'} seleccionados
                     </p>
                   </div>
                 </div>
 
-                {/* ── Summary Lines ── */}
+                {/* Summary Lines */}
                 <div className="px-8 py-7 flex flex-col gap-0">
-
-                  {/* Subtotal */}
                   <div className="flex items-center justify-between py-3 border-b border-[#EFEDE9]">
                     <span className="text-[#5A5A5A] text-[12px] font-medium">
-                      Subtotal ({totalItems} {totalItems === 1 ? 'artículo' : 'artículos'})
+                      Subtotal ({itemCount} {itemCount === 1 ? 'artículo' : 'artículos'})
                     </span>
-                    <span className="text-[#1C1C1C] font-bold text-[13px] tabular-nums">{formatEUR(subtotal)}</span>
+                    <span className="text-[#1C1C1C] font-bold text-[13px] tabular-nums">{formatPrice(subtotal)}</span>
                   </div>
 
-                  {/* Savings */}
-                  {savings > 0 && (
-                    <div className="flex items-center justify-between py-3 border-b border-[#EFEDE9]">
-                      <span className="text-emerald-600 text-[12px] font-medium flex items-center gap-1.5">
-                        <Icon name="ArrowTrendingDownIcon" size={12} variant="outline" />
-                        Ahorro en oferta
-                      </span>
-                      <span className="text-emerald-600 font-bold text-[13px] tabular-nums">
-                        -{formatEUR(savings)}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Coupon Discount */}
                   {appliedCoupon && couponDiscount > 0 && (
                     <div className="flex items-center justify-between py-3 border-b border-[#EFEDE9]">
                       <span className="text-[#2563EB] text-[12px] font-medium flex items-center gap-1.5">
@@ -568,12 +483,11 @@ export default function CartPage() {
                         Cupón {appliedCoupon.code}
                       </span>
                       <span className="text-[#2563EB] font-bold text-[13px] tabular-nums">
-                        -{formatEUR(couponDiscount)}
+                        -{formatPrice(couponDiscount)}
                       </span>
                     </div>
                   )}
 
-                  {/* Shipping */}
                   <div className="flex items-center justify-between py-3 border-b border-[#EFEDE9]">
                     <span className="text-[#5A5A5A] text-[12px] font-medium flex items-center gap-1.5">
                       <Icon name="TruckIcon" size={12} variant="outline" />
@@ -585,11 +499,10 @@ export default function CartPage() {
                         Gratis
                       </span>
                     ) : (
-                      <span className="text-[#1C1C1C] font-bold text-[13px] tabular-nums">{formatEUR(shipping)}</span>
+                      <span className="text-[#1C1C1C] font-bold text-[13px] tabular-nums">{formatPrice(shipping)}</span>
                     )}
                   </div>
 
-                  {/* Free shipping progress bar */}
                   {shipping > 0 && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
@@ -598,10 +511,10 @@ export default function CartPage() {
                     >
                       <div className="flex items-center justify-between mb-2.5">
                         <span className="text-[#8A8A8A] text-[9px] font-bold uppercase tracking-[0.18em]">
-                          Envío gratis desde {formatEUR(SHIPPING_THRESHOLD)}
+                          Envío gratis desde {formatPrice(SHIPPING_THRESHOLD)}
                         </span>
                         <span className="text-[#2563EB] text-[9px] font-black">
-                          {formatEUR(SHIPPING_THRESHOLD - subtotal)} restante
+                          {formatPrice(SHIPPING_THRESHOLD - subtotal)} restante
                         </span>
                       </div>
                       <div className="h-[3px] bg-[#DDD9D3] rounded-full overflow-hidden">
@@ -615,7 +528,6 @@ export default function CartPage() {
                     </motion.div>
                   )}
 
-                  {/* Total */}
                   <div className="mt-4 pt-5 border-t border-[#DDD9D3]">
                     <div className="flex items-end justify-between">
                       <div>
@@ -626,20 +538,20 @@ export default function CartPage() {
                       </div>
                       <div className="text-right">
                         <motion.span
-                          key={total}
+                          key={grandTotal}
                           initial={{ opacity: 0.5, scale: 0.97 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ duration: 0.3, ease: 'easeOut' }}
                           className="font-display italic font-700 text-4xl text-[#1C1C1C] tracking-editorial block leading-none"
                         >
-                          {formatEUR(total)}
+                          {formatPrice(grandTotal)}
                         </motion.span>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* ── CTA Buttons ── */}
+                {/* CTA Buttons */}
                 <div className="px-8 pb-8 flex flex-col gap-3">
                   <motion.button
                     whileHover={{ scale: 1.015 }}
@@ -659,7 +571,7 @@ export default function CartPage() {
                   </motion.button>
                 </div>
 
-                {/* ── Trust Signals ── */}
+                {/* Trust Signals */}
                 <div className="border-t border-[#DDD9D3] px-8 py-6 grid grid-cols-2 gap-4">
                   {[
                     { icon: 'LockClosedIcon', label: 'Pago 100% seguro' },
@@ -676,7 +588,7 @@ export default function CartPage() {
                   ))}
                 </div>
 
-                {/* ── Payment Methods ── */}
+                {/* Payment Methods */}
                 <div className="border-t border-[#DDD9D3] px-8 py-5">
                   <p className="text-[9px] font-black uppercase tracking-[0.22em] text-[#8A8A8A] mb-3">
                     Métodos de Pago Aceptados
@@ -694,7 +606,7 @@ export default function CartPage() {
                 </div>
               </motion.div>
 
-              {/* ── Promo Note ── */}
+              {/* Promo Note */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}

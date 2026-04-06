@@ -1,85 +1,20 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
+import { getFeaturedProducts } from '@/lib/supabase/services';
+import { formatPrice } from '@/lib/utils';
+import type { Product } from '@/types';
 
-type Badge = 'nuevo' | 'oferta' | 'top';
-
-interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: string;
-  originalPrice?: string;
-  rating: number;
-  reviews: number;
-  badge?: Badge;
-  image: string;
-  alt: string;
-  href: string;
-}
-
-const badgeConfig: Record<Badge, { label: string; color: string; bg: string }> = {
+const badgeConfig: Record<string, { label: string; color: string; bg: string }> = {
   nuevo: { label: 'Nuevo', color: '#2563EB', bg: '#EFF6FF' },
   oferta: { label: 'Oferta', color: '#FFFFFF', bg: '#1C1C1C' },
   top: { label: 'Top Ventas', color: '#FFFFFF', bg: '#2C2C2C' },
 };
-
-const featuredProducts: Product[] = [
-  {
-    id: 1,
-    name: 'Monitor Ultra 4K 32"',
-    description: 'Panel IPS de alta resolución con cobertura sRGB 99% y HDR400.',
-    price: '€649',
-    originalPrice: '€799',
-    rating: 5,
-    reviews: 248,
-    badge: 'oferta',
-    image: "https://images.unsplash.com/photo-1495521939206-a217db9df264",
-    alt: 'Large 4K monitor on clean white desk in bright airy studio with natural window light',
-    href: '/product/1',
-  },
-  {
-    id: 2,
-    name: 'Teclado Mecánico Pro',
-    description: 'Switches táctiles premium, retroiluminación RGB y cuerpo de aluminio.',
-    price: '€189',
-    rating: 5,
-    reviews: 412,
-    badge: 'top',
-    image: "https://img.rocket.new/generatedImages/rocket_gen_img_116f799df-1769196847067.png",
-    alt: 'Premium mechanical keyboard with aluminum body on clean light desk surface in well-lit workspace',
-    href: '/product/2',
-  },
-  {
-    id: 3,
-    name: 'Auriculares ANC Studio',
-    description: 'Cancelación activa de ruido de 40dB, 30h de batería, drivers de 40mm.',
-    price: '€299',
-    rating: 4,
-    reviews: 189,
-    badge: 'nuevo',
-    image: "https://images.unsplash.com/photo-1674230100409-5fc79a435c6b",
-    alt: 'Premium over-ear headphones on bright clean white surface with soft diffused daylight',
-    href: '/product/3',
-  },
-  {
-    id: 4,
-    name: 'Lámpara de Escritorio LED',
-    description: 'Temperatura de color ajustable, intensidad regulable y carga USB-C.',
-    price: '€129',
-    rating: 5,
-    reviews: 367,
-    badge: 'top',
-    image: "https://img.rocket.new/generatedImages/rocket_gen_img_1cc9b0dc7-1772172128875.png",
-    alt: 'Modern minimalist desk lamp on clean white desk in bright well-lit home office with natural light',
-    href: '/product/4',
-  },
-];
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -100,7 +35,9 @@ function StarRating({ rating }: { rating: number }) {
 function ProductCard({ product, index }: { product: Product; index: number }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-60px' });
-  const badge = product.badge ? badgeConfig[product.badge] : null;
+  const badge = product.badge ? badgeConfig[product.badge.toLowerCase()] : null;
+  const rating = Math.round(product.avg_rating ?? 0);
+  const reviewCount = product.review_count ?? 0;
 
   return (
     <motion.div
@@ -113,17 +50,15 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
       {/* Image area */}
       <div className="relative overflow-hidden bg-[#EFEDE9]" style={{ aspectRatio: '4/5' }}>
         <AppImage
-          src={product.image}
-          alt={product.alt}
+          src={product.image_url || '/assets/images/no_image.png'}
+          alt={product.name}
           fill
           className="object-cover transition-transform duration-800 group-hover:scale-[1.06]"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
         />
 
-        {/* Subtle dark scrim on hover */}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500" />
 
-        {/* Badge */}
         {badge && (
           <div
             className="absolute top-4 left-4 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest z-10"
@@ -133,14 +68,12 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
           </div>
         )}
 
-        {/* Product index */}
         <div className="absolute top-4 right-4 z-10">
           <span className="font-display font-900 italic text-[#1C1C1C]/8 group-hover:text-[#1C1C1C]/14 transition-colors duration-500 text-4xl leading-none">
             0{index + 1}
           </span>
         </div>
 
-        {/* Quick actions overlay */}
         <div className="absolute bottom-0 left-0 right-0 p-4 flex gap-2 translate-y-full group-hover:translate-y-0 transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] z-10">
           <button
             aria-label="Añadir al carrito"
@@ -161,8 +94,8 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
       {/* Content */}
       <div className="p-6 space-y-4">
         <div className="flex items-center gap-2">
-          <StarRating rating={product.rating} />
-          <span className="text-[11px] text-[#8A8A8A] font-500">({product.reviews})</span>
+          <StarRating rating={rating} />
+          <span className="text-[11px] text-[#8A8A8A] font-500">({reviewCount})</span>
         </div>
 
         <div>
@@ -176,13 +109,17 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
 
         <div className="flex items-center justify-between pt-1 border-t border-[#EFEDE9]">
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-900 text-[#1C1C1C] font-display tracking-tightest">{product.price}</span>
-            {product.originalPrice && (
-              <span className="text-[13px] text-[#8A8A8A] line-through">{product.originalPrice}</span>
+            <span className="text-2xl font-900 text-[#1C1C1C] font-display tracking-tightest">
+              {formatPrice(product.price)}
+            </span>
+            {product.original_price && (
+              <span className="text-[13px] text-[#8A8A8A] line-through">
+                {formatPrice(product.original_price)}
+              </span>
             )}
           </div>
           <Link
-            href={product.href}
+            href={`/product/${product.id}`}
             className="size-10 flex items-center justify-center border border-[#DDD9D3] text-[#5A5A5A] hover:bg-[#1C1C1C] hover:text-white hover:border-[#1C1C1C] transition-all duration-200 group/arrow"
             aria-label={`Ver ${product.name}`}
           >
@@ -191,13 +128,37 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
         </div>
       </div>
 
-      {/* Bottom accent line */}
       <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2563EB] scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
     </motion.div>
   );
 }
 
+function SkeletonCard() {
+  return (
+    <div className="bg-white border border-[#DDD9D3] overflow-hidden animate-pulse">
+      <div className="bg-[#EFEDE9] aspect-[4/5]" />
+      <div className="p-6 space-y-4">
+        <div className="h-3 bg-[#EFEDE9] rounded w-24" />
+        <div className="space-y-2">
+          <div className="h-4 bg-[#EFEDE9] rounded w-3/4" />
+          <div className="h-3 bg-[#EFEDE9] rounded w-full" />
+        </div>
+        <div className="h-6 bg-[#EFEDE9] rounded w-20" />
+      </div>
+    </div>
+  );
+}
+
 export default function FeaturedProductsSection() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getFeaturedProducts(4)
+      .then((data) => { setProducts(data); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, []);
+
   return (
     <section className="py-20 lg:py-32 bg-[#F2F0EC]">
       <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
@@ -222,15 +183,17 @@ export default function FeaturedProductsSection() {
               Ver catálogo completo
               <Icon name="ArrowRightIcon" size={14} variant="outline" className="group-hover:translate-x-1 transition-transform" />
             </Link>
-            <span className="text-[11px] text-[#8A8A8A] font-500">{featuredProducts.length} productos seleccionados</span>
+            <span className="text-[11px] text-[#8A8A8A] font-500">{products.length} productos seleccionados</span>
           </div>
         </div>
 
         {/* Products grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
-          {featuredProducts.map((product, i) => (
-            <ProductCard key={product.id} product={product} index={i} />
-          ))}
+          {loading
+            ? Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
+            : products.map((product, i) => (
+                <ProductCard key={product.id} product={product} index={i} />
+              ))}
         </div>
 
         {/* Mobile CTA */}

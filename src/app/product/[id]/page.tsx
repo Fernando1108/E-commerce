@@ -2,155 +2,14 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { motion, AnimatePresence, useInView, useScroll, useMotionValueEvent,  } from 'framer-motion';
+import { useParams } from 'next/navigation';
+import { motion, AnimatePresence, useInView, useScroll, useMotionValueEvent } from 'framer-motion';
 import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
-
-/* ─── Types ─────────────────────────────────────────────────── */
-interface ProductVariant {
-  label: string;
-  value: string;
-  available: boolean;
-}
-
-interface ProductData {
-  id: number;
-  name: string;
-  subtitle: string;
-  price: string;
-  originalPrice?: string;
-  discount?: string;
-  rating: number;
-  reviews: number;
-  stock: number;
-  sku: string;
-  badge?: string;
-  description: string;
-  highlights: string[];
-  specs: { label: string; value: string }[];
-  colorVariants: ProductVariant[];
-  storageVariants: ProductVariant[];
-  images: { src: string; alt: string }[];
-}
-
-interface RelatedProduct {
-  id: number;
-  name: string;
-  price: string;
-  originalPrice?: string;
-  rating: number;
-  reviews: number;
-  image: string;
-  alt: string;
-  badge?: string;
-}
-
-/* ─── Mock Data ──────────────────────────────────────────────── */
-const productData: ProductData = {
-  id: 1,
-  name: 'Monitor Ultra 4K 32"',
-  subtitle: 'Panel IPS de alta resolución con tecnología HDR',
-  price: '€649',
-  originalPrice: '€799',
-  discount: '-19%',
-  rating: 5,
-  reviews: 248,
-  stock: 7,
-  sku: 'NS-MON-4K-32',
-  badge: 'Oferta',
-  description:
-    'Experimenta la perfección visual con el Monitor Ultra 4K 32". Diseñado para profesionales creativos y entusiastas del rendimiento, este monitor ofrece una cobertura de color sRGB del 99%, compatibilidad HDR400 y una frecuencia de actualización de 144Hz para una fluidez sin igual.',
-  highlights: [
-    'Panel IPS 4K UHD (3840×2160) con 144Hz',
-    'Cobertura sRGB 99% y DCI-P3 95%',
-    'HDR400 con brillo máximo de 400 nits',
-    'Tiempo de respuesta de 1ms (GtG)',
-    'Conectividad: 2× HDMI 2.1, 1× DisplayPort 1.4, 4× USB-A',
-    'Soporte ergonómico con ajuste de altura, inclinación y rotación',
-  ],
-  specs: [
-    { label: 'Tamaño de pantalla', value: '32 pulgadas' },
-    { label: 'Resolución', value: '3840 × 2160 (4K UHD)' },
-    { label: 'Tipo de panel', value: 'IPS' },
-    { label: 'Frecuencia de actualización', value: '144 Hz' },
-    { label: 'Tiempo de respuesta', value: '1 ms (GtG)' },
-    { label: 'Brillo', value: '400 cd/m²' },
-    { label: 'Contraste', value: '1000:1' },
-    { label: 'Cobertura de color', value: 'sRGB 99%, DCI-P3 95%' },
-    { label: 'Conectividad', value: '2× HDMI 2.1, 1× DP 1.4, 4× USB-A' },
-    { label: 'Dimensiones', value: '714 × 476 × 232 mm' },
-    { label: 'Peso', value: '7.8 kg' },
-    { label: 'Garantía', value: '3 años NovaStore' },
-  ],
-  colorVariants: [
-    { label: 'Negro Espacial', value: 'negro', available: true },
-    { label: 'Plata Ártico', value: 'plata', available: true },
-    { label: 'Blanco Lunar', value: 'blanco', available: false },
-  ],
-  storageVariants: [],
-  images: [
-    {
-      src: 'https://images.unsplash.com/photo-1674083324755-94b34240ac99',
-      alt: 'Monitor Ultra 4K 32 pulgadas en escritorio blanco con iluminación natural de estudio',
-    },
-    {
-      src: 'https://img.rocket.new/generatedImages/rocket_gen_img_172ef71c2-1772217963581.png',
-      alt: 'Vista lateral del monitor mostrando el diseño delgado y el soporte ergonómico premium',
-    },
-    {
-      src: 'https://img.rocket.new/generatedImages/rocket_gen_img_175e586cb-1775202540384.png',
-      alt: 'Detalle de los puertos de conectividad en la parte trasera del monitor',
-    },
-    {
-      src: 'https://img.rocket.new/generatedImages/rocket_gen_img_1f9dbe984-1775202541984.png',
-      alt: 'Monitor en uso con contenido creativo mostrando la calidad de color excepcional',
-    },
-  ],
-};
-
-const relatedProducts: RelatedProduct[] = [
-  {
-    id: 2,
-    name: 'Teclado Mecánico Pro',
-    price: '€189',
-    rating: 5,
-    reviews: 412,
-    badge: 'Top Ventas',
-    image: 'https://images.unsplash.com/photo-1643295054171-faf3f2491ecb',
-    alt: 'Teclado mecánico premium con cuerpo de aluminio y retroiluminación RGB en escritorio limpio',
-  },
-  {
-    id: 5,
-    name: 'Ratón Ergonómico Inalámbrico',
-    price: '€149',
-    rating: 5,
-    reviews: 534,
-    badge: 'Top Ventas',
-    image: 'https://images.unsplash.com/photo-1686730491164-56dc2145cdf9',
-    alt: 'Ratón inalámbrico ergonómico sobre superficie blanca con luz natural difusa',
-  },
-  {
-    id: 9,
-    name: 'Soporte Laptop Premium',
-    price: '€69',
-    rating: 5,
-    reviews: 892,
-    badge: 'Top Ventas',
-    image: 'https://img.rocket.new/generatedImages/rocket_gen_img_1f9ea2001-1764658995251.png',
-    alt: 'Soporte de aluminio para laptop en escritorio minimalista en oficina moderna',
-  },
-  {
-    id: 6,
-    name: 'Hub USB-C 12 en 1',
-    price: '€89',
-    originalPrice: '€119',
-    rating: 4,
-    reviews: 278,
-    badge: 'Oferta',
-    image: 'https://img.rocket.new/generatedImages/rocket_gen_img_1d9aec071-1767065457217.png',
-    alt: 'Hub USB-C con múltiples puertos sobre superficie blanca en fotografía de producto',
-  },
-];
+import { getProductById, getProductImages, getProducts } from '@/lib/supabase/services';
+import { formatPrice } from '@/lib/utils';
+import { useCart } from '@/hooks/useCart';
+import type { Product, ProductImage } from '@/types';
 
 /* ─── Star Rating ────────────────────────────────────────────── */
 function StarRating({ rating, size = 14 }: { rating: number; size?: number }) {
@@ -184,9 +43,17 @@ function ProductGallery({ images }: { images: { src: string; alt: string }[] }) 
     setActive((a) => (a + dir + images.length) % images.length);
   };
 
+  if (images.length === 0) {
+    return (
+      <div className="bg-[#F4F2EF] flex items-center justify-center" style={{ aspectRatio: '4 / 5' }}>
+        <Icon name="PhotoIcon" size={48} variant="outline" className="text-[#8A8A8A]" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-5">
-      {/* Main image — cinematic tall format */}
+      {/* Main image */}
       <div
         className="relative overflow-hidden bg-[#F4F2EF] cursor-zoom-in group"
         style={{ aspectRatio: '4 / 5' }}
@@ -212,10 +79,8 @@ function ProductGallery({ images }: { images: { src: string; alt: string }[] }) 
           </motion.div>
         </AnimatePresence>
 
-        {/* Subtle gradient overlay bottom */}
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
 
-        {/* Zoom hint */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -226,12 +91,10 @@ function ProductGallery({ images }: { images: { src: string; alt: string }[] }) 
           {zoomed ? 'Reducir' : 'Ampliar'}
         </motion.div>
 
-        {/* Image counter */}
         <div className="absolute top-5 left-5 bg-black/40 backdrop-blur-sm px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-white">
           {active + 1} / {images.length}
         </div>
 
-        {/* Nav arrows */}
         {images.length > 1 && (
           <>
             <button
@@ -265,55 +128,29 @@ function ProductGallery({ images }: { images: { src: string; alt: string }[] }) 
       </div>
 
       {/* Thumbnails row */}
-      <div className="grid grid-cols-4 gap-2.5">
-        {images.map((img, i) => (
-          <motion.button
-            key={i}
-            onClick={() => { setDirection(i > active ? 1 : -1); setActive(i); }}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            className={`relative overflow-hidden border-2 transition-all duration-300 ${
-              active === i
-                ? 'border-[#1C1C1C] shadow-nova-sm'
-                : 'border-[#DDD9D3] hover:border-[#8A8A8A]'
-            }`}
-            style={{ aspectRatio: '1/1' }}
-          >
-            <AppImage src={img.src} alt={img.alt} fill className="object-cover" sizes="120px" />
-            {active !== i && (
-              <div className="absolute inset-0 bg-white/30 hover:bg-transparent transition-colors duration-200" />
-            )}
-          </motion.button>
-        ))}
-      </div>
-
-      {/* Social proof strip */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6, duration: 0.5 }}
-        className="flex items-center gap-5 p-5 bg-white border border-[#E8E5E0]"
-      >
-        <div className="flex -space-x-2.5">
-          {[
-            'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=40&h=40&fit=crop',
-            'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=40&h=40&fit=crop',
-            'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=40&h=40&fit=crop',
-          ].map((src, i) => (
-            <div key={i} className="size-9 rounded-full overflow-hidden border-2 border-white shadow-nova-sm">
-              <AppImage src={src} alt="Cliente verificado" width={36} height={36} className="object-cover" />
-            </div>
+      {images.length > 1 && (
+        <div className="grid grid-cols-4 gap-2.5">
+          {images.map((img, i) => (
+            <motion.button
+              key={i}
+              onClick={() => { setDirection(i > active ? 1 : -1); setActive(i); }}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              className={`relative overflow-hidden border-2 transition-all duration-300 ${
+                active === i
+                  ? 'border-[#1C1C1C] shadow-nova-sm'
+                  : 'border-[#DDD9D3] hover:border-[#8A8A8A]'
+              }`}
+              style={{ aspectRatio: '1/1' }}
+            >
+              <AppImage src={img.src} alt={img.alt} fill className="object-cover" sizes="120px" />
+              {active !== i && (
+                <div className="absolute inset-0 bg-white/30 hover:bg-transparent transition-colors duration-200" />
+              )}
+            </motion.button>
           ))}
         </div>
-        <div className="flex-1">
-          <p className="text-[12px] font-700 text-[#0F0F0F]">+{productData.reviews} clientes satisfechos</p>
-          <p className="text-[11px] text-[#6B6B6B] mt-0.5">Han comprado este producto este mes</p>
-        </div>
-        <div className="flex flex-col items-end gap-1">
-          <StarRating rating={5} size={13} />
-          <span className="text-[11px] font-700 text-[#0F0F0F]">4.9 / 5.0</span>
-        </div>
-      </motion.div>
+      )}
     </div>
   );
 }
@@ -356,9 +193,11 @@ function TrustSignals() {
 }
 
 /* ─── Related Product Card ───────────────────────────────────── */
-function RelatedProductCard({ product, index }: { product: RelatedProduct; index: number }) {
+function RelatedProductCard({ product, index }: { product: Product; index: number }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-40px' });
+  const rating = Math.round(product.avg_rating ?? 0);
+  const reviewCount = product.review_count ?? 0;
 
   return (
     <motion.div
@@ -371,8 +210,8 @@ function RelatedProductCard({ product, index }: { product: RelatedProduct; index
       <Link href={`/product/${product.id}`} className="block">
         <div className="relative overflow-hidden bg-[#F4F2EF]" style={{ aspectRatio: '4/5' }}>
           <AppImage
-            src={product.image}
-            alt={product.alt}
+            src={product.image_url || '/assets/images/no_image.png'}
+            alt={product.name}
             fill
             className="object-cover transition-transform duration-700 group-hover:scale-[1.07]"
             sizes="(max-width: 640px) 50vw, 25vw"
@@ -383,14 +222,12 @@ function RelatedProductCard({ product, index }: { product: RelatedProduct; index
             </div>
           )}
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/12 transition-colors duration-400" />
-          {/* Quick add overlay */}
           <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] z-10">
             <button className="w-full py-3 bg-[#1C1C1C] text-white text-[9px] font-black uppercase tracking-widest hover:bg-[#2563EB] transition-colors flex items-center justify-center gap-1.5">
               <Icon name="ShoppingBagIcon" size={12} variant="outline" />
               Añadir al carrito
             </button>
           </div>
-          {/* Index ghost number */}
           <div className="absolute top-3 right-3 z-10">
             <span className="font-display font-900 italic text-white/10 group-hover:text-white/20 transition-colors duration-500 text-3xl leading-none">
               0{index + 1}
@@ -399,16 +236,20 @@ function RelatedProductCard({ product, index }: { product: RelatedProduct; index
         </div>
         <div className="p-5 space-y-2.5">
           <div className="flex items-center gap-1.5">
-            <StarRating rating={product.rating} size={11} />
-            <span className="text-[10px] text-[#8A8A8A]">({product.reviews})</span>
+            <StarRating rating={rating} size={11} />
+            <span className="text-[10px] text-[#8A8A8A]">({reviewCount})</span>
           </div>
           <h3 className="font-700 text-[#1C1C1C] text-[14px] leading-tight group-hover:text-[#2563EB] transition-colors duration-300 line-clamp-2">
             {product.name}
           </h3>
           <div className="flex items-center gap-2 pt-1 border-t border-[#EFEDE9]">
-            <span className="text-xl font-900 text-[#1C1C1C] font-display tracking-tightest">{product.price}</span>
-            {product.originalPrice && (
-              <span className="text-[12px] text-[#8A8A8A] line-through">{product.originalPrice}</span>
+            <span className="text-xl font-900 text-[#1C1C1C] font-display tracking-tightest">
+              {formatPrice(product.price)}
+            </span>
+            {product.original_price && (
+              <span className="text-[12px] text-[#8A8A8A] line-through">
+                {formatPrice(product.original_price)}
+              </span>
             )}
           </div>
         </div>
@@ -418,9 +259,39 @@ function RelatedProductCard({ product, index }: { product: RelatedProduct; index
   );
 }
 
+/* ─── Loading Skeleton ───────────────────────────────────────── */
+function ProductDetailSkeleton() {
+  return (
+    <div className="min-h-screen bg-[#F8F7F5] pt-[88px]">
+      <div className="max-w-[1440px] mx-auto px-6 lg:px-12 py-12 lg:py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_460px] gap-12 lg:gap-20 animate-pulse">
+          <div className="bg-[#EFEDE9] aspect-[4/5]" />
+          <div className="space-y-6">
+            <div className="h-4 bg-[#EFEDE9] rounded w-24" />
+            <div className="h-10 bg-[#EFEDE9] rounded w-3/4" />
+            <div className="h-4 bg-[#EFEDE9] rounded w-1/2" />
+            <div className="h-12 bg-[#EFEDE9] rounded w-40" />
+            <div className="h-14 bg-[#EFEDE9] rounded w-full" />
+            <div className="h-14 bg-[#EFEDE9] rounded w-full" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Main Page ──────────────────────────────────────────────── */
 export default function ProductDetailPage() {
-  const [selectedColor, setSelectedColor] = useState('negro');
+  const params = useParams();
+  const productId = params.id as string;
+
+  const [product, setProduct] = useState<Product | null>(null);
+  const [galleryImages, setGalleryImages] = useState<{ src: string; alt: string }[]>([]);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+
+  const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
   const [activeTab, setActiveTab] = useState<'descripcion' | 'especificaciones' | 'resenas'>('descripcion');
@@ -428,15 +299,91 @@ export default function ProductDetailPage() {
 
   const { scrollY } = useScroll();
   const [scrolled, setScrolled] = useState(false);
-
   useMotionValueEvent(scrollY, 'change', (v) => setScrolled(v > 80));
 
+  const { addItem } = useCart();
+
+  useEffect(() => {
+    if (!productId) return;
+    setLoading(true);
+    setNotFound(false);
+
+    Promise.all([
+      getProductById(productId),
+      getProductImages(productId),
+    ])
+      .then(([prod, images]) => {
+        if (!prod) {
+          setNotFound(true);
+          setLoading(false);
+          return;
+        }
+        setProduct(prod);
+
+        // Build gallery: main image + additional images
+        const gallery: { src: string; alt: string }[] = [];
+        if (prod.image_url) {
+          gallery.push({ src: prod.image_url, alt: prod.name });
+        }
+        images.forEach((img) => {
+          gallery.push({ src: img.url, alt: img.alt || prod.name });
+        });
+        setGalleryImages(gallery.length > 0 ? gallery : [{ src: '/assets/images/no_image.png', alt: prod.name }]);
+
+        // Fetch related products
+        getProducts({ categoryId: prod.category_id, limit: 4 })
+          .then((related) => {
+            setRelatedProducts(related.filter((r) => r.id !== prod.id).slice(0, 4));
+          })
+          .catch(() => {});
+
+        setLoading(false);
+      })
+      .catch(() => {
+        setNotFound(true);
+        setLoading(false);
+      });
+  }, [productId]);
+
   const handleAddToCart = () => {
+    if (!product) return;
+    addItem(product, quantity, selectedVariant);
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2400);
   };
 
-  const product = productData;
+  if (loading) return <ProductDetailSkeleton />;
+
+  if (notFound || !product) {
+    return (
+      <div className="min-h-screen bg-[#F8F7F5] pt-[88px] flex flex-col items-center justify-center">
+        <div className="text-center space-y-6">
+          <div className="size-20 bg-[#EFEDE9] rounded-full flex items-center justify-center mx-auto">
+            <Icon name="ExclamationTriangleIcon" size={36} variant="outline" className="text-[#8A8A8A]" />
+          </div>
+          <h1 className="font-display font-900 italic text-3xl text-[#1C1C1C] tracking-editorial">
+            Producto no encontrado
+          </h1>
+          <p className="text-[#5A5A5A] text-sm">El producto que buscas no existe o ha sido eliminado.</p>
+          <Link
+            href="/products"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-[#1C1C1C] text-white text-[10px] font-black uppercase tracking-widest hover:bg-[#2563EB] transition-colors"
+          >
+            <Icon name="ArrowLeftIcon" size={13} variant="outline" />
+            Ver catálogo
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const rating = Math.round(product.avg_rating ?? 0);
+  const reviewCount = product.review_count ?? 0;
+  const discount = product.original_price
+    ? `-${Math.round(((product.original_price - product.price) / product.original_price) * 100)}%`
+    : null;
+  const specsEntries = Object.entries(product.specs || {});
+  const highlights = product.highlights || [];
 
   return (
     <div className="min-h-screen bg-[#F8F7F5]">
@@ -454,8 +401,12 @@ export default function ProductDetailPage() {
             <Icon name="ChevronRightIcon" size={9} variant="outline" />
             <Link href="/products" className="hover:text-[#1C1C1C] transition-colors">Tienda</Link>
             <Icon name="ChevronRightIcon" size={9} variant="outline" />
-            <Link href="/products" className="hover:text-[#1C1C1C] transition-colors">Setup</Link>
-            <Icon name="ChevronRightIcon" size={9} variant="outline" />
+            {product.category?.name && (
+              <>
+                <Link href="/products" className="hover:text-[#1C1C1C] transition-colors">{product.category.name}</Link>
+                <Icon name="ChevronRightIcon" size={9} variant="outline" />
+              </>
+            )}
             <span className="text-[#1C1C1C]">{product.name}</span>
           </nav>
         </div>
@@ -472,7 +423,7 @@ export default function ProductDetailPage() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
             >
-              <ProductGallery images={product.images} />
+              <ProductGallery images={galleryImages} />
             </motion.div>
 
             {/* Right: Purchase Panel (sticky) */}
@@ -482,7 +433,7 @@ export default function ProductDetailPage() {
               transition={{ duration: 0.75, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
               className="lg:sticky lg:top-[96px] space-y-7"
             >
-              {/* Badge + SKU row */}
+              {/* Badge + Stock row */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   {product.badge && (
@@ -490,17 +441,16 @@ export default function ProductDetailPage() {
                       {product.badge}
                     </span>
                   )}
-                  <span className="flex items-center gap-1.5 text-[10px] text-[#22C55E] font-black uppercase tracking-widest">
-                    <span className="relative flex size-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22C55E] opacity-60" />
-                      <span className="relative inline-flex rounded-full size-2 bg-[#22C55E]" />
+                  {product.stock > 0 && (
+                    <span className="flex items-center gap-1.5 text-[10px] text-[#22C55E] font-black uppercase tracking-widest">
+                      <span className="relative flex size-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22C55E] opacity-60" />
+                        <span className="relative inline-flex rounded-full size-2 bg-[#22C55E]" />
+                      </span>
+                      En stock
                     </span>
-                    En stock
-                  </span>
+                  )}
                 </div>
-                <span className="text-[10px] text-[#9A9A9A] font-500 uppercase tracking-widest">
-                  SKU: {product.sku}
-                </span>
               </div>
 
               {/* Title block */}
@@ -511,16 +461,18 @@ export default function ProductDetailPage() {
                 >
                   {product.name}
                 </h1>
-                <p className="text-[#5A5A5A] text-[15px] leading-relaxed max-w-sm">{product.subtitle}</p>
+                {product.description && (
+                  <p className="text-[#5A5A5A] text-[15px] leading-relaxed max-w-sm">{product.description}</p>
+                )}
 
                 {/* Rating row */}
                 <div className="flex items-center gap-4 pt-1">
                   <div className="flex items-center gap-2">
-                    <StarRating rating={product.rating} size={15} />
-                    <span className="text-[13px] font-700 text-[#1C1C1C]">4.9</span>
+                    <StarRating rating={rating} size={15} />
+                    <span className="text-[13px] font-700 text-[#1C1C1C]">{product.avg_rating?.toFixed(1) || '0.0'}</span>
                   </div>
                   <button className="text-[11px] text-[#2563EB] hover:underline font-600">
-                    {product.reviews} valoraciones
+                    {reviewCount} valoraciones
                   </button>
                   <span className="text-[11px] text-[#8A8A8A]">·</span>
                   <span className="text-[11px] text-[#5A5A5A] font-500">{product.stock} unidades restantes</span>
@@ -538,44 +490,46 @@ export default function ProductDetailPage() {
                   className="font-display font-900 italic text-[#0F0F0F] tracking-tightest"
                   style={{ fontSize: 'clamp(2.4rem, 4.5vw, 3.4rem)' }}
                 >
-                  {product.price}
+                  {formatPrice(product.price)}
                 </span>
-                {product.originalPrice && (
-                  <span className="text-xl text-[#8A8A8A] line-through font-400">{product.originalPrice}</span>
+                {product.original_price && (
+                  <span className="text-xl text-[#8A8A8A] line-through font-400">
+                    {formatPrice(product.original_price)}
+                  </span>
                 )}
-                {product.discount && (
+                {discount && (
                   <span className="px-2.5 py-1 bg-[#EFF6FF] text-[#2563EB] text-[10px] font-black uppercase tracking-widest">
-                    {product.discount}
+                    {discount}
                   </span>
                 )}
               </motion.div>
 
-              {/* Color Variants */}
-              {product.colorVariants.length > 0 && (
+              {/* Variants */}
+              {product.variants && product.variants.length > 0 && (
                 <div className="space-y-3.5">
                   <div className="flex items-center justify-between">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-[#0F0F0F]">Color</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-[#0F0F0F]">Variante</p>
                     <p className="text-[12px] text-[#5A5A5A] font-500">
-                      {product.colorVariants.find((v) => v.value === selectedColor)?.label}
+                      {product.variants.find((v) => v.id === selectedVariant)?.name || 'Seleccionar'}
                     </p>
                   </div>
                   <div className="flex gap-2 flex-wrap">
-                    {product.colorVariants.map((variant) => (
+                    {product.variants.map((variant) => (
                       <motion.button
-                        key={variant.value}
-                        onClick={() => variant.available && setSelectedColor(variant.value)}
-                        disabled={!variant.available}
-                        whileHover={variant.available ? { scale: 1.02 } : {}}
-                        whileTap={variant.available ? { scale: 0.97 } : {}}
+                        key={variant.id}
+                        onClick={() => variant.stock > 0 && setSelectedVariant(variant.id)}
+                        disabled={variant.stock <= 0}
+                        whileHover={variant.stock > 0 ? { scale: 1.02 } : {}}
+                        whileTap={variant.stock > 0 ? { scale: 0.97 } : {}}
                         className={`px-4 py-2.5 text-[10px] font-black uppercase tracking-widest border-2 transition-all duration-200 ${
-                          !variant.available
+                          variant.stock <= 0
                             ? 'border-[#DDD9D3] text-[#C4C4C4] cursor-not-allowed line-through'
-                            : selectedColor === variant.value
+                            : selectedVariant === variant.id
                             ? 'border-[#1C1C1C] bg-[#1C1C1C] text-white shadow-nova-sm'
                             : 'border-[#DDD9D3] text-[#5A5A5A] hover:border-[#1C1C1C] hover:text-[#1C1C1C]'
                         }`}
                       >
-                        {variant.label}
+                        {variant.name}
                       </motion.button>
                     ))}
                   </div>
@@ -678,28 +632,25 @@ export default function ProductDetailPage() {
                   <Icon name="ShareIcon" size={14} variant="outline" />
                   Compartir
                 </button>
-                <span className="text-[#DDD9D3]">|</span>
-                <button className="flex items-center gap-1.5 text-[10px] font-700 uppercase tracking-widest text-[#5A5A5A] hover:text-[#1C1C1C] transition-colors">
-                  <Icon name="ArrowsRightLeftIcon" size={14} variant="outline" />
-                  Comparar
-                </button>
               </div>
 
               {/* Trust Signals */}
               <TrustSignals />
 
               {/* Urgency strip */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1.0 }}
-                className="flex items-center gap-3 p-4 bg-[#FFF7ED] border border-[#FED7AA]"
-              >
-                <Icon name="FireIcon" size={17} variant="solid" className="text-[#EA580C] shrink-0" />
-                <p className="text-[11px] text-[#9A3412] font-600 leading-snug">
-                  <span className="font-black">¡Solo quedan {product.stock} unidades!</span> — Alta demanda en las últimas 24h.
-                </p>
-              </motion.div>
+              {product.stock <= 10 && product.stock > 0 && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1.0 }}
+                  className="flex items-center gap-3 p-4 bg-[#FFF7ED] border border-[#FED7AA]"
+                >
+                  <Icon name="FireIcon" size={17} variant="solid" className="text-[#EA580C] shrink-0" />
+                  <p className="text-[11px] text-[#9A3412] font-600 leading-snug">
+                    <span className="font-black">¡Solo quedan {product.stock} unidades!</span> — Alta demanda en las últimas 24h.
+                  </p>
+                </motion.div>
+              )}
 
               {/* Payment methods */}
               <div className="pt-1 border-t border-[#DDD9D3]">
@@ -725,16 +676,16 @@ export default function ProductDetailPage() {
         <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
           {/* Tab bar */}
           <div className="flex gap-0 border-b border-[#DDD9D3] mb-12 overflow-x-auto">
-            {(['descripcion', 'especificaciones', 'resenas'] as const).map((tab) => {
-              const labels = {
+            {(['descripcion', ...(specsEntries.length > 0 ? ['especificaciones'] as const : []), 'resenas'] as const).map((tab) => {
+              const labels: Record<string, string> = {
                 descripcion: 'Descripción',
                 especificaciones: 'Especificaciones',
-                resenas: `Valoraciones (${product.reviews})`,
+                resenas: `Valoraciones (${reviewCount})`,
               };
               return (
                 <button
                   key={tab}
-                  onClick={() => setActiveTab(tab)}
+                  onClick={() => setActiveTab(tab as typeof activeTab)}
                   className={`relative px-7 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-colors duration-200 ${
                     activeTab === tab ? 'text-[#1C1C1C]' : 'text-[#8A8A8A] hover:text-[#5A5A5A]'
                   }`}
@@ -764,39 +715,43 @@ export default function ProductDetailPage() {
                 <div>
                   <p className="label-eyebrow text-[#8A8A8A] mb-5">Descripción del producto</p>
                   <p className="text-[#5A5A5A] text-[15px] leading-[1.75] mb-8">{product.description}</p>
-                  <div className="relative overflow-hidden" style={{ aspectRatio: '16/9' }}>
-                    <AppImage
-                      src={product.images[1].src}
-                      alt={product.images[1].alt}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 1024px) 100vw, 50vw"
-                    />
+                  {galleryImages.length > 1 && (
+                    <div className="relative overflow-hidden" style={{ aspectRatio: '16/9' }}>
+                      <AppImage
+                        src={galleryImages[1].src}
+                        alt={galleryImages[1].alt}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 1024px) 100vw, 50vw"
+                      />
+                    </div>
+                  )}
+                </div>
+                {highlights.length > 0 && (
+                  <div>
+                    <p className="label-eyebrow text-[#8A8A8A] mb-6">Características principales</p>
+                    <ul className="space-y-4">
+                      {highlights.map((h, i) => (
+                        <motion.li
+                          key={i}
+                          initial={{ opacity: 0, x: -14 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.07, duration: 0.4 }}
+                          className="flex items-start gap-3.5 pb-4 border-b border-[#EFEDE9] last:border-0"
+                        >
+                          <div className="size-5 bg-[#EFF6FF] flex items-center justify-center shrink-0 mt-0.5">
+                            <Icon name="CheckIcon" size={10} variant="outline" className="text-[#2563EB]" />
+                          </div>
+                          <span className="text-[14px] text-[#1C1C1C] font-500 leading-relaxed">{h}</span>
+                        </motion.li>
+                      ))}
+                    </ul>
                   </div>
-                </div>
-                <div>
-                  <p className="label-eyebrow text-[#8A8A8A] mb-6">Características principales</p>
-                  <ul className="space-y-4">
-                    {product.highlights.map((h, i) => (
-                      <motion.li
-                        key={i}
-                        initial={{ opacity: 0, x: -14 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: i * 0.07, duration: 0.4 }}
-                        className="flex items-start gap-3.5 pb-4 border-b border-[#EFEDE9] last:border-0"
-                      >
-                        <div className="size-5 bg-[#EFF6FF] flex items-center justify-center shrink-0 mt-0.5">
-                          <Icon name="CheckIcon" size={10} variant="outline" className="text-[#2563EB]" />
-                        </div>
-                        <span className="text-[14px] text-[#1C1C1C] font-500 leading-relaxed">{h}</span>
-                      </motion.li>
-                    ))}
-                  </ul>
-                </div>
+                )}
               </motion.div>
             )}
 
-            {activeTab === 'especificaciones' && (
+            {activeTab === 'especificaciones' && specsEntries.length > 0 && (
               <motion.div
                 key="specs"
                 initial={{ opacity: 0, y: 18 }}
@@ -807,7 +762,7 @@ export default function ProductDetailPage() {
               >
                 <p className="label-eyebrow text-[#8A8A8A] mb-6">Especificaciones técnicas</p>
                 <div className="divide-y divide-[#DDD9D3] border border-[#DDD9D3]">
-                  {product.specs.map((spec, i) => (
+                  {specsEntries.map(([label, value], i) => (
                     <motion.div
                       key={i}
                       initial={{ opacity: 0 }}
@@ -816,9 +771,9 @@ export default function ProductDetailPage() {
                       className={`flex items-start gap-4 px-6 py-4 ${i % 2 === 0 ? 'bg-white' : 'bg-[#F8F7F5]'}`}
                     >
                       <span className="text-[11px] font-black uppercase tracking-widest text-[#8A8A8A] w-44 shrink-0 pt-0.5">
-                        {spec.label}
+                        {label}
                       </span>
-                      <span className="text-[14px] text-[#1C1C1C] font-500">{spec.value}</span>
+                      <span className="text-[14px] text-[#1C1C1C] font-500">{value}</span>
                     </motion.div>
                   ))}
                 </div>
@@ -832,81 +787,17 @@ export default function ProductDetailPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-                className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-12"
+                className="text-center py-16"
               >
-                {/* Summary */}
                 <div className="space-y-5">
-                  <div className="text-center p-8 bg-[#EFEDE9] border border-[#DDD9D3]">
+                  <div className="p-8 bg-[#EFEDE9] border border-[#DDD9D3] inline-block">
                     <p className="font-display font-900 italic text-[#1C1C1C] text-7xl tracking-tightest leading-none mb-3">
-                      4.9
+                      {product.avg_rating?.toFixed(1) || '0.0'}
                     </p>
-                    <StarRating rating={5} size={20} />
-                    <p className="text-[11px] text-[#5A5A5A] mt-3">{product.reviews} valoraciones verificadas</p>
+                    <StarRating rating={rating} size={20} />
+                    <p className="text-[11px] text-[#5A5A5A] mt-3">{reviewCount} valoraciones</p>
                   </div>
-                  {[5, 4, 3, 2, 1].map((stars) => {
-                    const pct = stars === 5 ? 82 : stars === 4 ? 12 : stars === 3 ? 4 : stars === 2 ? 1 : 1;
-                    return (
-                      <div key={stars} className="flex items-center gap-3">
-                        <span className="text-[11px] font-700 text-[#6B6B6B] w-4 text-right">{stars}</span>
-                        <Icon name="StarIcon" size={11} variant="solid" className="text-[#C8922A] shrink-0" />
-                        <div className="flex-1 h-1.5 bg-[#DDD9D3] overflow-hidden">
-                          <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${pct}%` }}
-                            transition={{ delay: 0.3, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-                            className="h-full bg-[#1C1C1C]"
-                          />
-                        </div>
-                        <span className="text-[11px] text-[#8A8A8A] w-8">{pct}%</span>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Reviews list */}
-                <div className="space-y-5">
-                  {[
-                    {
-                      name: 'Carlos M.',
-                      date: 'Hace 2 días',
-                      rating: 5,
-                      text: 'Increíble monitor. Los colores son absolutamente perfectos para mi trabajo de diseño gráfico. La calidad de imagen es impresionante y la frecuencia de actualización de 144Hz hace que todo se vea muy fluido.',
-                      verified: true,
-                    },
-                    {
-                      name: 'Laura P.',
-                      date: 'Hace 1 semana',
-                      rating: 5,
-                      text: 'Compré este monitor para trabajar desde casa y ha superado todas mis expectativas. La pantalla es enorme y muy nítida. El soporte ergonómico es muy útil para ajustar la altura.',
-                      verified: true,
-                    },
-                    {
-                      name: 'Alejandro R.',
-                      date: 'Hace 2 semanas',
-                      rating: 4,
-                      text: 'Muy buen monitor en general. La calidad de imagen es excelente y la conectividad es perfecta. Le quito una estrella porque el menú OSD podría ser más intuitivo.',
-                      verified: true,
-                    },
-                  ].map((review, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0, y: 14 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.1 }}
-                      className="p-7 bg-white border border-[#DDD9D3] hover:border-[#1C1C1C] transition-colors duration-300"
-                    >
-                      <div className="flex items-center gap-2.5 mb-4">
-                        <span className="font-700 text-[#1C1C1C] text-[14px]">{review.name}</span>
-                        {review.verified && (
-                          <span className="px-2 py-0.5 bg-[#EFF6FF] text-[#2563EB] text-[9px] font-black uppercase tracking-widest">
-                            Verificado
-                          </span>
-                        )}
-                      </div>
-                      <StarRating rating={review.rating} size={13} />
-                      <span className="text-[11px] text-[#8A8A8A]">{review.date}</span>
-                    </motion.div>
-                  ))}
+                  <p className="text-[#8A8A8A] text-sm">Las valoraciones estarán disponibles próximamente.</p>
                 </div>
               </motion.div>
             )}
@@ -915,52 +806,52 @@ export default function ProductDetailPage() {
       </section>
 
       {/* ── Related Products ── */}
-      <section className="py-20 lg:py-32 bg-[#EFEDE9]">
-        <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
-          {/* Section header */}
-          <div className="flex items-end justify-between mb-14">
-            <div>
-              <p className="label-eyebrow text-[#8A8A8A] mb-4">Completa tu setup</p>
-              <h2
-                className="font-display font-900 italic text-[#1C1C1C] uppercase leading-[0.88] tracking-[-0.04em]"
-                style={{ fontSize: 'clamp(2rem, 3.8vw, 3.2rem)' }}
+      {relatedProducts.length > 0 && (
+        <section className="py-20 lg:py-32 bg-[#EFEDE9]">
+          <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
+            <div className="flex items-end justify-between mb-14">
+              <div>
+                <p className="label-eyebrow text-[#8A8A8A] mb-4">Completa tu setup</p>
+                <h2
+                  className="font-display font-900 italic text-[#1C1C1C] uppercase leading-[0.88] tracking-[-0.04em]"
+                  style={{ fontSize: 'clamp(2rem, 3.8vw, 3.2rem)' }}
+                >
+                  Productos
+                  <br />
+                  <span className="text-[#2563EB]">Relacionados</span>
+                </h2>
+              </div>
+              <Link
+                href="/products"
+                className="hidden md:inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#5A5A5A] hover:text-[#1C1C1C] transition-colors group border-b border-transparent hover:border-[#1C1C1C] pb-0.5"
               >
-                Productos
-                <br />
-                <span className="text-[#2563EB]">Relacionados</span>
-              </h2>
+                Ver catálogo completo
+                <Icon
+                  name="ArrowRightIcon"
+                  size={13}
+                  variant="outline"
+                  className="group-hover:translate-x-1 transition-transform"
+                />
+              </Link>
             </div>
-            <Link
-              href="/products"
-              className="hidden md:inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#5A5A5A] hover:text-[#1C1C1C] transition-colors group border-b border-transparent hover:border-[#1C1C1C] pb-0.5"
-            >
-              Ver catálogo completo
-              <Icon
-                name="ArrowRightIcon"
-                size={13}
-                variant="outline"
-                className="group-hover:translate-x-1 transition-transform"
-              />
-            </Link>
-          </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
-            {relatedProducts.map((p, i) => (
-              <RelatedProductCard key={p.id} product={p} index={i} />
-            ))}
-          </div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+              {relatedProducts.map((p, i) => (
+                <RelatedProductCard key={p.id} product={p} index={i} />
+              ))}
+            </div>
 
-          {/* Mobile CTA */}
-          <div className="mt-10 flex justify-center md:hidden">
-            <Link
-              href="/products"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-[#1C1C1C] text-white text-[10px] font-black uppercase tracking-widest hover:bg-[#2563EB] transition-colors"
-            >
-              Ver catálogo completo
-            </Link>
+            <div className="mt-10 flex justify-center md:hidden">
+              <Link
+                href="/products"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-[#1C1C1C] text-white text-[10px] font-black uppercase tracking-widest hover:bg-[#2563EB] transition-colors"
+              >
+                Ver catálogo completo
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 }

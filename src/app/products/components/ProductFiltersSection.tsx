@@ -1,18 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Icon from '@/components/ui/AppIcon';
-
-export const categories = [
-  { id: 'all', label: 'Todo' },
-  { id: 'setup', label: 'Setup & Productividad' },
-  { id: 'audio', label: 'Audio & Workspace' },
-  { id: 'tech', label: 'Tecnología Premium' },
-  { id: 'lighting', label: 'Iluminación' },
-  { id: 'accessories', label: 'Accesorios' },
-  { id: 'storage', label: 'Almacenamiento' },
-];
+import { getCategories } from '@/lib/supabase/services';
+import type { Category } from '@/types';
 
 export const sortOptions = [
   { id: 'featured', label: 'Destacados' },
@@ -38,7 +30,19 @@ export default function ProductFiltersSection({
   productCount,
 }: ProductFiltersProps) {
   const [sortOpen, setSortOpen] = useState(false);
+  const [categories, setCategories] = useState<(Category & { product_count?: number })[]>([]);
   const currentSort = sortOptions.find((s) => s.id === activeSort)?.label ?? 'Destacados';
+
+  useEffect(() => {
+    getCategories()
+      .then((data) => setCategories(data))
+      .catch(() => {});
+  }, []);
+
+  const allCategories = [
+    { id: 'all', name: 'Todo', product_count: undefined },
+    ...categories.map((c) => ({ id: c.id, name: c.name, product_count: c.product_count })),
+  ];
 
   return (
     <section className="bg-white border-b border-[#DDD9D3] sticky top-[72px] z-30">
@@ -49,7 +53,7 @@ export default function ProductFiltersSection({
             aria-label="Filtrar por categoría"
             className="flex items-center gap-1 overflow-x-auto scrollbar-hide pb-1 sm:pb-0 flex-1 max-w-full"
           >
-            {categories.map((cat) => (
+            {allCategories.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => onCategoryChange(cat.id)}
@@ -59,7 +63,10 @@ export default function ProductFiltersSection({
                     : 'text-[#5A5A5A] hover:text-[#1C1C1C] hover:bg-[#EFEDE9]'
                 }`}
               >
-                {cat.label}
+                {cat.name}
+                {cat.product_count !== undefined && (
+                  <span className="ml-1 opacity-60">({cat.product_count})</span>
+                )}
                 {activeCategory === cat.id && (
                   <motion.div
                     layoutId="filter-indicator"

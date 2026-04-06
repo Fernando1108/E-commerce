@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import AppLogo from '@/components/ui/AppLogo';
 import Icon from '@/components/ui/AppIcon';
+import { useCart } from '@/hooks/useCart';
 
 const navLinks = [
   { label: 'Tienda', href: '/products' },
@@ -16,6 +17,7 @@ const navLinks = [
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { itemCount } = useCart();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40);
@@ -89,9 +91,11 @@ export default function Header() {
               className="relative flex size-9 items-center justify-center text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
             >
               <Icon name="ShoppingBagIcon" size={20} variant="outline" />
-              <span className="absolute -top-0.5 -right-0.5 size-4 bg-[#2563EB] text-white text-[9px] font-black rounded-full flex items-center justify-center leading-none">
-                3
-              </span>
+              {itemCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 size-4 bg-[#2563EB] text-white text-[9px] font-black rounded-full flex items-center justify-center leading-none">
+                  {itemCount > 99 ? '99+' : itemCount}
+                </span>
+              )}
             </Link>
 
             {/* Support CTA */}
@@ -171,7 +175,7 @@ export default function Header() {
                   className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
                 >
                   <Icon name="ShoppingBagIcon" size={18} variant="outline" />
-                  Carrito (3)
+                  Carrito{itemCount > 0 ? ` (${itemCount})` : ''}
                 </Link>
               </div>
               <Link
