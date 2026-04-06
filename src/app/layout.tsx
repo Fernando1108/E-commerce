@@ -9,17 +9,16 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
-  title: 'NovaStore — Tecnología Premium para tu Mundo',
-  description: 'Descubre gadgets, accesorios de workspace y tecnología premium en NovaStore. Envíos seguros, productos seleccionados y calidad garantizada en cada pedido.',
+  title: 'NovaStore - Tecnologia Premium para tu Mundo',
+  description:
+    'Descubre gadgets, accesorios de workspace y tecnologia premium en NovaStore. Envios seguros, productos seleccionados y calidad garantizada en cada pedido.',
   icons: {
-    icon: [
-      { url: '/favicon.ico', type: 'image/x-icon' }
-    ],
+    icon: [{ url: '/favicon.ico', type: 'image/x-icon' }],
   },
   openGraph: {
-    title: 'NovaStore — Tecnología Premium',
+    title: 'NovaStore - Tecnologia Premium',
     description: 'Gadgets y workspace premium seleccionados para profesionales.',
-    images: [{ url: '/assets/images/app_logo.png', width: 1200, height: 630 }],
+    images: [{ url: '/logo/novastore-logo.png', width: 1200, height: 630 }],
   },
 };
 
@@ -30,8 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body>{children}
-</body>
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }
