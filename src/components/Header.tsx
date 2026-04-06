@@ -2,13 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import AppLogo from '@/components/ui/AppLogo';
 import Icon from '@/components/ui/AppIcon';
 import { useCart } from '@/hooks/useCart';
-import { clearAuthCookie } from '@/features/auth/utils/auth-cookie';
-import { useAuthStore } from '@/store/auth-store';
+import { useAuth } from '@/hooks/useAuth';
 
 const navLinks = [
   { label: 'Tienda', href: '/products' },
@@ -18,14 +16,10 @@ const navLinks = [
 ];
 
 export default function Header() {
-  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
-  const [isReady, setIsReady] = useState(false);
   const { itemCount } = useCart();
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const logout = useAuthStore((state) => state.logout);
+  const { user, signOut } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40);
@@ -42,38 +36,6 @@ export default function Header() {
     return () => { document.body.style.overflow = ''; };
   }, [mobileOpen]);
 
-  useEffect(() => {
-    setIsReady(true);
-  }, []);
-
-  const handleLogout = () => {
-    setAccountMenuOpen(false);
-    if (!isAuthenticated) {
-      router.push('/auth/login');
-      return;
-    }
-
-    clearAuthCookie();
-    logout();
-    setMobileOpen(false);
-    router.push('/auth/login');
-  };
-
-  const handleAccountButtonClick = () => {
-    if (!isAuthenticated) {
-      router.push('/auth/login');
-      return;
-    }
-
-    setAccountMenuOpen((current) => !current);
-  };
-
-  const handleProfileNavigation = () => {
-    setAccountMenuOpen(false);
-    setMobileOpen(false);
-    router.push('/profile');
-  };
-
   return (
     <>
       <header
@@ -86,7 +48,10 @@ export default function Header() {
         <div className="max-w-[1440px] mx-auto px-6 lg:px-12 h-[72px] flex items-center justify-between gap-6">
           {/* Logo */}
           <Link href="/homepage" className="flex items-center gap-2.5 shrink-0 z-10 group">
-            <AppLogo size={137} />
+            <AppLogo size={32} />
+            <span className="font-display font-800 text-xl tracking-tightest text-[#1C1C1C] hidden sm:block group-hover:text-[#2563EB] transition-colors duration-300">
+              NovaStore
+            </span>
           </Link>
 
           {/* Center Nav */}
@@ -114,38 +79,31 @@ export default function Header() {
             </button>
 
             {/* Account */}
-            <div className="relative hidden sm:block">
-              <button
-                aria-label={isReady && isAuthenticated ? 'Abrir menú de cuenta' : 'Mi cuenta'}
-                className="flex size-9 items-center justify-center text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
-                onClick={handleAccountButtonClick}
-                type="button"
-                title={isReady && isAuthenticated ? 'Mi cuenta' : 'Iniciar sesión'}
+            {user ? (
+              <div className="hidden sm:flex items-center gap-2">
+                <Link
+                  href="/account"
+                  aria-label="Mi cuenta"
+                  className="flex size-9 items-center justify-center text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
+                >
+                  <Icon name="UserIcon" size={20} variant="outline" />
+                </Link>
+                <button
+                  onClick={() => signOut()}
+                  className="text-[10px] font-bold uppercase tracking-widest text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
+                >
+                  Salir
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/auth/login"
+                aria-label="Iniciar sesión"
+                className="hidden sm:flex size-9 items-center justify-center text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
               >
                 <Icon name="UserIcon" size={20} variant="outline" />
-              </button>
-
-              {isReady && isAuthenticated && accountMenuOpen && (
-                <div className="absolute right-0 top-full mt-3 min-w-[190px] border border-[#DDD9D3] bg-white shadow-[0_18px_50px_rgba(28,28,28,0.08)]">
-                  <button
-                    type="button"
-                    onClick={handleProfileNavigation}
-                    className="flex w-full items-center justify-between px-4 py-3 text-left text-[11px] font-black uppercase tracking-[0.22em] text-[#1C1C1C] transition hover:bg-[#F5F3EE]"
-                  >
-                    Mi perfil
-                    <Icon name="UserIcon" size={16} variant="outline" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    className="flex w-full items-center justify-between border-t border-[#E6E1DA] px-4 py-3 text-left text-[11px] font-black uppercase tracking-[0.22em] text-[#8A8A8A] transition hover:bg-[#F5F3EE] hover:text-[#1C1C1C]"
-                  >
-                    Cerrar sesión
-                    <Icon name="ArrowLeftStartOnRectangleIcon" size={16} variant="outline" />
-                  </button>
-                </div>
-              )}
-            </div>
+              </Link>
+            )}
 
             {/* Cart */}
             <Link
@@ -193,7 +151,8 @@ export default function Header() {
             {/* Mobile header */}
             <div className="flex items-center justify-between px-6 h-[72px] border-b border-[#DDD9D3]">
               <Link href="/homepage" className="flex items-center gap-2.5" onClick={() => setMobileOpen(false)}>
-                <AppLogo size={50} />
+                <AppLogo size={32} />
+                <span className="font-display font-800 text-xl tracking-tightest text-[#1C1C1C]">NovaStore</span>
               </Link>
               <button
                 aria-label="Cerrar menú"
@@ -227,34 +186,32 @@ export default function Header() {
             {/* Mobile bottom */}
             <div className="mt-auto px-6 pb-10 flex flex-col gap-4">
               <div className="flex gap-4">
-                {isReady && isAuthenticated ? (
-                  <>
-                    <button
-                      className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#8A8A8A]"
-                      onClick={handleProfileNavigation}
-                      type="button"
+                {user ? (
+                  <div className="flex items-center gap-3">
+                    <Link
+                      href="/account"
+                      onClick={() => setMobileOpen(false)}
+                      className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
                     >
                       <Icon name="UserIcon" size={18} variant="outline" />
-                      Mi Perfil
-                    </button>
+                      Mi Cuenta
+                    </Link>
                     <button
-                      className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#8A8A8A]"
-                      onClick={handleLogout}
-                      type="button"
+                      onClick={() => { signOut(); setMobileOpen(false); }}
+                      className="text-[11px] font-bold uppercase tracking-widest text-[#8A8A8A] hover:text-red-500 transition-colors"
                     >
-                      <Icon name="ArrowLeftStartOnRectangleIcon" size={18} variant="outline" />
                       Cerrar sesión
                     </button>
-                  </>
+                  </div>
                 ) : (
-                  <button
-                    className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#8A8A8A]"
-                    onClick={handleAccountButtonClick}
-                    type="button"
+                  <Link
+                    href="/auth/login"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
                   >
                     <Icon name="UserIcon" size={18} variant="outline" />
-                    Mi Cuenta
-                  </button>
+                    Iniciar sesión
+                  </Link>
                 )}
                 <Link
                   href="/cart"
