@@ -1,7 +1,8 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-const protectedRoutes = ['/account', '/admin', '/checkout', '/profile']
+const protectedRoutes = ['/account', '/checkout', '/profile']
+const adminRoutes = ['/admin']
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
@@ -28,11 +29,31 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith(route)
   )
 
-  if (isProtected && !user) {
+  const isAdmin = adminRoutes.some(route =>
+    request.nextUrl.pathname.startsWith(route)
+  )
+
+  // Si no hay usuario y la ruta requiere auth, redirigir a login
+  if ((isProtected || isAdmin) && !user) {
     const url = request.nextUrl.clone()
     url.pathname = '/auth/login'
     url.searchParams.set('redirect', request.nextUrl.pathname)
     return NextResponse.redirect(url)
+  }
+
+  // Si es ruta admin, verificar rol
+  if (isAdmin && user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (!profile || profile.role !== 'admin') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/homepage'
+      return NextResponse.redirect(url)
+    }
   }
 
   return supabaseResponse
