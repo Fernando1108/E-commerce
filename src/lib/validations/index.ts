@@ -36,3 +36,13 @@ export const contactSchema = z.object({
 export const newsletterSchema = z.object({
   email: z.string().email(),
 })
+
+export const reviewSchema = z.object({
+  product_id: z.string().uuid('Producto inválido'),
+  rating: z.number().int().min(1).max(5),
+  comment: z.string().max(1000).nullable().optional(),
+})
+
+export const wishlistSchema = z.object({
+  product_id: z.string().uuid('Producto inválido'),
+})
