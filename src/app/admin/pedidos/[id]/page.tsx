@@ -4,6 +4,7 @@ import React, { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Icon from '@/components/ui/AppIcon';
+import { toast } from 'sonner';
 
 const statusColors: Record<string, string> = {
   pending: 'bg-amber-100 text-amber-700',
@@ -59,16 +60,20 @@ export default function PedidoDetalle({ params }: { params: Promise<{ id: string
   const handleStatusChange = async (newStatus: string) => {
     setUpdating(true);
     try {
-      const res = await fetch(`/api/admin/orders/${id}`, {
+      const res = await fetch(`/api/orders/${id}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
       });
       if (res.ok) {
         setOrder((prev) => (prev ? { ...prev, status: newStatus } : null));
+        toast.success(`Estado actualizado a: ${statusLabels[newStatus] || newStatus}`);
+      } else {
+        const data = await res.json();
+        toast.error(data.error || 'Error al actualizar estado');
       }
     } catch {
-      /* empty */
+      toast.error('Error al actualizar estado');
     }
     setUpdating(false);
   };

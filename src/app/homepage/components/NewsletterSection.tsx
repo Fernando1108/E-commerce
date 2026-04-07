@@ -3,17 +3,35 @@
 import React, { useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 import Icon from '@/components/ui/AppIcon';
+import { toast } from 'sonner';
 
 export default function NewsletterSection() {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-80px' });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email.trim()) {
+    if (!email.trim()) return;
+    setLoading(true);
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Error al suscribirse');
+      }
+      toast.success('Te has suscrito exitosamente');
       setSubmitted(true);
+    } catch (error: any) {
+      toast.error(error.message || 'Error al suscribirse');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -93,15 +111,18 @@ export default function NewsletterSection() {
                     />
                     <button
                       type="submit"
-                      className="group inline-flex items-center gap-2 whitespace-nowrap bg-[#2563EB] px-8 py-4 text-[11px] font-black uppercase tracking-widest text-white transition-all duration-300 hover:bg-white hover:text-[#1C1C1C]"
+                      disabled={loading}
+                      className="group inline-flex items-center gap-2 whitespace-nowrap bg-[#2563EB] px-8 py-4 text-[11px] font-black uppercase tracking-widest text-white transition-all duration-300 hover:bg-white hover:text-[#1C1C1C] disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Suscribirme
-                      <Icon
-                        name="ArrowRightIcon"
-                        size={14}
-                        variant="outline"
-                        className="transition-transform group-hover:translate-x-1"
-                      />
+                      {loading ? 'Suscribiendo...' : 'Suscribirme'}
+                      {!loading && (
+                        <Icon
+                          name="ArrowRightIcon"
+                          size={14}
+                          variant="outline"
+                          className="transition-transform group-hover:translate-x-1"
+                        />
+                      )}
                     </button>
                   </div>
                 </div>

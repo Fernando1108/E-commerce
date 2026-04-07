@@ -8,6 +8,7 @@ import Icon from '@/components/ui/AppIcon';
 import { getProductById, getProductImages, getProducts } from '@/lib/supabase/services';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
+import { useWishlist } from '@/hooks/useWishlist';
 import type { Product } from '@/types';
 import ProductGallery from './components/ProductGallery';
 import ProductInfo from './components/ProductInfo';
@@ -70,9 +71,9 @@ export default function ProductDetailPage() {
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
-  const [isWishlisted, setIsWishlisted] = useState(false);
 
   const { addItem } = useCart();
+  const { isInWishlist, toggleWishlist } = useWishlist();
 
   useEffect(() => {
     if (!productId) return;
@@ -112,17 +113,9 @@ export default function ProductDetailPage() {
     setTimeout(() => setAddedToCart(false), 2400);
   };
 
-  // Wishlist: persist to localStorage
-  useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('novastore-wishlist') || '[]') as string[];
-    setIsWishlisted(saved.includes(productId));
-  }, [productId]);
-
   const handleToggleWishlist = () => {
-    const saved = JSON.parse(localStorage.getItem('novastore-wishlist') || '[]') as string[];
-    const updated = isWishlisted ? saved.filter((id) => id !== productId) : [...saved, productId];
-    localStorage.setItem('novastore-wishlist', JSON.stringify(updated));
-    setIsWishlisted(!isWishlisted);
+    if (!product) return;
+    toggleWishlist(productId);
   };
 
   if (loading)
@@ -241,7 +234,7 @@ export default function ProductDetailPage() {
                 stock={product.stock}
                 quantity={quantity}
                 addedToCart={addedToCart}
-                isWishlisted={isWishlisted}
+                isWishlisted={isInWishlist(productId)}
                 onQuantityChange={setQuantity}
                 onAddToCart={handleAddToCart}
                 onToggleWishlist={handleToggleWishlist}

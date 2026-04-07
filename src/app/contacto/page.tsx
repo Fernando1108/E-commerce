@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import Header from '@/components/Header';
@@ -118,14 +119,33 @@ export default function ContactoPage() {
     setStatus('loading');
     setFeedbackMessage(null);
 
-    await new Promise((resolve) => setTimeout(resolve, 900));
-    console.log(values);
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: values.fullName,
+          email: values.email,
+          message: values.message,
+        }),
+      });
 
-    setStatus('success');
-    setFeedbackMessage(
-      'Tu mensaje fue enviado correctamente. El equipo de NovaStore te respondera pronto.'
-    );
-    reset();
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Error al enviar el mensaje');
+      }
+
+      setStatus('success');
+      setFeedbackMessage(
+        'Tu mensaje fue enviado correctamente. El equipo de NovaStore te respondera pronto.'
+      );
+      toast.success('Mensaje enviado');
+      reset();
+    } catch (error: any) {
+      setStatus('error');
+      setFeedbackMessage(error.message || 'Error al enviar el mensaje');
+      toast.error(error.message || 'Error al enviar el mensaje');
+    }
   });
 
   return (
@@ -330,8 +350,7 @@ export default function ContactoPage() {
                   </button>
 
                   <p className="text-sm leading-relaxed text-[#8A8A8A]">
-                    Este formulario usa React Hook Form y actualmente registra el envio en consola
-                    como flujo frontend base.
+                    Tu mensaje será enviado directamente al equipo de NovaStore.
                   </p>
 
                   <a

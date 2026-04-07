@@ -1,46 +1,109 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
 import { StarRating } from './ProductInfo';
 import ProductSpecs from './ProductSpecs';
+import { toast } from 'sonner';
 import type { Product } from '@/types';
 
 /* ─── Reviews Section ─────────────────────────────────────────── */
+
+interface Review {
+  id: string;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+  user_id: string;
+  profiles?: { name: string | null };
+}
+
 function ReviewsTab({
   product,
   rating,
-  reviewCount,
+  reviewCount: initialReviewCount,
   user,
 }: {
   product: Product;
   rating: number;
   reviewCount: number;
-  user: { email?: string | null } | null;
+  user: { id?: string; email?: string | null } | null;
 }) {
   const [hoveredStar, setHoveredStar] = useState(0);
   const [selectedStar, setSelectedStar] = useState(0);
   const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loadingReviews, setLoadingReviews] = useState(true);
+
+  const fetchReviews = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/reviews?product_id=${product.id}`);
+      if (res.ok) {
+        const data = await res.json();
+        setReviews(Array.isArray(data) ? data : []);
+      }
+    } catch {
+      /* silent */
+    } finally {
+      setLoadingReviews(false);
+    }
+  }, [product.id]);
+
+  useEffect(() => {
+    fetchReviews();
+  }, [fetchReviews]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedStar || !comment.trim()) return;
     setSubmitting(true);
-    // Placeholder: connect to /api/reviews when Anderson has the endpoint
-    await new Promise((r) => setTimeout(r, 800));
-    setSubmitted(true);
-    setSubmitting(false);
-    setComment('');
-    setSelectedStar(0);
+    try {
+      const res = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          product_id: product.id,
+          rating: selectedStar,
+          comment: comment.trim(),
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Error al publicar reseña');
+      }
+      toast.success('Reseña publicada');
+      setComment('');
+      setSelectedStar(0);
+      fetchReviews();
+    } catch (error: any) {
+      toast.error(error.message || 'Error al publicar reseña');
+    } finally {
+      setSubmitting(false);
+    }
   };
+
+  const handleDelete = async (reviewId: string) => {
+    try {
+      const res = await fetch(`/api/reviews/${reviewId}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Error al eliminar reseña');
+      }
+      toast.success('Reseña eliminada');
+      fetchReviews();
+    } catch (error: any) {
+      toast.error(error.message || 'Error al eliminar reseña');
+    }
+  };
+
+  const reviewCount = reviews.length || initialReviewCount;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-14">
-      {/* Rating summary */}
+      {/* Rating summary + reviews list */}
       <div>
         <p className="label-eyebrow text-[#8A8A8A] mb-6">Valoración general</p>
         <div className="p-8 bg-[#EFEDE9] border border-[#DDD9D3] inline-block mb-6">
@@ -50,8 +113,50 @@ function ReviewsTab({
           <StarRating rating={rating} size={20} />
           <p className="text-[11px] text-[#5A5A5A] mt-3">{reviewCount} valoraciones</p>
         </div>
-        {reviewCount === 0 && (
+
+        {/* Reviews list */}
+        {loadingReviews ? (
+          <div className="flex justify-center py-8">
+            <div className="size-6 border-2 border-[#1C1C1C] border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : reviews.length === 0 ? (
           <p className="text-[#8A8A8A] text-sm">Sé el primero en valorar este producto.</p>
+        ) : (
+          <div className="space-y-4 mt-6">
+            {reviews.map((review) => (
+              <div key={review.id} className="border border-[#DDD9D3] bg-[#FCFBF9] p-5">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-3">
+                    <StarRating rating={review.rating} size={14} />
+                    <span className="text-[12px] font-bold text-[#1C1C1C]">
+                      {review.profiles?.name || 'Cliente'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-[#8A8A8A]">
+                      {new Date(review.created_at).toLocaleDateString('es-ES', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                      })}
+                    </span>
+                    {user && (user as any).id === review.user_id && (
+                      <button
+                        onClick={() => handleDelete(review.id)}
+                        className="text-[#8A8A8A] hover:text-red-500 transition-colors"
+                        title="Eliminar reseña"
+                      >
+                        <Icon name="TrashIcon" size={13} variant="outline" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+                {review.comment && (
+                  <p className="text-[13px] text-[#5A5A5A] leading-relaxed">{review.comment}</p>
+                )}
+              </div>
+            ))}
+          </div>
         )}
       </div>
 
@@ -74,21 +179,6 @@ function ReviewsTab({
               Iniciar sesión
             </a>
           </div>
-        ) : submitted ? (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.97 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="border border-[#D8E4FF] bg-[#EFF6FF] p-6 text-center"
-          >
-            <Icon
-              name="CheckCircleIcon"
-              size={32}
-              variant="outline"
-              className="text-[#2563EB] mx-auto mb-3"
-            />
-            <p className="text-[#2563EB] font-bold text-sm">¡Gracias por tu reseña!</p>
-            <p className="text-[#2563EB]/70 text-xs mt-1">Tu valoración será visible pronto.</p>
-          </motion.div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Star selector */}
@@ -163,7 +253,7 @@ type ProductTabsProps = {
   galleryImages: { src: string; alt: string }[];
   rating: number;
   reviewCount: number;
-  user: { email?: string | null } | null;
+  user: { id?: string; email?: string | null } | null;
 };
 
 type Tab = 'descripcion' | 'especificaciones' | 'resenas';

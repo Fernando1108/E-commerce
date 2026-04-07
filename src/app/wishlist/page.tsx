@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import Header from '@/components/Header';
@@ -9,44 +9,14 @@ import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
 import { formatPrice } from '@/lib/utils';
 import { useCart } from '@/hooks/useCart';
-import { getProducts } from '@/lib/supabase/services';
+import { useWishlist } from '@/hooks/useWishlist';
 import { toast } from 'sonner';
-import type { Product } from '@/types';
-
-const WISHLIST_KEY = 'novastore-wishlist';
 
 export default function WishlistPage() {
-  const [wishlistIds, setWishlistIds] = useState<string[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { items, loading, removeFromWishlist } = useWishlist();
   const { addItem } = useCart();
 
-  useEffect(() => {
-    const ids = JSON.parse(localStorage.getItem(WISHLIST_KEY) || '[]') as string[];
-    setWishlistIds(ids);
-    if (ids.length === 0) {
-      setLoading(false);
-      return;
-    }
-
-    // Fetch all products and filter by ids
-    getProducts({ limit: 100 })
-      .then((all) => {
-        setProducts(all.filter((p) => ids.includes(p.id)));
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
-
-  const removeFromWishlist = (productId: string) => {
-    const updated = wishlistIds.filter((id) => id !== productId);
-    localStorage.setItem(WISHLIST_KEY, JSON.stringify(updated));
-    setWishlistIds(updated);
-    setProducts((prev) => prev.filter((p) => p.id !== productId));
-    toast.success('Eliminado de tu lista de deseos');
-  };
-
-  const handleAddToCart = (product: Product) => {
+  const handleAddToCart = (product: any) => {
     addItem(product, 1, null);
     toast.success(`${product.name} agregado al carrito`);
   };
@@ -86,7 +56,7 @@ export default function WishlistPage() {
               transition={{ delay: 0.2 }}
               className="hidden sm:block text-[#8A8A8A] text-[10px] font-bold uppercase tracking-[0.18em]"
             >
-              {wishlistIds.length} {wishlistIds.length === 1 ? 'producto' : 'productos'}
+              {items.length} {items.length === 1 ? 'producto' : 'productos'}
             </motion.p>
           </div>
         </div>
@@ -96,7 +66,7 @@ export default function WishlistPage() {
         <div className="flex justify-center py-24">
           <div className="size-8 border-2 border-[#1C1C1C] border-t-transparent rounded-full animate-spin" />
         </div>
-      ) : wishlistIds.length === 0 ? (
+      ) : items.length === 0 ? (
         /* Empty state */
         <section className="max-w-[1440px] mx-auto px-6 lg:px-14 py-40 flex flex-col items-center text-center">
           <motion.div
@@ -129,81 +99,76 @@ export default function WishlistPage() {
         <section className="max-w-[1440px] mx-auto px-6 lg:px-14 py-12 lg:py-20">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             <AnimatePresence mode="popLayout">
-              {products.map((product, index) => (
-                <motion.div
-                  key={product.id}
-                  layout
-                  initial={{ opacity: 0, y: 24 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.45, delay: index * 0.06, ease: [0.16, 1, 0.3, 1] }}
-                  className="group relative bg-white border border-[#DDD9D3] hover:border-[#1C1C1C] overflow-hidden transition-all duration-500"
-                >
-                  {/* Remove button */}
-                  <button
-                    onClick={() => removeFromWishlist(product.id)}
-                    aria-label="Eliminar de wishlist"
-                    className="absolute top-3 right-3 z-10 size-8 bg-white/90 border border-[#DDD9D3] flex items-center justify-center hover:bg-red-50 hover:border-red-200 hover:text-red-500 text-[#8A8A8A] transition-all duration-200"
-                  >
-                    <Icon name="HeartIcon" size={14} variant="solid" className="text-red-400" />
-                  </button>
+              {items.map((item, index) => {
+                const product = item.products;
+                if (!product) return null;
 
-                  {/* Image */}
-                  <Link
-                    href={`/product/${product.id}`}
-                    className="block relative overflow-hidden bg-[#F4F2EF]"
-                    style={{ aspectRatio: '4/5' }}
+                return (
+                  <motion.div
+                    key={item.id}
+                    layout
+                    initial={{ opacity: 0, y: 24 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.45, delay: index * 0.06, ease: [0.16, 1, 0.3, 1] }}
+                    className="group relative bg-white border border-[#DDD9D3] hover:border-[#1C1C1C] overflow-hidden transition-all duration-500"
                   >
-                    <AppImage
-                      src={product.image_url || '/assets/images/no_image.png'}
-                      alt={product.name}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-[1.06]"
-                      sizes="(max-width: 640px) 100vw, 25vw"
-                    />
-                    {product.badge && (
-                      <div className="absolute top-3 left-3 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest bg-[#2563EB] text-white">
-                        {product.badge}
-                      </div>
-                    )}
-                  </Link>
+                    {/* Remove button */}
+                    <button
+                      onClick={() => removeFromWishlist(item.product_id)}
+                      aria-label="Eliminar de wishlist"
+                      className="absolute top-3 right-3 z-10 size-8 bg-white/90 border border-[#DDD9D3] flex items-center justify-center hover:bg-red-50 hover:border-red-200 hover:text-red-500 text-[#8A8A8A] transition-all duration-200"
+                    >
+                      <Icon name="HeartIcon" size={14} variant="solid" className="text-red-400" />
+                    </button>
 
-                  {/* Info */}
-                  <div className="p-5 space-y-3">
-                    <Link href={`/product/${product.id}`}>
-                      <h3 className="font-700 text-[#1C1C1C] text-[14px] leading-tight group-hover:text-[#2563EB] transition-colors line-clamp-2">
-                        {product.name}
-                      </h3>
+                    {/* Image */}
+                    <Link
+                      href={`/product/${product.id}`}
+                      className="block relative overflow-hidden bg-[#F4F2EF]"
+                      style={{ aspectRatio: '4/5' }}
+                    >
+                      <AppImage
+                        src={product.image_url || '/assets/images/no_image.png'}
+                        alt={product.name}
+                        fill
+                        className="object-cover transition-transform duration-700 group-hover:scale-[1.06]"
+                        sizes="(max-width: 640px) 100vw, 25vw"
+                      />
                     </Link>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xl font-display font-900 italic text-[#1C1C1C] tracking-editorial">
-                        {formatPrice(product.price)}
-                      </span>
-                      {product.original_price && (
-                        <span className="text-[12px] text-[#8A8A8A] line-through">
-                          {formatPrice(product.original_price)}
-                        </span>
-                      )}
-                    </div>
 
-                    <div className="flex gap-2 pt-1">
-                      <button
-                        onClick={() => handleAddToCart(product)}
-                        className="flex-1 py-3 bg-[#1C1C1C] text-white text-[9px] font-black uppercase tracking-widest hover:bg-[#2563EB] transition-colors flex items-center justify-center gap-1.5"
-                      >
-                        <Icon name="ShoppingBagIcon" size={12} variant="outline" />
-                        Añadir al carrito
-                      </button>
-                      <button
-                        onClick={() => removeFromWishlist(product.id)}
-                        className="size-10 border border-[#DDD9D3] flex items-center justify-center text-[#8A8A8A] hover:text-red-500 hover:border-red-200 transition-all duration-200"
-                      >
-                        <Icon name="TrashIcon" size={13} variant="outline" />
-                      </button>
+                    {/* Info */}
+                    <div className="p-5 space-y-3">
+                      <Link href={`/product/${product.id}`}>
+                        <h3 className="font-700 text-[#1C1C1C] text-[14px] leading-tight group-hover:text-[#2563EB] transition-colors line-clamp-2">
+                          {product.name}
+                        </h3>
+                      </Link>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl font-display font-900 italic text-[#1C1C1C] tracking-editorial">
+                          {formatPrice(product.price)}
+                        </span>
+                      </div>
+
+                      <div className="flex gap-2 pt-1">
+                        <button
+                          onClick={() => handleAddToCart(product)}
+                          className="flex-1 py-3 bg-[#1C1C1C] text-white text-[9px] font-black uppercase tracking-widest hover:bg-[#2563EB] transition-colors flex items-center justify-center gap-1.5"
+                        >
+                          <Icon name="ShoppingBagIcon" size={12} variant="outline" />
+                          Añadir al carrito
+                        </button>
+                        <button
+                          onClick={() => removeFromWishlist(item.product_id)}
+                          className="size-10 border border-[#DDD9D3] flex items-center justify-center text-[#8A8A8A] hover:text-red-500 hover:border-red-200 transition-all duration-200"
+                        >
+                          <Icon name="TrashIcon" size={13} variant="outline" />
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                );
+              })}
             </AnimatePresence>
           </div>
         </section>

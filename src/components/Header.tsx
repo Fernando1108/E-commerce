@@ -7,6 +7,7 @@ import AppLogo from '@/components/ui/AppLogo';
 import Icon from '@/components/ui/AppIcon';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
+import { useWishlist } from '@/hooks/useWishlist';
 import SearchModal from '@/components/SearchModal';
 
 const navLinks = [
@@ -20,19 +21,9 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [wishlistCount, setWishlistCount] = useState(0);
   const { itemCount } = useCart();
   const { user, signOut } = useAuth();
-
-  useEffect(() => {
-    const update = () => {
-      const ids = JSON.parse(localStorage.getItem('novastore-wishlist') || '[]') as string[];
-      setWishlistCount(ids.length);
-    };
-    update();
-    window.addEventListener('storage', update);
-    return () => window.removeEventListener('storage', update);
-  }, []);
+  const { itemCount: wishlistCount } = useWishlist();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40);

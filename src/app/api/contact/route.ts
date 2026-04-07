@@ -1,14 +1,14 @@
-import { NextResponse } from 'next/server'
-import { Resend } from 'resend'
-import { contactSchema } from '@/lib/validations'
+import { NextResponse } from 'next/server';
+import { Resend } from 'resend';
+import { contactSchema } from '@/lib/validations';
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: Request) {
-  const body = await request.json()
-  const parsed = contactSchema.safeParse(body)
+  const body = await request.json();
+  const parsed = contactSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 })
+    return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
   }
 
   try {
@@ -23,9 +23,9 @@ export async function POST(request: Request) {
         <p><strong>Mensaje:</strong></p>
         <p>${parsed.data.message}</p>
       `,
-    })
-    return NextResponse.json({ sent: true })
+    });
+    return NextResponse.json({ sent: true });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
