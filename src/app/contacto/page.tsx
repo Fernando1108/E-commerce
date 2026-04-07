@@ -8,15 +8,23 @@ import Footer from '@/components/Footer';
 import Icon from '@/components/ui/AppIcon';
 /* ─── Inline UI primitives (features/auth eliminated) ────────── */
 type AuthFieldProps = {
-  label: string; type: string; placeholder: string;
+  label: string;
+  type: string;
+  placeholder: string;
   registration: ReturnType<ReturnType<typeof useForm>['register']>;
-  error?: { message?: string }; className?: string;
+  error?: { message?: string };
+  className?: string;
 };
 function AuthField({ label, type, placeholder, registration, error, className }: AuthFieldProps) {
   return (
     <label className={className ?? 'block'}>
-      <span className="mb-2 block text-[11px] font-black uppercase tracking-[0.24em] text-[#5A5A5A]">{label}</span>
-      <input type={type} placeholder={placeholder} {...registration}
+      <span className="mb-2 block text-[11px] font-black uppercase tracking-[0.24em] text-[#5A5A5A]">
+        {label}
+      </span>
+      <input
+        type={type}
+        placeholder={placeholder}
+        {...registration}
         className={`h-14 w-full border px-4 text-[15px] text-[#1C1C1C] outline-none transition ${error ? 'border-[#C33D2F] bg-[#FFF7F5] focus:border-[#C33D2F]' : 'border-[#DDD9D3] bg-[#FCFBF9] focus:border-[#1C1C1C] focus:bg-white'}`}
       />
       {error?.message && <span className="mt-2 block text-sm text-[#C33D2F]">{error.message}</span>}
@@ -26,7 +34,10 @@ function AuthField({ label, type, placeholder, registration, error, className }:
 type AuthStatus = 'idle' | 'loading' | 'success' | 'error';
 function AuthStatusMessage({ status, message }: { status: AuthStatus; message: string | null }) {
   if (!message || status === 'idle') return null;
-  const cls = status === 'success' ? 'border-[#D8E4FF] bg-[#EFF6FF] text-[#2563EB]' : 'border-[#F1C8C2] bg-[#FFF7F5] text-[#C33D2F]';
+  const cls =
+    status === 'success'
+      ? 'border-[#D8E4FF] bg-[#EFF6FF] text-[#2563EB]'
+      : 'border-[#F1C8C2] bg-[#FFF7F5] text-[#C33D2F]';
   return <div className={`border px-4 py-3 text-sm leading-relaxed ${cls}`}>{message}</div>;
 }
 /* ─────────────────────────────────────────────────────────────── */
@@ -42,37 +53,44 @@ type ContactFormValues = {
 const contactHighlights = [
   {
     title: 'Atencion clara',
-    description: 'El formulario centraliza consultas sobre pedidos, soporte, tiempos y procesos posteriores a la compra.',
+    description:
+      'El formulario centraliza consultas sobre pedidos, soporte, tiempos y procesos posteriores a la compra.',
   },
   {
     title: 'Respuesta organizada',
-    description: 'Buscamos que cada solicitud llegue con el contexto suficiente para responder de forma mas precisa y util.',
+    description:
+      'Buscamos que cada solicitud llegue con el contexto suficiente para responder de forma mas precisa y util.',
   },
   {
     title: 'Canal directo',
-    description: 'La pagina esta pensada para facilitar contacto inicial sin perder el tono editorial y limpio del sitio.',
+    description:
+      'La pagina esta pensada para facilitar contacto inicial sin perder el tono editorial y limpio del sitio.',
   },
 ];
 
 const supportTopics = [
   {
     title: 'Pedidos y seguimiento',
-    description: 'Consultas relacionadas con confirmaciones, estados de orden y trazabilidad operativa.',
+    description:
+      'Consultas relacionadas con confirmaciones, estados de orden y trazabilidad operativa.',
     icon: 'ShoppingBagIcon',
   },
   {
     title: 'Envios y devoluciones',
-    description: 'Dudas sobre tiempos, cobertura, cambios, validaciones logisticas o solicitudes posteriores a la entrega.',
+    description:
+      'Dudas sobre tiempos, cobertura, cambios, validaciones logisticas o solicitudes posteriores a la entrega.',
     icon: 'TruckIcon',
   },
   {
     title: 'Cuenta y acceso',
-    description: 'Ayuda con inicio de sesion, recuperacion de acceso o informacion relacionada con el perfil.',
+    description:
+      'Ayuda con inicio de sesion, recuperacion de acceso o informacion relacionada con el perfil.',
     icon: 'UserIcon',
   },
   {
     title: 'Soporte general',
-    description: 'Cualquier otra consulta comercial o informativa sobre el funcionamiento de NovaStore.',
+    description:
+      'Cualquier otra consulta comercial o informativa sobre el funcionamiento de NovaStore.',
     icon: 'ChatBubbleLeftRightIcon',
   },
 ];
@@ -104,7 +122,9 @@ export default function ContactoPage() {
     console.log(values);
 
     setStatus('success');
-    setFeedbackMessage('Tu mensaje fue enviado correctamente. El equipo de NovaStore te respondera pronto.');
+    setFeedbackMessage(
+      'Tu mensaje fue enviado correctamente. El equipo de NovaStore te respondera pronto.'
+    );
     reset();
   });
 
@@ -116,7 +136,8 @@ export default function ContactoPage() {
         <div
           className="absolute inset-0 pointer-events-none opacity-[0.025]"
           style={{
-            backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(28,28,28,0.8) 1px, transparent 0)',
+            backgroundImage:
+              'radial-gradient(circle at 1px 1px, rgba(28,28,28,0.8) 1px, transparent 0)',
             backgroundSize: '40px 40px',
           }}
         />
@@ -153,17 +174,26 @@ export default function ContactoPage() {
               </h1>
 
               <p className="mt-6 max-w-xl text-base leading-relaxed text-[#5A5A5A] lg:text-lg">
-                Esta pagina esta pensada para consultas comerciales, dudas operativas y requerimientos relacionados con pedidos, soporte o informacion general sobre NovaStore.
+                Esta pagina esta pensada para consultas comerciales, dudas operativas y
+                requerimientos relacionados con pedidos, soporte o informacion general sobre
+                NovaStore.
               </p>
 
               <div className="mt-10 grid gap-4 sm:grid-cols-3">
                 {contactHighlights.map((item, index) => (
-                  <div key={item.title} className="border border-[#DDD9D3] bg-white/75 px-5 py-5 backdrop-blur-sm">
+                  <div
+                    key={item.title}
+                    className="border border-[#DDD9D3] bg-white/75 px-5 py-5 backdrop-blur-sm"
+                  >
                     <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#8A8A8A]">
                       0{index + 1}
                     </p>
-                    <p className="mt-3 text-xl font-display font-900 text-[#1C1C1C]">{item.title}</p>
-                    <p className="mt-3 text-sm leading-relaxed text-[#5A5A5A]">{item.description}</p>
+                    <p className="mt-3 text-xl font-display font-900 text-[#1C1C1C]">
+                      {item.title}
+                    </p>
+                    <p className="mt-3 text-sm leading-relaxed text-[#5A5A5A]">
+                      {item.description}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -267,7 +297,9 @@ export default function ContactoPage() {
                         }`}
                       />
                       {errors.message && (
-                        <span className="mt-2 block text-sm text-[#C33D2F]">{errors.message.message}</span>
+                        <span className="mt-2 block text-sm text-[#C33D2F]">
+                          {errors.message.message}
+                        </span>
                       )}
                     </label>
                   </div>
@@ -298,7 +330,8 @@ export default function ContactoPage() {
                   </button>
 
                   <p className="text-sm leading-relaxed text-[#8A8A8A]">
-                    Este formulario usa React Hook Form y actualmente registra el envio en consola como flujo frontend base.
+                    Este formulario usa React Hook Form y actualmente registra el envio en consola
+                    como flujo frontend base.
                   </p>
 
                   <a
@@ -307,7 +340,12 @@ export default function ContactoPage() {
                     rel="noreferrer"
                     className="inline-flex h-14 w-full items-center justify-center gap-3 border border-[#25D366]/30 bg-[#EAFBF1] px-6 text-[11px] font-black uppercase tracking-[0.28em] text-[#1C1C1C] transition hover:border-[#25D366] hover:bg-[#DDF8E9]"
                   >
-                    <Icon name="ChatBubbleLeftRightIcon" size={18} variant="outline" className="text-[#25D366]" />
+                    <Icon
+                      name="ChatBubbleLeftRightIcon"
+                      size={18}
+                      variant="outline"
+                      className="text-[#25D366]"
+                    />
                     Escribir por WhatsApp
                   </a>
                 </form>
@@ -327,7 +365,8 @@ export default function ContactoPage() {
               Elige el contexto correcto y la respuesta llega mejor.
             </h2>
             <p className="mt-5 text-base leading-relaxed text-[#5A5A5A]">
-              Aunque el formulario es unico, estas son las areas mas frecuentes que atiende el equipo para organizar mejor cada mensaje.
+              Aunque el formulario es unico, estas son las areas mas frecuentes que atiende el
+              equipo para organizar mejor cada mensaje.
             </p>
           </div>
 

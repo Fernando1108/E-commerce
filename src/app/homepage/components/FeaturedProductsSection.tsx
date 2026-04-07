@@ -123,7 +123,12 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
             className="size-10 flex items-center justify-center border border-[#DDD9D3] text-[#5A5A5A] hover:bg-[#1C1C1C] hover:text-white hover:border-[#1C1C1C] transition-all duration-200 group/arrow"
             aria-label={`Ver ${product.name}`}
           >
-            <Icon name="ArrowRightIcon" size={15} variant="outline" className="group-hover/arrow:translate-x-0.5 transition-transform" />
+            <Icon
+              name="ArrowRightIcon"
+              size={15}
+              variant="outline"
+              className="group-hover/arrow:translate-x-0.5 transition-transform"
+            />
           </Link>
         </div>
       </div>
@@ -155,7 +160,10 @@ export default function FeaturedProductsSection() {
 
   useEffect(() => {
     getFeaturedProducts(4)
-      .then((data) => { setProducts(data); setLoading(false); })
+      .then((data) => {
+        setProducts(data);
+        setLoading(false);
+      })
       .catch(() => setLoading(false));
   }, []);
 
@@ -181,9 +189,16 @@ export default function FeaturedProductsSection() {
               className="inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-[#5A5A5A] hover:text-[#1C1C1C] transition-colors group border-b border-transparent hover:border-[#1C1C1C] pb-0.5"
             >
               Ver catálogo completo
-              <Icon name="ArrowRightIcon" size={14} variant="outline" className="group-hover:translate-x-1 transition-transform" />
+              <Icon
+                name="ArrowRightIcon"
+                size={14}
+                variant="outline"
+                className="group-hover:translate-x-1 transition-transform"
+              />
             </Link>
-            <span className="text-[11px] text-[#8A8A8A] font-500">{products.length} productos seleccionados</span>
+            <span className="text-[11px] text-[#8A8A8A] font-500">
+              {products.length} productos seleccionados
+            </span>
           </div>
         </div>
 

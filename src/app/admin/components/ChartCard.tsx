@@ -11,7 +11,13 @@ interface ChartCardProps {
   action?: React.ReactNode;
 }
 
-export default function ChartCard({ title, subtitle, children, className = '', action }: ChartCardProps) {
+export default function ChartCard({
+  title,
+  subtitle,
+  children,
+  className = '',
+  action,
+}: ChartCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -25,9 +31,7 @@ export default function ChartCard({ title, subtitle, children, className = '', a
         </div>
         {action && <div>{action}</div>}
       </div>
-      <div className="px-5 pb-5">
-        {children}
-      </div>
+      <div className="px-5 pb-5">{children}</div>
     </motion.div>
   );
 }

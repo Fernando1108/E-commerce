@@ -15,13 +15,24 @@ interface StatCardProps {
 
 const colorMap = {
   blue: { bg: 'bg-blue-50', icon: 'text-blue-600', badge: 'bg-blue-100 text-blue-700' },
-  green: { bg: 'bg-emerald-50', icon: 'text-emerald-600', badge: 'bg-emerald-100 text-emerald-700' },
+  green: {
+    bg: 'bg-emerald-50',
+    icon: 'text-emerald-600',
+    badge: 'bg-emerald-100 text-emerald-700',
+  },
   amber: { bg: 'bg-amber-50', icon: 'text-amber-600', badge: 'bg-amber-100 text-amber-700' },
   red: { bg: 'bg-red-50', icon: 'text-red-600', badge: 'bg-red-100 text-red-700' },
   purple: { bg: 'bg-purple-50', icon: 'text-purple-600', badge: 'bg-purple-100 text-purple-700' },
 };
 
-export default function StatCard({ label, value, icon, trend, color = 'blue', loading }: StatCardProps) {
+export default function StatCard({
+  label,
+  value,
+  icon,
+  trend,
+  color = 'blue',
+  loading,
+}: StatCardProps) {
   const c = colorMap[color];
 
   if (loading) {
@@ -50,9 +61,11 @@ export default function StatCard({ label, value, icon, trend, color = 'blue', lo
           <p className="text-2xl font-bold text-slate-900 tracking-tight">{value}</p>
           {trend && (
             <div className="flex items-center gap-1.5 mt-1">
-              <span className={`inline-flex items-center gap-0.5 text-xs font-bold px-1.5 py-0.5 rounded-md ${
-                trend.value >= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
-              }`}>
+              <span
+                className={`inline-flex items-center gap-0.5 text-xs font-bold px-1.5 py-0.5 rounded-md ${
+                  trend.value >= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
+                }`}
+              >
                 <Icon name={trend.value >= 0 ? 'ArrowUpIcon' : 'ArrowDownIcon'} size={10} />
                 {Math.abs(trend.value)}%
               </span>
@@ -60,7 +73,9 @@ export default function StatCard({ label, value, icon, trend, color = 'blue', lo
             </div>
           )}
         </div>
-        <div className={`size-11 rounded-xl ${c.bg} flex items-center justify-center flex-shrink-0`}>
+        <div
+          className={`size-11 rounded-xl ${c.bg} flex items-center justify-center flex-shrink-0`}
+        >
           <Icon name={icon} size={20} className={c.icon} />
         </div>
       </div>

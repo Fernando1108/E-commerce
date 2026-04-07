@@ -43,7 +43,7 @@ export default function DataTable<T extends { id?: string }>({
 
   const handleSort = (key: string) => {
     if (sortKey === key) {
-      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+      setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
     } else {
       setSortKey(key);
       setSortDirection('asc');
@@ -95,7 +95,11 @@ export default function DataTable<T extends { id?: string }>({
       {searchable && (
         <div className="p-4 border-b border-slate-100">
           <div className="relative max-w-sm">
-            <Icon name="MagnifyingGlassIcon" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Icon
+              name="MagnifyingGlassIcon"
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+            />
             <input
               type="text"
               value={searchQuery}
@@ -123,7 +127,10 @@ export default function DataTable<T extends { id?: string }>({
                   <div className="flex items-center gap-1.5">
                     {col.label}
                     {col.sortable && sortKey === col.key && (
-                      <Icon name={sortDirection === 'asc' ? 'ChevronUpIcon' : 'ChevronDownIcon'} size={12} />
+                      <Icon
+                        name={sortDirection === 'asc' ? 'ChevronUpIcon' : 'ChevronDownIcon'}
+                        size={12}
+                      />
                     )}
                   </div>
                 </th>
@@ -138,7 +145,10 @@ export default function DataTable<T extends { id?: string }>({
           <tbody className="divide-y divide-slate-50">
             {paginatedData.length === 0 ? (
               <tr>
-                <td colSpan={columns.length + (actions ? 1 : 0)} className="px-4 py-12 text-center text-sm text-slate-400">
+                <td
+                  colSpan={columns.length + (actions ? 1 : 0)}
+                  className="px-4 py-12 text-center text-sm text-slate-400"
+                >
                   <div className="flex flex-col items-center gap-2">
                     <Icon name="InboxIcon" size={32} className="text-slate-300" />
                     <p>{emptyMessage}</p>
@@ -148,12 +158,15 @@ export default function DataTable<T extends { id?: string }>({
             ) : (
               paginatedData.map((item, index) => (
                 <tr
-                  key={(item as Record<string, unknown>).id as string || index}
+                  key={((item as Record<string, unknown>).id as string) || index}
                   onClick={() => onRowClick?.(item)}
                   className={`hover:bg-slate-50/80 transition-colors ${onRowClick ? 'cursor-pointer' : ''}`}
                 >
                   {columns.map((col) => (
-                    <td key={col.key} className={`px-4 py-3 text-sm text-slate-700 ${col.className || ''}`}>
+                    <td
+                      key={col.key}
+                      className={`px-4 py-3 text-sm text-slate-700 ${col.className || ''}`}
+                    >
                       {col.render
                         ? col.render(item, page * pageSize + index)
                         : String((item as Record<string, unknown>)[col.key] ?? '—')}
@@ -161,9 +174,7 @@ export default function DataTable<T extends { id?: string }>({
                   ))}
                   {actions && (
                     <td className="px-4 py-3 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        {actions(item)}
-                      </div>
+                      <div className="flex items-center justify-end gap-1">{actions(item)}</div>
                     </td>
                   )}
                 </tr>
@@ -177,11 +188,12 @@ export default function DataTable<T extends { id?: string }>({
       {totalPages > 1 && (
         <div className="px-4 py-3 border-t border-slate-100 flex items-center justify-between">
           <p className="text-xs text-slate-500">
-            Mostrando {page * pageSize + 1}–{Math.min((page + 1) * pageSize, data.length)} de {data.length}
+            Mostrando {page * pageSize + 1}–{Math.min((page + 1) * pageSize, data.length)} de{' '}
+            {data.length}
           </p>
           <div className="flex items-center gap-1">
             <button
-              onClick={() => setPage(p => Math.max(0, p - 1))}
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
               disabled={page === 0}
               className="size-8 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
@@ -209,7 +221,7 @@ export default function DataTable<T extends { id?: string }>({
               );
             })}
             <button
-              onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+              onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
               disabled={page === totalPages - 1}
               className="size-8 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >

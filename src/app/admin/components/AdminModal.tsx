@@ -21,11 +21,21 @@ const sizeMap = {
   xl: 'max-w-4xl',
 };
 
-export default function AdminModal({ open, onClose, title, subtitle, children, size = 'md', footer }: AdminModalProps) {
+export default function AdminModal({
+  open,
+  onClose,
+  title,
+  subtitle,
+  children,
+  size = 'md',
+  footer,
+}: AdminModalProps) {
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
-      const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+      const handleEsc = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') onClose();
+      };
       window.addEventListener('keydown', handleEsc);
       return () => {
         document.body.style.overflow = '';
@@ -72,9 +82,7 @@ export default function AdminModal({ open, onClose, title, subtitle, children, s
             </div>
 
             {/* Content */}
-            <div className="px-6 py-5 max-h-[70vh] overflow-y-auto">
-              {children}
-            </div>
+            <div className="px-6 py-5 max-h-[70vh] overflow-y-auto">{children}</div>
 
             {/* Footer */}
             {footer && (

@@ -7,15 +7,18 @@ import Icon from '@/components/ui/AppIcon';
 const returnHighlights = [
   {
     title: 'Proceso claro',
-    description: 'Definimos condiciones, plazos y validaciones para que cada solicitud tenga un recorrido comprensible desde el inicio.',
+    description:
+      'Definimos condiciones, plazos y validaciones para que cada solicitud tenga un recorrido comprensible desde el inicio.',
   },
   {
     title: 'Revisión cuidadosa',
-    description: 'Cada devolución se analiza con criterio técnico y visual para proteger tanto al cliente como a la integridad del producto.',
+    description:
+      'Cada devolución se analiza con criterio técnico y visual para proteger tanto al cliente como a la integridad del producto.',
   },
   {
     title: 'Respuesta ágil',
-    description: 'Buscamos confirmar recepción y siguientes pasos en el menor tiempo posible una vez se radica la solicitud.',
+    description:
+      'Buscamos confirmar recepción y siguientes pasos en el menor tiempo posible una vez se radica la solicitud.',
   },
 ];
 
@@ -43,19 +46,23 @@ const returnPolicies = [
 const returnSteps = [
   {
     title: '1. Radica tu caso',
-    description: 'Comparte número de pedido, motivo y evidencia inicial para que el equipo pueda clasificar correctamente la solicitud.',
+    description:
+      'Comparte número de pedido, motivo y evidencia inicial para que el equipo pueda clasificar correctamente la solicitud.',
   },
   {
     title: '2. Recibe validación',
-    description: 'NovaStore confirma si aplica devolución, cambio o revisión técnica y comunica el siguiente paso operativo.',
+    description:
+      'NovaStore confirma si aplica devolución, cambio o revisión técnica y comunica el siguiente paso operativo.',
   },
   {
     title: '3. Envía el producto',
-    description: 'Si el caso es aprobado, se coordina la entrega del artículo al punto o transportadora definida para inspección.',
+    description:
+      'Si el caso es aprobado, se coordina la entrega del artículo al punto o transportadora definida para inspección.',
   },
   {
     title: '4. Cierre del caso',
-    description: 'Tras la revisión final, se confirma reposición, saldo a favor o decisión correspondiente según el resultado de la validación.',
+    description:
+      'Tras la revisión final, se confirma reposición, saldo a favor o decisión correspondiente según el resultado de la validación.',
   },
 ];
 
@@ -86,7 +93,8 @@ export default function DevolucionesPage() {
         <div
           className="absolute inset-0 pointer-events-none opacity-[0.025]"
           style={{
-            backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(28,28,28,0.8) 1px, transparent 0)',
+            backgroundImage:
+              'radial-gradient(circle at 1px 1px, rgba(28,28,28,0.8) 1px, transparent 0)',
             backgroundSize: '40px 40px',
           }}
         />
@@ -123,17 +131,26 @@ export default function DevolucionesPage() {
               </h1>
 
               <p className="mt-6 max-w-xl text-base leading-relaxed text-[#5A5A5A] lg:text-lg">
-                Esta pagina explica como NovaStore gestiona solicitudes de devolucion, cambios y revisiones posteriores a la entrega. La meta es ofrecer reglas claras y expectativas realistas.
+                Esta pagina explica como NovaStore gestiona solicitudes de devolucion, cambios y
+                revisiones posteriores a la entrega. La meta es ofrecer reglas claras y expectativas
+                realistas.
               </p>
 
               <div className="mt-10 grid gap-4 sm:grid-cols-3">
                 {returnHighlights.map((item, index) => (
-                  <div key={item.title} className="border border-[#DDD9D3] bg-white/75 px-5 py-5 backdrop-blur-sm">
+                  <div
+                    key={item.title}
+                    className="border border-[#DDD9D3] bg-white/75 px-5 py-5 backdrop-blur-sm"
+                  >
                     <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#8A8A8A]">
                       0{index + 1}
                     </p>
-                    <p className="mt-3 text-xl font-display font-900 text-[#1C1C1C]">{item.title}</p>
-                    <p className="mt-3 text-sm leading-relaxed text-[#5A5A5A]">{item.description}</p>
+                    <p className="mt-3 text-xl font-display font-900 text-[#1C1C1C]">
+                      {item.title}
+                    </p>
+                    <p className="mt-3 text-sm leading-relaxed text-[#5A5A5A]">
+                      {item.description}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -158,12 +175,19 @@ export default function DevolucionesPage() {
 
                 <div className="mt-8 space-y-5">
                   {returnPolicies.map((policy) => (
-                    <article key={policy.title} className="border border-[#E6E1DA] bg-[#FCFBF9] p-5">
+                    <article
+                      key={policy.title}
+                      className="border border-[#E6E1DA] bg-[#FCFBF9] p-5"
+                    >
                       <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[#8A8A8A]">
                         {policy.label}
                       </p>
-                      <h3 className="mt-3 text-xl font-display font-900 text-[#1C1C1C]">{policy.title}</h3>
-                      <p className="mt-3 text-sm leading-relaxed text-[#5A5A5A]">{policy.description}</p>
+                      <h3 className="mt-3 text-xl font-display font-900 text-[#1C1C1C]">
+                        {policy.title}
+                      </h3>
+                      <p className="mt-3 text-sm leading-relaxed text-[#5A5A5A]">
+                        {policy.description}
+                      </p>
                     </article>
                   ))}
                 </div>
@@ -183,7 +207,8 @@ export default function DevolucionesPage() {
               Un proceso ordenado desde la solicitud hasta el cierre.
             </h2>
             <p className="mt-5 text-base leading-relaxed text-[#5A5A5A]">
-              La experiencia de devolucion debe ser comprensible y trazable. Por eso estructuramos cada caso con pasos claros y puntos de validacion concretos.
+              La experiencia de devolucion debe ser comprensible y trazable. Por eso estructuramos
+              cada caso con pasos claros y puntos de validacion concretos.
             </p>
           </div>
 
@@ -215,7 +240,8 @@ export default function DevolucionesPage() {
               Lo que conviene saber antes de solicitar una devolucion.
             </h2>
             <p className="mt-5 max-w-lg text-base leading-relaxed text-[#5A5A5A]">
-              Respuestas cortas para anticipar dudas comunes sobre plazos, estado del producto y validacion del caso.
+              Respuestas cortas para anticipar dudas comunes sobre plazos, estado del producto y
+              validacion del caso.
             </p>
           </div>
 
@@ -235,7 +261,8 @@ export default function DevolucionesPage() {
                 Necesitas revisar una devolucion puntual?
               </h3>
               <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/75">
-                Si tu caso requiere confirmacion previa, evidencia adicional o acompanamiento antes de enviar el producto, soporte puede ayudarte a encaminarlo.
+                Si tu caso requiere confirmacion previa, evidencia adicional o acompanamiento antes
+                de enviar el producto, soporte puede ayudarte a encaminarlo.
               </p>
               <div className="mt-6 flex flex-wrap gap-4">
                 <Link

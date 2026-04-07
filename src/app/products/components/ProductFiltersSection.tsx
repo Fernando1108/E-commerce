@@ -116,7 +116,10 @@ export default function ProductFiltersSection({
                       key={opt.id}
                       role="option"
                       aria-selected={activeSort === opt.id}
-                      onClick={() => { onSortChange(opt.id); setSortOpen(false); }}
+                      onClick={() => {
+                        onSortChange(opt.id);
+                        setSortOpen(false);
+                      }}
                       className={`w-full text-left px-5 py-3 text-[11px] font-600 uppercase tracking-widest transition-colors ${
                         activeSort === opt.id
                           ? 'bg-[#1C1C1C] text-white'

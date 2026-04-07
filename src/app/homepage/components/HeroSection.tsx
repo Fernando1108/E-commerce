@@ -11,8 +11,8 @@ const fadeUp = {
   visible: (delay = 0) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }
-  })
+    transition: { duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] },
+  }),
 };
 
 const TICKER_ITEMS = [
@@ -26,17 +26,24 @@ const TICKER_ITEMS = [
 
 export default function HeroSection() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: containerRef, offset: ['start start', 'end start'] });
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ['start start', 'end start'],
+  });
   const imageY = useTransform(scrollYProgress, [0, 1], ['0%', '12%']);
   const contentY = useTransform(scrollYProgress, [0, 1], ['0%', '6%']);
 
   return (
-    <section ref={containerRef} className="relative min-h-screen flex flex-col overflow-hidden bg-[#F8F7F5]">
+    <section
+      ref={containerRef}
+      className="relative min-h-screen flex flex-col overflow-hidden bg-[#F8F7F5]"
+    >
       {/* Subtle warm texture */}
       <div
         className="absolute inset-0 pointer-events-none opacity-[0.025]"
         style={{
-          backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(28,28,28,0.8) 1px, transparent 0)',
+          backgroundImage:
+            'radial-gradient(circle at 1px 1px, rgba(28,28,28,0.8) 1px, transparent 0)',
           backgroundSize: '40px 40px',
         }}
       />
@@ -47,10 +54,8 @@ export default function HeroSection() {
       {/* Main content */}
       <div className="flex-1 flex items-center pt-[72px]">
         <div className="max-w-[1440px] mx-auto px-6 lg:px-12 w-full grid lg:grid-cols-2 gap-0 lg:gap-16 items-center py-16 lg:py-20">
-
           {/* LEFT: Content */}
           <motion.div style={{ y: contentY }} className="space-y-10 relative z-10 lg:pr-8">
-
             {/* Eyebrow pill */}
             <motion.div
               variants={fadeUp}
@@ -97,7 +102,8 @@ export default function HeroSection() {
               custom={0.35}
               className="text-base lg:text-lg text-[#5A5A5A] max-w-md leading-relaxed"
             >
-              Tecnología premium, accesorios de workspace y gadgets seleccionados para profesionales que no aceptan lo ordinario.
+              Tecnología premium, accesorios de workspace y gadgets seleccionados para profesionales
+              que no aceptan lo ordinario.
             </motion.p>
 
             {/* Stats row */}
@@ -109,17 +115,23 @@ export default function HeroSection() {
               className="flex items-center gap-8 pt-2"
             >
               <div>
-                <p className="text-4xl font-display font-900 tracking-tightest text-[#1C1C1C]">12K+</p>
+                <p className="text-4xl font-display font-900 tracking-tightest text-[#1C1C1C]">
+                  12K+
+                </p>
                 <p className="label-eyebrow mt-1.5 text-[#8A8A8A]">Clientes activos</p>
               </div>
               <div className="h-12 w-px bg-[#DDD9D3]" />
               <div>
-                <p className="text-4xl font-display font-900 tracking-tightest text-[#1C1C1C]">4.9★</p>
+                <p className="text-4xl font-display font-900 tracking-tightest text-[#1C1C1C]">
+                  4.9★
+                </p>
                 <p className="label-eyebrow mt-1.5 text-[#8A8A8A]">Valoración media</p>
               </div>
               <div className="h-12 w-px bg-[#DDD9D3]" />
               <div>
-                <p className="text-4xl font-display font-900 tracking-tightest text-[#1C1C1C]">500+</p>
+                <p className="text-4xl font-display font-900 tracking-tightest text-[#1C1C1C]">
+                  500+
+                </p>
                 <p className="label-eyebrow mt-1.5 text-[#8A8A8A]">Productos</p>
               </div>
             </motion.div>
@@ -138,7 +150,12 @@ export default function HeroSection() {
                 style={{ padding: '1.125rem 2.25rem' }}
               >
                 Explorar Tienda
-                <Icon name="ArrowRightIcon" size={16} variant="outline" className="group-hover:translate-x-1 transition-transform duration-300" />
+                <Icon
+                  name="ArrowRightIcon"
+                  size={16}
+                  variant="outline"
+                  className="group-hover:translate-x-1 transition-transform duration-300"
+                />
               </Link>
               <Link
                 href="/products"
@@ -189,7 +206,9 @@ export default function HeroSection() {
             >
               <div className="flex flex-col items-center gap-2">
                 <Icon name="StarIcon" size={22} variant="solid" className="text-[#C8922A]" />
-                <p className="text-[10px] font-black uppercase tracking-widest text-white">Top Rated</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-white">
+                  Top Rated
+                </p>
                 <p className="text-[9px] font-600 text-white/60 uppercase tracking-wider">2026</p>
               </div>
             </motion.div>
@@ -206,15 +225,21 @@ export default function HeroSection() {
                   <Icon name="TruckIcon" size={18} variant="outline" className="text-[#2563EB]" />
                 </div>
                 <div>
-                  <p className="text-[9px] font-black uppercase tracking-widest text-[#8A8A8A]">Envío Gratis</p>
-                  <p className="text-[12px] font-black uppercase tracking-widest text-[#1C1C1C]">Pedidos +$50</p>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-[#8A8A8A]">
+                    Envío Gratis
+                  </p>
+                  <p className="text-[12px] font-black uppercase tracking-widest text-[#1C1C1C]">
+                    Pedidos +$50
+                  </p>
                 </div>
               </div>
             </motion.div>
 
             {/* Side label */}
             <div className="absolute right-[-3.5rem] top-1/2 -translate-y-1/2 -rotate-90 origin-center z-30 hidden xl:block">
-              <span className="label-eyebrow text-[#8A8A8A] whitespace-nowrap">Colección Primavera 2026</span>
+              <span className="label-eyebrow text-[#8A8A8A] whitespace-nowrap">
+                Colección Primavera 2026
+              </span>
             </div>
           </motion.div>
         </div>

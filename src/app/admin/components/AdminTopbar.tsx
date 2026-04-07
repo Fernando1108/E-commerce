@@ -41,9 +41,9 @@ export default function AdminTopbar({ onMenuToggle }: AdminTopbarProps) {
     // If we have a dynamic segment like /admin/pedidos/[id]
     if (crumbs.length === 0 || crumbs[crumbs.length - 1].path !== pathname) {
       const closestParent = Object.keys(breadcrumbMap)
-        .filter(key => pathname.startsWith(key))
+        .filter((key) => pathname.startsWith(key))
         .sort((a, b) => b.length - a.length)[0];
-      if (closestParent && !crumbs.find(c => c.path === closestParent)) {
+      if (closestParent && !crumbs.find((c) => c.path === closestParent)) {
         crumbs.push({ label: breadcrumbMap[closestParent], path: closestParent });
       }
     }
@@ -70,7 +70,11 @@ export default function AdminTopbar({ onMenuToggle }: AdminTopbarProps) {
           {breadcrumbs.map((crumb, i) => (
             <React.Fragment key={crumb.path}>
               <Icon name="ChevronRightIcon" size={12} className="text-slate-300" />
-              <span className={i === breadcrumbs.length - 1 ? 'text-slate-900 font-semibold' : 'text-slate-400'}>
+              <span
+                className={
+                  i === breadcrumbs.length - 1 ? 'text-slate-900 font-semibold' : 'text-slate-400'
+                }
+              >
                 {crumb.label}
               </span>
             </React.Fragment>
@@ -85,7 +89,9 @@ export default function AdminTopbar({ onMenuToggle }: AdminTopbarProps) {
             <p className="text-xs font-semibold text-slate-700">
               {user?.user_metadata?.name || user?.email?.split('@')[0] || 'Admin'}
             </p>
-            <p className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Administrador</p>
+            <p className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">
+              Administrador
+            </p>
           </div>
           <div className="size-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">
             {(user?.user_metadata?.name || user?.email || 'A').charAt(0).toUpperCase()}

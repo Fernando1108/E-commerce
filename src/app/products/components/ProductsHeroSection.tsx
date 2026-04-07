@@ -31,7 +31,8 @@ export default function ProductsHeroSection({ onSearch }: ProductsHeroSectionPro
         <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
-            backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(28,28,28,0.8) 1px, transparent 0)',
+            backgroundImage:
+              'radial-gradient(circle at 1px 1px, rgba(28,28,28,0.8) 1px, transparent 0)',
             backgroundSize: '40px 40px',
           }}
         />
@@ -40,12 +41,8 @@ export default function ProductsHeroSection({ onSearch }: ProductsHeroSectionPro
         {/* Very subtle blue accent — bottom left */}
         <div className="absolute -bottom-20 -left-20 w-[400px] h-[400px] rounded-full bg-[#2563EB] opacity-[0.04] blur-[100px]" />
         {/* Vertical accent lines */}
-        <div
-          className="absolute top-0 right-[18%] w-px h-full bg-gradient-to-b from-transparent via-[#DDD9D3]/60 to-transparent"
-        />
-        <div
-          className="absolute top-0 right-[36%] w-px h-full bg-gradient-to-b from-transparent via-[#DDD9D3]/30 to-transparent"
-        />
+        <div className="absolute top-0 right-[18%] w-px h-full bg-gradient-to-b from-transparent via-[#DDD9D3]/60 to-transparent" />
+        <div className="absolute top-0 right-[36%] w-px h-full bg-gradient-to-b from-transparent via-[#DDD9D3]/30 to-transparent" />
       </div>
 
       <div className="max-w-[1440px] mx-auto px-6 lg:px-12 relative z-10">
@@ -60,13 +57,19 @@ export default function ProductsHeroSection({ onSearch }: ProductsHeroSectionPro
           {breadcrumbs.map((crumb, i) => (
             <React.Fragment key={crumb.href}>
               {i > 0 && (
-                <Icon name="ChevronRightIcon" size={11} variant="outline" className="text-[#8A8A8A]" />
+                <Icon
+                  name="ChevronRightIcon"
+                  size={11}
+                  variant="outline"
+                  className="text-[#8A8A8A]"
+                />
               )}
               <Link
                 href={crumb.href}
                 className={`text-[10px] font-700 uppercase tracking-widest transition-colors ${
                   i === breadcrumbs.length - 1
-                    ? 'text-[#1C1C1C]' : 'text-[#8A8A8A] hover:text-[#5A5A5A]'
+                    ? 'text-[#1C1C1C]'
+                    : 'text-[#8A8A8A] hover:text-[#5A5A5A]'
                 }`}
               >
                 {crumb.label}
@@ -123,7 +126,8 @@ export default function ProductsHeroSection({ onSearch }: ProductsHeroSectionPro
               transition={{ duration: 0.6, delay: 0.3, ease: [0.4, 0, 0.2, 1] }}
               className="text-[#5A5A5A] text-base leading-relaxed max-w-md mb-10"
             >
-              Más de 500 productos de tecnología premium, workspace y lifestyle — seleccionados para profesionales que no aceptan compromisos.
+              Más de 500 productos de tecnología premium, workspace y lifestyle — seleccionados para
+              profesionales que no aceptan compromisos.
             </motion.p>
 
             {/* Premium search bar */}
@@ -136,9 +140,7 @@ export default function ProductsHeroSection({ onSearch }: ProductsHeroSectionPro
             >
               <div
                 className={`relative flex items-center bg-white transition-all duration-300 ${
-                  searchFocused
-                    ? 'ring-1 ring-[#2563EB] ring-offset-0'
-                    : 'ring-1 ring-[#DDD9D3]'
+                  searchFocused ? 'ring-1 ring-[#2563EB] ring-offset-0' : 'ring-1 ring-[#DDD9D3]'
                 }`}
               >
                 <div className="pl-5 pr-3 flex items-center shrink-0">
@@ -180,7 +182,9 @@ export default function ProductsHeroSection({ onSearch }: ProductsHeroSectionPro
 
               {/* Search suggestions hint */}
               <div className="flex items-center gap-4 mt-3">
-                <span className="text-[10px] text-[#8A8A8A] font-500 uppercase tracking-wider">Popular:</span>
+                <span className="text-[10px] text-[#8A8A8A] font-500 uppercase tracking-wider">
+                  Popular:
+                </span>
                 {['Monitor 4K', 'Teclado mecánico', 'Auriculares ANC'].map((term) => (
                   <button
                     key={term}
@@ -215,11 +219,15 @@ export default function ProductsHeroSection({ onSearch }: ProductsHeroSectionPro
                 transition={{ duration: 0.5, delay: 0.4 + i * 0.07 }}
                 className="py-5 border-b border-[#DDD9D3]/60 last:border-b-0"
               >
-                <p className="font-display font-900 text-[#1C1C1C] leading-none tracking-tightest mb-1"
-                  style={{ fontSize: 'clamp(1.5rem, 2.5vw, 2rem)' }}>
+                <p
+                  className="font-display font-900 text-[#1C1C1C] leading-none tracking-tightest mb-1"
+                  style={{ fontSize: 'clamp(1.5rem, 2.5vw, 2rem)' }}
+                >
                   {stat.value}
                 </p>
-                <p className="text-[10px] font-700 uppercase tracking-widest text-[#5A5A5A]">{stat.label}</p>
+                <p className="text-[10px] font-700 uppercase tracking-widest text-[#5A5A5A]">
+                  {stat.label}
+                </p>
                 <p className="text-[10px] text-[#8A8A8A] mt-0.5">{stat.sub}</p>
               </motion.div>
             ))}

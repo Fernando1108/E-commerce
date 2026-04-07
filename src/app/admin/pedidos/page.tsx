@@ -16,11 +16,23 @@ const statusColors: Record<string, string> = {
 };
 
 const statusLabels: Record<string, string> = {
-  pending: 'Pendiente', processing: 'Procesando', shipped: 'Enviado',
-  delivered: 'Entregado', completed: 'Completado', cancelled: 'Cancelado',
+  pending: 'Pendiente',
+  processing: 'Procesando',
+  shipped: 'Enviado',
+  delivered: 'Entregado',
+  completed: 'Completado',
+  cancelled: 'Cancelado',
 };
 
-const statusFilters = ['all', 'pending', 'processing', 'shipped', 'delivered', 'completed', 'cancelled'];
+const statusFilters = [
+  'all',
+  'pending',
+  'processing',
+  'shipped',
+  'delivered',
+  'completed',
+  'cancelled',
+];
 
 interface OrderRow {
   id: string;
@@ -54,25 +66,50 @@ export default function AdminPedidos() {
 
   const columns: Column<OrderRow>[] = [
     {
-      key: 'id', label: 'Orden',
-      render: (item) => <span className="font-mono text-sm font-semibold text-slate-700">#{item.id.slice(0, 8).toUpperCase()}</span>,
-    },
-    {
-      key: 'customer', label: 'Cliente',
-      render: (item) => <span className="text-sm text-slate-700">{item.profiles?.name || 'Cliente'}</span>,
-    },
-    {
-      key: 'created_at', label: 'Fecha', sortable: true,
-      render: (item) => <span className="text-sm text-slate-500">{new Date(item.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}</span>,
-    },
-    {
-      key: 'total', label: 'Total', sortable: true,
-      render: (item) => <span className="text-sm font-semibold text-slate-800">{formatCurrency(item.total)}</span>,
-    },
-    {
-      key: 'status', label: 'Estado',
+      key: 'id',
+      label: 'Orden',
       render: (item) => (
-        <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold ${statusColors[item.status] || 'bg-slate-100 text-slate-600'}`}>
+        <span className="font-mono text-sm font-semibold text-slate-700">
+          #{item.id.slice(0, 8).toUpperCase()}
+        </span>
+      ),
+    },
+    {
+      key: 'customer',
+      label: 'Cliente',
+      render: (item) => (
+        <span className="text-sm text-slate-700">{item.profiles?.name || 'Cliente'}</span>
+      ),
+    },
+    {
+      key: 'created_at',
+      label: 'Fecha',
+      sortable: true,
+      render: (item) => (
+        <span className="text-sm text-slate-500">
+          {new Date(item.created_at).toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+          })}
+        </span>
+      ),
+    },
+    {
+      key: 'total',
+      label: 'Total',
+      sortable: true,
+      render: (item) => (
+        <span className="text-sm font-semibold text-slate-800">{formatCurrency(item.total)}</span>
+      ),
+    },
+    {
+      key: 'status',
+      label: 'Estado',
+      render: (item) => (
+        <span
+          className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold ${statusColors[item.status] || 'bg-slate-100 text-slate-600'}`}
+        >
           {statusLabels[item.status] || item.status}
         </span>
       ),

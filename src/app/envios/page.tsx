@@ -7,15 +7,18 @@ import Icon from '@/components/ui/AppIcon';
 const shippingHighlights = [
   {
     title: 'Cobertura nacional',
-    description: 'Realizamos envíos a las principales ciudades y zonas intermedias con operadores aliados de alta confiabilidad.',
+    description:
+      'Realizamos envíos a las principales ciudades y zonas intermedias con operadores aliados de alta confiabilidad.',
   },
   {
     title: 'Preparación editorial',
-    description: 'Cada pedido pasa por verificación manual de empaque, accesorios y protección antes de salir de bodega.',
+    description:
+      'Cada pedido pasa por verificación manual de empaque, accesorios y protección antes de salir de bodega.',
   },
   {
     title: 'Seguimiento continuo',
-    description: 'Compartimos actualización de despacho y trazabilidad para que el cliente tenga visibilidad del proceso.',
+    description:
+      'Compartimos actualización de despacho y trazabilidad para que el cliente tenga visibilidad del proceso.',
   },
 ];
 
@@ -67,7 +70,8 @@ export default function EnviosPage() {
         <div
           className="absolute inset-0 pointer-events-none opacity-[0.025]"
           style={{
-            backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(28,28,28,0.8) 1px, transparent 0)',
+            backgroundImage:
+              'radial-gradient(circle at 1px 1px, rgba(28,28,28,0.8) 1px, transparent 0)',
             backgroundSize: '40px 40px',
           }}
         />
@@ -104,17 +108,25 @@ export default function EnviosPage() {
               </h1>
 
               <p className="mt-6 max-w-xl text-base leading-relaxed text-[#5A5A5A] lg:text-lg">
-                Esta página resume cómo NovaStore procesa, empaca y despacha cada pedido. La intención es dar contexto claro sobre tiempos, cobertura y condiciones del servicio.
+                Esta página resume cómo NovaStore procesa, empaca y despacha cada pedido. La
+                intención es dar contexto claro sobre tiempos, cobertura y condiciones del servicio.
               </p>
 
               <div className="mt-10 grid gap-4 sm:grid-cols-3">
                 {shippingHighlights.map((item, index) => (
-                  <div key={item.title} className="border border-[#DDD9D3] bg-white/75 px-5 py-5 backdrop-blur-sm">
+                  <div
+                    key={item.title}
+                    className="border border-[#DDD9D3] bg-white/75 px-5 py-5 backdrop-blur-sm"
+                  >
                     <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#8A8A8A]">
                       0{index + 1}
                     </p>
-                    <p className="mt-3 text-xl font-display font-900 text-[#1C1C1C]">{item.title}</p>
-                    <p className="mt-3 text-sm leading-relaxed text-[#5A5A5A]">{item.description}</p>
+                    <p className="mt-3 text-xl font-display font-900 text-[#1C1C1C]">
+                      {item.title}
+                    </p>
+                    <p className="mt-3 text-sm leading-relaxed text-[#5A5A5A]">
+                      {item.description}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -139,12 +151,19 @@ export default function EnviosPage() {
 
                 <div className="mt-8 space-y-5">
                   {shippingPolicies.map((policy) => (
-                    <article key={policy.title} className="border border-[#E6E1DA] bg-[#FCFBF9] p-5">
+                    <article
+                      key={policy.title}
+                      className="border border-[#E6E1DA] bg-[#FCFBF9] p-5"
+                    >
                       <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[#8A8A8A]">
                         {policy.label}
                       </p>
-                      <h3 className="mt-3 text-xl font-display font-900 text-[#1C1C1C]">{policy.title}</h3>
-                      <p className="mt-3 text-sm leading-relaxed text-[#5A5A5A]">{policy.description}</p>
+                      <h3 className="mt-3 text-xl font-display font-900 text-[#1C1C1C]">
+                        {policy.title}
+                      </h3>
+                      <p className="mt-3 text-sm leading-relaxed text-[#5A5A5A]">
+                        {policy.description}
+                      </p>
                     </article>
                   ))}
                 </div>
@@ -164,7 +183,9 @@ export default function EnviosPage() {
               Transparencia desde la compra hasta la entrega.
             </h2>
             <p className="mt-5 text-base leading-relaxed text-[#5A5A5A]">
-              Buscamos que el proceso logístico sea tan claro como la curaduría de producto. Si necesitas una validación puntual, el equipo de soporte puede acompañarte antes del despacho.
+              Buscamos que el proceso logístico sea tan claro como la curaduría de producto. Si
+              necesitas una validación puntual, el equipo de soporte puede acompañarte antes del
+              despacho.
             </p>
           </div>
 
@@ -179,7 +200,8 @@ export default function EnviosPage() {
                 </p>
               </div>
               <p className="mt-4 text-sm leading-relaxed text-[#5A5A5A]">
-                La mayoría de pedidos a ciudades principales se entregan con trazabilidad activa y confirmación de estado durante el trayecto.
+                La mayoría de pedidos a ciudades principales se entregan con trazabilidad activa y
+                confirmación de estado durante el trayecto.
               </p>
             </div>
 
@@ -193,7 +215,8 @@ export default function EnviosPage() {
                 </p>
               </div>
               <p className="mt-4 text-sm leading-relaxed text-[#5A5A5A]">
-                Priorizamos materiales de protección para electrónica, accesorios delicados y referencias de alto valor percibido.
+                Priorizamos materiales de protección para electrónica, accesorios delicados y
+                referencias de alto valor percibido.
               </p>
             </div>
 
@@ -207,7 +230,8 @@ export default function EnviosPage() {
                 </p>
               </div>
               <p className="mt-4 text-sm leading-relaxed text-[#5A5A5A]">
-                Las órdenes aprobadas fuera de horario hábil se procesan en el siguiente ciclo operativo disponible.
+                Las órdenes aprobadas fuera de horario hábil se procesan en el siguiente ciclo
+                operativo disponible.
               </p>
             </div>
 
@@ -221,7 +245,8 @@ export default function EnviosPage() {
                 </p>
               </div>
               <p className="mt-4 text-sm leading-relaxed text-[#5A5A5A]">
-                Si hay una novedad operativa, el equipo contacta al cliente antes de ejecutar cualquier cambio relevante sobre el envío.
+                Si hay una novedad operativa, el equipo contacta al cliente antes de ejecutar
+                cualquier cambio relevante sobre el envío.
               </p>
             </div>
           </div>
@@ -238,7 +263,8 @@ export default function EnviosPage() {
               Respuestas útiles antes de comprar.
             </h2>
             <p className="mt-5 max-w-lg text-base leading-relaxed text-[#5A5A5A]">
-              Una guía breve para resolver las dudas más comunes sobre logística, tiempos de entrega y ajustes posteriores a la compra.
+              Una guía breve para resolver las dudas más comunes sobre logística, tiempos de entrega
+              y ajustes posteriores a la compra.
             </p>
           </div>
 
@@ -258,7 +284,8 @@ export default function EnviosPage() {
                 ¿Necesitas revisar un caso puntual?
               </h3>
               <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/75">
-                Si tu pedido requiere validación especial por cobertura, tiempos o cambios de dirección, puedes comunicarte con soporte antes del despacho.
+                Si tu pedido requiere validación especial por cobertura, tiempos o cambios de
+                dirección, puedes comunicarte con soporte antes del despacho.
               </p>
               <div className="mt-6 flex flex-wrap gap-4">
                 <Link

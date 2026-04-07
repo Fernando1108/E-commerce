@@ -1,18 +1,44 @@
-import { Html, Head, Body, Container, Section, Text, Heading, Hr, Row, Column } from '@react-email/components'
+import {
+  Html,
+  Head,
+  Body,
+  Container,
+  Section,
+  Text,
+  Heading,
+  Hr,
+  Row,
+  Column,
+} from '@react-email/components';
 
 interface OrderConfirmationProps {
-  customerName: string
-  orderId: string
-  total: number
-  items: { name: string; quantity: number; price: number }[]
+  customerName: string;
+  orderId: string;
+  total: number;
+  items: { name: string; quantity: number; price: number }[];
 }
 
-export default function OrderConfirmation({ customerName, orderId, total, items }: OrderConfirmationProps) {
+export default function OrderConfirmation({
+  customerName,
+  orderId,
+  total,
+  items,
+}: OrderConfirmationProps) {
   return (
     <Html>
       <Head />
-      <Body style={{ backgroundColor: '#f3f4f6', fontFamily: 'Arial, sans-serif', padding: '40px 0' }}>
-        <Container style={{ backgroundColor: '#ffffff', borderRadius: '8px', padding: '40px', maxWidth: '600px', margin: '0 auto' }}>
+      <Body
+        style={{ backgroundColor: '#f3f4f6', fontFamily: 'Arial, sans-serif', padding: '40px 0' }}
+      >
+        <Container
+          style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '8px',
+            padding: '40px',
+            maxWidth: '600px',
+            margin: '0 auto',
+          }}
+        >
           <Heading style={{ color: '#1a1a2e', fontSize: '24px', textAlign: 'center' as const }}>
             ¡Pedido confirmado!
           </Heading>
@@ -40,7 +66,9 @@ export default function OrderConfirmation({ customerName, orderId, total, items 
           <Hr style={{ borderColor: '#e5e7eb', margin: '24px 0' }} />
           <Row>
             <Column>
-              <Text style={{ color: '#1a1a2e', fontWeight: 'bold', fontSize: '18px', margin: '0' }}>Total</Text>
+              <Text style={{ color: '#1a1a2e', fontWeight: 'bold', fontSize: '18px', margin: '0' }}>
+                Total
+              </Text>
             </Column>
             <Column align="right">
               <Text style={{ color: '#6C63FF', fontWeight: 'bold', fontSize: '18px', margin: '0' }}>
@@ -55,5 +83,5 @@ export default function OrderConfirmation({ customerName, orderId, total, items 
         </Container>
       </Body>
     </Html>
-  )
+  );
 }

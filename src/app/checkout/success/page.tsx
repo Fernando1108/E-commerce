@@ -1,19 +1,19 @@
-'use client'
-import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
-import Link from 'next/link'
-import { useCartStore } from '@/store/cart-store'
+'use client';
+import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import Link from 'next/link';
+import { useCartStore } from '@/store/cart-store';
 
 export default function CheckoutSuccessPage() {
-  const clearCart = useCartStore((state) => state.clearCart)
-  const [cleared, setCleared] = useState(false)
+  const clearCart = useCartStore((state) => state.clearCart);
+  const [cleared, setCleared] = useState(false);
 
   useEffect(() => {
     if (!cleared) {
-      clearCart()
-      setCleared(true)
+      clearCart();
+      setCleared(true);
     }
-  }, [cleared, clearCart])
+  }, [cleared, clearCart]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
@@ -24,7 +24,12 @@ export default function CheckoutSuccessPage() {
         className="bg-white rounded-2xl shadow-lg p-8 md:p-12 max-w-md w-full text-center"
       >
         <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <svg className="w-8 h-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg
+            className="w-8 h-8 text-green-500"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
@@ -33,14 +38,20 @@ export default function CheckoutSuccessPage() {
           Tu pedido ha sido procesado correctamente. Recibirás un email de confirmación en breve.
         </p>
         <div className="space-y-3">
-          <Link href="/account/orders" className="block w-full bg-black text-white py-3 rounded-xl font-medium hover:bg-gray-800 transition-colors">
+          <Link
+            href="/account/orders"
+            className="block w-full bg-black text-white py-3 rounded-xl font-medium hover:bg-gray-800 transition-colors"
+          >
             Ver mis pedidos
           </Link>
-          <Link href="/products" className="block w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-200 transition-colors">
+          <Link
+            href="/products"
+            className="block w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+          >
             Seguir comprando
           </Link>
         </div>
       </motion.div>
     </div>
-  )
+  );
 }

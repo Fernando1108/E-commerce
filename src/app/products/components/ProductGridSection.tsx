@@ -163,7 +163,10 @@ export default function ProductGridSection({ searchQuery = '' }: { searchQuery?:
       categoryId: activeCategory === 'all' ? null : activeCategory,
       search: searchQuery.trim() || null,
     })
-      .then((data) => { setProducts(data); setLoading(false); })
+      .then((data) => {
+        setProducts(data);
+        setLoading(false);
+      })
       .catch(() => setLoading(false));
   }, [activeCategory, searchQuery]);
 
@@ -232,11 +235,18 @@ export default function ProductGridSection({ searchQuery = '' }: { searchQuery?:
                 className="flex flex-col items-center justify-center py-24 gap-6"
               >
                 <div className="size-16 bg-[#EFEDE9] flex items-center justify-center">
-                  <Icon name="MagnifyingGlassIcon" size={28} variant="outline" className="text-[#8A8A8A]" />
+                  <Icon
+                    name="MagnifyingGlassIcon"
+                    size={28}
+                    variant="outline"
+                    className="text-[#8A8A8A]"
+                  />
                 </div>
                 <div className="text-center">
                   <p className="font-700 text-[#1C1C1C] text-xl mb-2">Sin resultados</p>
-                  <p className="text-[#5A5A5A] text-sm">No hay productos en esta categoría por el momento.</p>
+                  <p className="text-[#5A5A5A] text-sm">
+                    No hay productos en esta categoría por el momento.
+                  </p>
                 </div>
                 <button
                   onClick={() => setActiveCategory('all')}
@@ -264,7 +274,12 @@ export default function ProductGridSection({ searchQuery = '' }: { searchQuery?:
               </div>
               <button className="mt-4 px-10 py-4 border-2 border-[#1C1C1C] text-[#1C1C1C] text-[11px] font-black uppercase tracking-widest hover:bg-[#1C1C1C] hover:text-white transition-all duration-300 inline-flex items-center gap-3 group">
                 Cargar más productos
-                <Icon name="ArrowDownIcon" size={14} variant="outline" className="group-hover:translate-y-1 transition-transform" />
+                <Icon
+                  name="ArrowDownIcon"
+                  size={14}
+                  variant="outline"
+                  className="group-hover:translate-y-1 transition-transform"
+                />
               </button>
             </motion.div>
           )}

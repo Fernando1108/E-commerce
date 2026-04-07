@@ -73,7 +73,9 @@ function CategoryCard({
         <div className="absolute top-3 right-4 z-20 pointer-events-none select-none">
           <span
             className="font-display font-black italic text-white/[0.06] group-hover:text-white/[0.12] transition-colors duration-700 leading-none"
-            style={{ fontSize: span === 'large' ? '6rem' : span === 'medium' ? '4.5rem' : '3.5rem' }}
+            style={{
+              fontSize: span === 'large' ? '6rem' : span === 'medium' ? '4.5rem' : '3.5rem',
+            }}
           >
             0{index + 1}
           </span>
@@ -88,10 +90,7 @@ function CategoryCard({
         {/* ── Content ── */}
         <div className="absolute inset-0 z-10 flex flex-col justify-end p-6 lg:p-8">
           {/* Eyebrow label */}
-          <motion.span
-            className="inline-flex items-center gap-2 mb-3"
-            initial={false}
-          >
+          <motion.span className="inline-flex items-center gap-2 mb-3" initial={false}>
             <span
               className="block w-4 h-px transition-all duration-500 group-hover:w-8"
               style={{ background: accent }}
@@ -109,8 +108,11 @@ function CategoryCard({
             className="font-display font-black italic text-white uppercase leading-[0.88] tracking-[-0.03em] mb-3 whitespace-pre-line transition-transform duration-500 group-hover:-translate-y-1"
             style={{
               fontSize:
-                span === 'large' ? 'clamp(2rem, 3.2vw, 3.4rem)' :
-                span === 'medium' ? 'clamp(1.6rem, 2.4vw, 2.4rem)' : 'clamp(1.3rem, 1.8vw, 1.9rem)',
+                span === 'large'
+                  ? 'clamp(2rem, 3.2vw, 3.4rem)'
+                  : span === 'medium'
+                    ? 'clamp(1.6rem, 2.4vw, 2.4rem)'
+                    : 'clamp(1.3rem, 1.8vw, 1.9rem)',
             }}
           >
             {cat.name}
@@ -205,9 +207,7 @@ function SectionHeader() {
 
 /* ─── Skeleton ─────────────────────────────────────────────────── */
 function SkeletonBanner({ className }: { className?: string }) {
-  return (
-    <div className={`bg-[#EFEDE9] animate-pulse ${className}`} />
-  );
+  return <div className={`bg-[#EFEDE9] animate-pulse ${className}`} />;
 }
 
 /* ─── Main Section ────────────────────────────────────────────── */
@@ -217,14 +217,19 @@ export default function CategoryBannersSection() {
 
   useEffect(() => {
     getCategories()
-      .then((data) => { setCategories(data); setLoading(false); })
+      .then((data) => {
+        setCategories(data);
+        setLoading(false);
+      })
       .catch(() => setLoading(false));
   }, []);
 
   // Determine grid layout based on display_size
   const largeCategories = categories.filter((c) => c.display_size === 'large');
   const mediumCategories = categories.filter((c) => c.display_size === 'medium');
-  const smallCategories = categories.filter((c) => c.display_size !== 'large' && c.display_size !== 'medium');
+  const smallCategories = categories.filter(
+    (c) => c.display_size !== 'large' && c.display_size !== 'medium'
+  );
 
   return (
     <section className="py-24 lg:py-36 bg-[#F8F7F5]">
@@ -250,7 +255,11 @@ export default function CategoryBannersSection() {
             ))}
             {mediumCategories.slice(0, 1).map((cat, i) => (
               <div key={cat.id} className="md:col-span-5 h-[520px] lg:h-[640px]">
-                <CategoryCard cat={cat} index={largeCategories.length + i} className="w-full h-full" />
+                <CategoryCard
+                  cat={cat}
+                  index={largeCategories.length + i}
+                  className="w-full h-full"
+                />
               </div>
             ))}
 

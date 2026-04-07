@@ -1,16 +1,16 @@
-import { NextResponse } from 'next/server'
-import { requireAdmin } from '@/lib/admin'
+import { NextResponse } from 'next/server';
+import { requireAdmin } from '@/lib/admin';
 
 export async function GET() {
-  const { error, supabase } = await requireAdmin()
-  if (error) return error
+  const { error, supabase } = await requireAdmin();
+  if (error) return error;
 
   const { data, error: dbError } = await supabase
     .from('invoices')
     .select('*, orders(id, status, total, created_at, user_id, profiles(name))')
     .order('created_at', { ascending: false })
-    .limit(100)
+    .limit(100);
 
-  if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 })
-  return NextResponse.json(data || [])
+  if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 });
+  return NextResponse.json(data || []);
 }

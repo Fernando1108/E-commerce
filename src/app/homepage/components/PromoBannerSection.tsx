@@ -14,7 +14,6 @@ export default function PromoBannerSection() {
   return (
     <section ref={ref} className="py-20 lg:py-32 bg-[#EFEDE9]">
       <div className="max-w-[1440px] mx-auto px-6 lg:px-12 space-y-3">
-
         {/* Primary promo: full-width dark editorial */}
         <motion.div
           initial={{ opacity: 0, y: 28 }}
@@ -41,7 +40,9 @@ export default function PromoBannerSection() {
 
           {/* Content */}
           <div className="relative z-10 h-full flex flex-col justify-center px-12 lg:px-20 max-w-3xl">
-            <span className="label-eyebrow text-[#2563EB] mb-6">Oferta Especial · Tiempo Limitado</span>
+            <span className="label-eyebrow text-[#2563EB] mb-6">
+              Oferta Especial · Tiempo Limitado
+            </span>
             <h2
               className="font-display font-900 italic text-white uppercase leading-[0.85] tracking-[-0.04em] mb-6"
               style={{ fontSize: 'clamp(3rem, 5.5vw, 6rem)' }}
@@ -52,7 +53,8 @@ export default function PromoBannerSection() {
             </h2>
             <p className="text-base text-white/50 max-w-sm leading-relaxed mb-10">
               Configura tu espacio de trabajo ideal con nuestros paquetes premium. Hasta{' '}
-              <strong className="text-white font-black">40% de descuento</strong> en setups completos.
+              <strong className="text-white font-black">40% de descuento</strong> en setups
+              completos.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
@@ -61,7 +63,12 @@ export default function PromoBannerSection() {
                 style={{ padding: '1.125rem 2.25rem' }}
               >
                 Ver Setups
-                <Icon name="ArrowRightIcon" size={15} variant="outline" className="group-hover/btn:translate-x-1 transition-transform" />
+                <Icon
+                  name="ArrowRightIcon"
+                  size={15}
+                  variant="outline"
+                  className="group-hover/btn:translate-x-1 transition-transform"
+                />
               </Link>
               <Link
                 href="/products"
@@ -82,7 +89,11 @@ export default function PromoBannerSection() {
             >
               40%
             </p>
-            <p className="label-eyebrow text-white/30 text-right">Descuento<br />máximo</p>
+            <p className="label-eyebrow text-white/30 text-right">
+              Descuento
+              <br />
+              máximo
+            </p>
             <div className="h-px w-20 bg-white/10" />
           </div>
         </motion.div>
@@ -110,7 +121,9 @@ export default function PromoBannerSection() {
             <div className="absolute top-5 left-5 size-5 border-t-2 border-l-2 border-white/15 z-20 group-hover:border-white/30 transition-colors duration-400" />
             <div className="absolute bottom-5 right-5 size-5 border-b-2 border-r-2 border-white/15 z-20 group-hover:border-white/30 transition-colors duration-400" />
             <div className="relative z-10 h-full flex flex-col justify-between p-9 lg:p-11">
-              <span className="label-eyebrow text-white/40 group-hover:text-[#2563EB] transition-colors duration-400">Nuevos Lanzamientos</span>
+              <span className="label-eyebrow text-white/40 group-hover:text-[#2563EB] transition-colors duration-400">
+                Nuevos Lanzamientos
+              </span>
               <div>
                 <h3
                   className="font-display font-900 italic text-white uppercase leading-[0.88] tracking-[-0.04em] mb-5"
@@ -152,7 +165,9 @@ export default function PromoBannerSection() {
             <div className="absolute top-5 left-5 size-5 border-t-2 border-l-2 border-[#1C1C1C]/12 z-20 group-hover:border-[#1C1C1C]/30 transition-colors duration-400" />
             <div className="absolute bottom-5 right-5 size-5 border-b-2 border-r-2 border-[#1C1C1C]/12 z-20 group-hover:border-[#1C1C1C]/30 transition-colors duration-400" />
             <div className="relative z-10 h-full flex flex-col justify-between p-9 lg:p-11">
-              <span className="label-eyebrow text-[#8A8A8A] group-hover:text-[#2563EB] transition-colors duration-400">Para Profesionales</span>
+              <span className="label-eyebrow text-[#8A8A8A] group-hover:text-[#2563EB] transition-colors duration-400">
+                Para Profesionales
+              </span>
               <div>
                 <h3
                   className="font-display font-900 italic text-[#1C1C1C] uppercase leading-[0.88] tracking-[-0.04em] mb-5"

@@ -22,7 +22,8 @@ export default function NewsletterSection() {
       <div
         className="absolute inset-0 pointer-events-none opacity-[0.025]"
         style={{
-          backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.6) 1px, transparent 0)',
+          backgroundImage:
+            'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.6) 1px, transparent 0)',
           backgroundSize: '48px 48px',
         }}
       />
@@ -49,12 +50,18 @@ export default function NewsletterSection() {
               <span className="text-[#2563EB]">Saberlo.</span>
             </h2>
             <p className="max-w-sm text-base leading-relaxed text-white/45">
-              Suscribete y recibe acceso anticipado a lanzamientos, ofertas exclusivas y contenido editorial sobre tecnologia premium.
+              Suscribete y recibe acceso anticipado a lanzamientos, ofertas exclusivas y contenido
+              editorial sobre tecnologia premium.
             </p>
 
             <div className="flex items-center gap-6 pt-2">
               <div className="flex items-center gap-2 text-[11px] font-600 uppercase tracking-widest text-white/30">
-                <Icon name="ShieldCheckIcon" size={14} variant="outline" className="text-[#2563EB]" />
+                <Icon
+                  name="ShieldCheckIcon"
+                  size={14}
+                  variant="outline"
+                  className="text-[#2563EB]"
+                />
                 Sin spam
               </div>
               <div className="h-4 w-px bg-white/10" />
@@ -89,7 +96,12 @@ export default function NewsletterSection() {
                       className="group inline-flex items-center gap-2 whitespace-nowrap bg-[#2563EB] px-8 py-4 text-[11px] font-black uppercase tracking-widest text-white transition-all duration-300 hover:bg-white hover:text-[#1C1C1C]"
                     >
                       Suscribirme
-                      <Icon name="ArrowRightIcon" size={14} variant="outline" className="transition-transform group-hover:translate-x-1" />
+                      <Icon
+                        name="ArrowRightIcon"
+                        size={14}
+                        variant="outline"
+                        className="transition-transform group-hover:translate-x-1"
+                      />
                     </button>
                   </div>
                 </div>
@@ -98,13 +110,17 @@ export default function NewsletterSection() {
                   <a href="#" className="underline transition-colors hover:text-white/60">
                     politica de privacidad
                   </a>
-                  . Mas de <strong className="text-white/50">8.000 profesionales</strong> ya estan suscritos.
+                  . Mas de <strong className="text-white/50">8.000 profesionales</strong> ya estan
+                  suscritos.
                 </p>
 
                 <div className="flex items-center gap-4 border-t border-white/8 pt-4">
                   <div className="flex -space-x-2">
                     {[1, 2, 3, 4].map((n) => (
-                      <div key={n} className="size-8 overflow-hidden rounded-full border-2 border-[#1C1C1C] bg-white/10">
+                      <div
+                        key={n}
+                        className="size-8 overflow-hidden rounded-full border-2 border-[#1C1C1C] bg-white/10"
+                      >
                         <img
                           src={`https://i.pravatar.cc/32?img=${n + 10}`}
                           alt={`Suscriptor ${n}`}
@@ -131,7 +147,8 @@ export default function NewsletterSection() {
                 <div>
                   <p className="text-xl font-700 text-white">Bienvenido a NovaStore!</p>
                   <p className="mt-1.5 text-sm text-white/40">
-                    Te hemos enviado un email de confirmacion a <strong className="text-white/70">{email}</strong>.
+                    Te hemos enviado un email de confirmacion a{' '}
+                    <strong className="text-white/70">{email}</strong>.
                   </p>
                 </div>
               </motion.div>

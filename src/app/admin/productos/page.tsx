@@ -13,7 +13,10 @@ export default function AdminProductos() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [deleteModal, setDeleteModal] = useState<{ open: boolean; product: Product | null }>({ open: false, product: null });
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; product: Product | null }>({
+    open: false,
+    product: null,
+  });
   const [deleting, setDeleting] = useState(false);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
@@ -28,12 +31,16 @@ export default function AdminProductos() {
       const res = await fetch(`/api/products?${params}`);
       const data = await res.json();
       setProducts(Array.isArray(data) ? data : []);
-    } catch { /* empty */ }
+    } catch {
+      /* empty */
+    }
     setLoading(false);
   }, [search, categoryFilter]);
 
   useEffect(() => {
-    fetch('/api/categories').then(r => r.json()).then(d => setCategories(Array.isArray(d) ? d : []));
+    fetch('/api/categories')
+      .then((r) => r.json())
+      .then((d) => setCategories(Array.isArray(d) ? d : []));
   }, []);
 
   useEffect(() => {
@@ -45,9 +52,11 @@ export default function AdminProductos() {
     setDeleting(true);
     try {
       await fetch(`/api/products/${deleteModal.product.id}`, { method: 'DELETE' });
-      setProducts(prev => prev.filter(p => p.id !== deleteModal.product!.id));
+      setProducts((prev) => prev.filter((p) => p.id !== deleteModal.product!.id));
       setDeleteModal({ open: false, product: null });
-    } catch { /* empty */ }
+    } catch {
+      /* empty */
+    }
     setDeleting(false);
   };
 
@@ -92,7 +101,9 @@ export default function AdminProductos() {
         <div>
           <span className="font-semibold text-slate-800">{formatCurrency(item.price)}</span>
           {item.original_price && (
-            <span className="text-xs text-slate-400 line-through ml-2">{formatCurrency(item.original_price)}</span>
+            <span className="text-xs text-slate-400 line-through ml-2">
+              {formatCurrency(item.original_price)}
+            </span>
           )}
         </div>
       ),
@@ -102,9 +113,15 @@ export default function AdminProductos() {
       label: 'Stock',
       sortable: true,
       render: (item) => (
-        <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold ${
-          item.stock < 10 ? 'bg-red-100 text-red-700' : item.stock < 30 ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'
-        }`}>
+        <span
+          className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold ${
+            item.stock < 10
+              ? 'bg-red-100 text-red-700'
+              : item.stock < 30
+                ? 'bg-amber-100 text-amber-700'
+                : 'bg-emerald-100 text-emerald-700'
+          }`}
+        >
           {item.stock} uds
         </span>
       ),
@@ -113,8 +130,15 @@ export default function AdminProductos() {
       key: 'featured',
       label: 'Destacado',
       render: (item) => (
-        <span className={`size-5 rounded-full flex items-center justify-center ${item.featured ? 'bg-blue-100' : 'bg-slate-100'}`}>
-          <Icon name="StarIcon" size={12} variant={item.featured ? 'solid' : 'outline'} className={item.featured ? 'text-blue-600' : 'text-slate-300'} />
+        <span
+          className={`size-5 rounded-full flex items-center justify-center ${item.featured ? 'bg-blue-100' : 'bg-slate-100'}`}
+        >
+          <Icon
+            name="StarIcon"
+            size={12}
+            variant={item.featured ? 'solid' : 'outline'}
+            className={item.featured ? 'text-blue-600' : 'text-slate-300'}
+          />
         </span>
       ),
     },
@@ -141,7 +165,11 @@ export default function AdminProductos() {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1 max-w-sm">
-          <Icon name="MagnifyingGlassIcon" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Icon
+            name="MagnifyingGlassIcon"
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+          />
           <input
             type="text"
             placeholder="Buscar productos..."
@@ -157,7 +185,9 @@ export default function AdminProductos() {
         >
           <option value="">Todas las categorías</option>
           {categories.map((cat) => (
-            <option key={cat.id} value={cat.id}>{cat.name}</option>
+            <option key={cat.id} value={cat.id}>
+              {cat.name}
+            </option>
           ))}
         </select>
       </div>
@@ -215,7 +245,8 @@ export default function AdminProductos() {
         }
       >
         <p className="text-sm text-slate-600">
-          Esta acción no se puede deshacer. El producto será eliminado permanentemente de la base de datos.
+          Esta acción no se puede deshacer. El producto será eliminado permanentemente de la base de
+          datos.
         </p>
       </AdminModal>
     </div>

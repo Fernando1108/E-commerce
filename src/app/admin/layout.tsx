@@ -21,9 +21,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <span className="text-white text-lg font-black">N</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="size-1.5 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '0ms' }} />
-            <div className="size-1.5 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '150ms' }} />
-            <div className="size-1.5 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+            <div
+              className="size-1.5 rounded-full bg-blue-500 animate-bounce"
+              style={{ animationDelay: '0ms' }}
+            />
+            <div
+              className="size-1.5 rounded-full bg-blue-500 animate-bounce"
+              style={{ animationDelay: '150ms' }}
+            />
+            <div
+              className="size-1.5 rounded-full bg-blue-500 animate-bounce"
+              style={{ animationDelay: '300ms' }}
+            />
           </div>
           <p className="text-sm text-slate-500">Verificando acceso...</p>
         </div>
@@ -46,12 +55,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         onMobileClose={() => setMobileMenuOpen(false)}
       />
 
-      <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-[72px]' : 'lg:ml-64'}`}>
+      <div
+        className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-[72px]' : 'lg:ml-64'}`}
+      >
         <AdminTopbar onMenuToggle={() => setMobileMenuOpen(true)} />
 
-        <main className="p-4 lg:p-8">
-          {children}
-        </main>
+        <main className="p-4 lg:p-8">{children}</main>
       </div>
     </div>
   );

@@ -9,7 +9,8 @@ import Icon from '@/components/ui/AppIcon';
 const testimonials = [
   {
     id: 1,
-    quote: 'NovaStore cambió completamente mi forma de trabajar. La calidad de los productos es excepcional y el proceso de compra es el más fluido que he experimentado. Mi setup nunca había sido tan profesional.',
+    quote:
+      'NovaStore cambió completamente mi forma de trabajar. La calidad de los productos es excepcional y el proceso de compra es el más fluido que he experimentado. Mi setup nunca había sido tan profesional.',
     name: 'Alejandro Martínez',
     role: 'Director de Diseño',
     company: 'Studio AM, Madrid',
@@ -18,7 +19,8 @@ const testimonials = [
   },
   {
     id: 2,
-    quote: 'Llevo 3 años comprando en NovaStore y nunca me han fallado. Los productos llegan en perfectas condiciones y el soporte post-venta es de otro nivel. Totalmente recomendable para cualquier profesional.',
+    quote:
+      'Llevo 3 años comprando en NovaStore y nunca me han fallado. Los productos llegan en perfectas condiciones y el soporte post-venta es de otro nivel. Totalmente recomendable para cualquier profesional.',
     name: 'Valeria Ortega',
     role: 'Desarrolladora Senior',
     company: 'TechLab, Barcelona',
@@ -27,7 +29,8 @@ const testimonials = [
   },
   {
     id: 3,
-    quote: 'La selección de productos en NovaStore es simplemente increíble. Todo está cuidadosamente elegido y la experiencia de compra es premium de principio a fin. Mi equipo completo compra aquí.',
+    quote:
+      'La selección de productos en NovaStore es simplemente increíble. Todo está cuidadosamente elegido y la experiencia de compra es premium de principio a fin. Mi equipo completo compra aquí.',
     name: 'Carlos Fernández',
     role: 'CEO & Fundador',
     company: 'Nexo Ventures, Valencia',
@@ -72,8 +75,10 @@ export default function TestimonialsSection() {
           >
             <div>
               <p className="label-eyebrow text-[#2563EB] mb-3">Testimonios</p>
-              <h2 className="font-display font-900 italic text-white uppercase leading-tight tracking-editorial"
-                style={{ fontSize: 'clamp(2rem, 3.5vw, 3.5rem)' }}>
+              <h2
+                className="font-display font-900 italic text-white uppercase leading-tight tracking-editorial"
+                style={{ fontSize: 'clamp(2rem, 3.5vw, 3.5rem)' }}
+              >
                 Lo Que
                 <br />
                 Dicen
@@ -128,11 +133,18 @@ export default function TestimonialsSection() {
                 className="bg-[#2C2C2C] border border-white/8 p-10 lg:p-14 space-y-10"
               >
                 {/* Quote icon */}
-                <Icon name="ChatBubbleBottomCenterTextIcon" size={48} variant="outline" className="text-white/10" />
+                <Icon
+                  name="ChatBubbleBottomCenterTextIcon"
+                  size={48}
+                  variant="outline"
+                  className="text-white/10"
+                />
 
                 {/* Quote */}
-                <blockquote className="font-display font-700 italic text-white leading-relaxed"
-                  style={{ fontSize: 'clamp(1.3rem, 2.5vw, 1.8rem)' }}>
+                <blockquote
+                  className="font-display font-700 italic text-white leading-relaxed"
+                  style={{ fontSize: 'clamp(1.3rem, 2.5vw, 1.8rem)' }}
+                >
                   &ldquo;{current.quote}&rdquo;
                 </blockquote>
 
@@ -152,15 +164,21 @@ export default function TestimonialsSection() {
                   </div>
                   <div>
                     <p className="font-700 text-white text-base">{current.name}</p>
-                    <p className="text-[12px] font-500 text-white/40 uppercase tracking-widest mt-0.5">{current.role}</p>
-                    <p className="text-[11px] font-500 text-[#2563EB] uppercase tracking-widest">{current.company}</p>
+                    <p className="text-[12px] font-500 text-white/40 uppercase tracking-widest mt-0.5">
+                      {current.role}
+                    </p>
+                    <p className="text-[11px] font-500 text-[#2563EB] uppercase tracking-widest">
+                      {current.company}
+                    </p>
                   </div>
 
                   {/* Nav arrows */}
                   <div className="ml-auto flex gap-3">
                     <button
                       aria-label="Testimonio anterior"
-                      onClick={() => setActive((prev) => (prev - 1 + testimonials.length) % testimonials.length)}
+                      onClick={() =>
+                        setActive((prev) => (prev - 1 + testimonials.length) % testimonials.length)
+                      }
                       className="size-11 border border-white/10 flex items-center justify-center text-white/40 hover:border-white/30 hover:text-white transition-all"
                     >
                       <Icon name="ChevronLeftIcon" size={18} variant="outline" />

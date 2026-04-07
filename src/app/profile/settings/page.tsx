@@ -64,10 +64,15 @@ export default function ProfileSettingsPage() {
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
-  const { register, handleSubmit, watch, reset, formState: { errors } } =
-    useForm<SettingsFormValues>({
-      defaultValues: { name: '', newPassword: '', confirmPassword: '' },
-    });
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm<SettingsFormValues>({
+    defaultValues: { name: '', newPassword: '', confirmPassword: '' },
+  });
 
   const newPasswordValue = watch('newPassword');
 
@@ -79,7 +84,8 @@ export default function ProfileSettingsPage() {
       const name =
         user.user_metadata?.name ??
         user.user_metadata?.full_name ??
-        user.email?.split('@')[0] ?? '';
+        user.email?.split('@')[0] ??
+        '';
       reset({ name, newPassword: '', confirmPassword: '' });
       setAvatarPreview(user.user_metadata?.avatar_url ?? null);
     }
@@ -104,7 +110,9 @@ export default function ProfileSettingsPage() {
       return;
     }
 
-    const { error } = await supabase.auth.updateUser(updates as Parameters<typeof supabase.auth.updateUser>[0]);
+    const { error } = await supabase.auth.updateUser(
+      updates as Parameters<typeof supabase.auth.updateUser>[0]
+    );
 
     if (error) {
       setStatus('error');
@@ -125,7 +133,8 @@ export default function ProfileSettingsPage() {
         <div
           className="absolute inset-0 pointer-events-none opacity-[0.025]"
           style={{
-            backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(28,28,28,0.8) 1px, transparent 0)',
+            backgroundImage:
+              'radial-gradient(circle at 1px 1px, rgba(28,28,28,0.8) 1px, transparent 0)',
             backgroundSize: '40px 40px',
           }}
         />
@@ -160,7 +169,8 @@ export default function ProfileSettingsPage() {
               </h1>
 
               <p className="mt-6 text-base leading-relaxed text-[#5A5A5A] lg:text-lg">
-                Actualiza tu nombre o contraseña. Los cambios se aplican directamente en Supabase Auth.
+                Actualiza tu nombre o contraseña. Los cambios se aplican directamente en Supabase
+                Auth.
               </p>
 
               <div className="mt-10 border border-[#DDD9D3] bg-white/85 p-6">
@@ -219,9 +229,13 @@ export default function ProfileSettingsPage() {
                       />
 
                       <div className="border border-[#E6E1DA] bg-[#F8F7F5] px-4 py-3 text-sm text-[#5A5A5A]">
-                        <span className="font-black text-[10px] uppercase tracking-widest text-[#8A8A8A] block mb-1">Email</span>
+                        <span className="font-black text-[10px] uppercase tracking-widest text-[#8A8A8A] block mb-1">
+                          Email
+                        </span>
                         {user?.email ?? '—'}
-                        <span className="block mt-1 text-[11px] text-[#8A8A8A]">El email no puede cambiarse aquí.</span>
+                        <span className="block mt-1 text-[11px] text-[#8A8A8A]">
+                          El email no puede cambiarse aquí.
+                        </span>
                       </div>
 
                       <AuthField
@@ -240,7 +254,10 @@ export default function ProfileSettingsPage() {
                           type="password"
                           placeholder="Repite la nueva contraseña"
                           registration={register('confirmPassword', {
-                            validate: (v) => !newPasswordValue || v === newPasswordValue || 'Las contraseñas no coinciden.',
+                            validate: (v) =>
+                              !newPasswordValue ||
+                              v === newPasswordValue ||
+                              'Las contraseñas no coinciden.',
                           })}
                           error={errors.confirmPassword}
                         />

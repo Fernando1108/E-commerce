@@ -10,7 +10,8 @@ const advantages = [
     icon: 'TruckIcon' as const,
     label: 'Envíos Seguros',
     headline: 'Entrega garantizada',
-    description: 'Envío gratuito en pedidos superiores a $50. Seguimiento en tiempo real y entrega en 24–48h.',
+    description:
+      'Envío gratuito en pedidos superiores a $50. Seguimiento en tiempo real y entrega en 24–48h.',
     stat: '24h',
     statLabel: 'Entrega express',
   },
@@ -18,7 +19,8 @@ const advantages = [
     icon: 'BoltIcon' as const,
     label: 'Compra Rápida',
     headline: 'Checkout en 60 segundos',
-    description: 'Proceso de compra optimizado para que completes tu pedido sin fricciones ni pasos innecesarios.',
+    description:
+      'Proceso de compra optimizado para que completes tu pedido sin fricciones ni pasos innecesarios.',
     stat: '60s',
     statLabel: 'Checkout rápido',
   },
@@ -26,7 +28,8 @@ const advantages = [
     icon: 'CheckBadgeIcon' as const,
     label: 'Productos Seleccionados',
     headline: 'Curación editorial',
-    description: 'Cada producto pasa por un proceso de selección riguroso. Solo lo mejor del mercado llega a NovaStore.',
+    description:
+      'Cada producto pasa por un proceso de selección riguroso. Solo lo mejor del mercado llega a NovaStore.',
     stat: '500+',
     statLabel: 'Productos curados',
   },
@@ -34,7 +37,8 @@ const advantages = [
     icon: 'ChatBubbleLeftRightIcon' as const,
     label: 'Soporte Confiable',
     headline: 'Siempre disponibles',
-    description: 'Equipo de soporte especializado disponible por chat, email y teléfono. Respuesta en menos de 2 horas.',
+    description:
+      'Equipo de soporte especializado disponible por chat, email y teléfono. Respuesta en menos de 2 horas.',
     stat: '2h',
     statLabel: 'Tiempo de respuesta',
   },
@@ -42,7 +46,8 @@ const advantages = [
     icon: 'ShieldCheckIcon' as const,
     label: 'Calidad Garantizada',
     headline: 'Devolución sin preguntas',
-    description: '30 días para devolver cualquier producto sin preguntas. Tu satisfacción es nuestra prioridad.',
+    description:
+      '30 días para devolver cualquier producto sin preguntas. Tu satisfacción es nuestra prioridad.',
     stat: '30d',
     statLabel: 'Garantía de retorno',
   },
@@ -55,7 +60,6 @@ export default function WhyNovaStoreSection() {
   return (
     <section ref={sectionRef} className="py-20 lg:py-32 bg-[#2C2C2C] overflow-hidden">
       <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
-
         {/* Header — split layout */}
         <div className="grid lg:grid-cols-12 gap-10 mb-16 lg:mb-20">
           <motion.div
@@ -81,7 +85,8 @@ export default function WhyNovaStoreSection() {
             className="lg:col-span-6 flex items-end"
           >
             <p className="text-base text-white/50 leading-relaxed max-w-md">
-              Cada detalle de NovaStore está diseñado para ofrecer una experiencia de compra premium, desde la selección de productos hasta la entrega en tu puerta.
+              Cada detalle de NovaStore está diseñado para ofrecer una experiencia de compra
+              premium, desde la selección de productos hasta la entrega en tu puerta.
             </p>
           </motion.div>
         </div>
@@ -99,8 +104,10 @@ export default function WhyNovaStoreSection() {
               `}
             >
               {/* Background number */}
-              <div className="absolute -bottom-4 -right-2 font-display font-900 italic text-white/[0.04] group-hover:text-white/[0.08] transition-colors duration-500 leading-none select-none"
-                style={{ fontSize: '7rem' }}>
+              <div
+                className="absolute -bottom-4 -right-2 font-display font-900 italic text-white/[0.04] group-hover:text-white/[0.08] transition-colors duration-500 leading-none select-none"
+                style={{ fontSize: '7rem' }}
+              >
                 {i + 1}
               </div>
 

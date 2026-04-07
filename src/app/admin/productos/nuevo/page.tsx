@@ -26,7 +26,13 @@ export default function NuevoProducto() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm<ProductFormValues>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+    setValue,
+  } = useForm<ProductFormValues>({
     defaultValues: {
       name: '',
       description: '',
@@ -38,18 +44,26 @@ export default function NuevoProducto() {
       badge: '',
       featured: false,
       slug: '',
-    }
+    },
   });
 
   useEffect(() => {
-    fetch('/api/categories').then(r => r.json()).then(d => setCategories(Array.isArray(d) ? d : []));
+    fetch('/api/categories')
+      .then((r) => r.json())
+      .then((d) => setCategories(Array.isArray(d) ? d : []));
   }, []);
 
   // Auto-generate slug from name
   const nameValue = watch('name');
   useEffect(() => {
     if (nameValue) {
-      setValue('slug', nameValue.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''));
+      setValue(
+        'slug',
+        nameValue
+          .toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^a-z0-9-]/g, '')
+      );
     }
   }, [nameValue, setValue]);
 
@@ -105,21 +119,29 @@ export default function NuevoProducto() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-xl border border-slate-200 p-6 space-y-5"
         >
-          <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Información básica</h2>
+          <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+            Información básica
+          </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <label className="block sm:col-span-2">
-              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Nombre *</span>
+              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                Nombre *
+              </span>
               <input
                 {...register('name', { required: 'El nombre es obligatorio' })}
                 className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
                 placeholder="Ej: MacBook Pro M4"
               />
-              {errors.name && <span className="text-xs text-red-500 mt-1">{errors.name.message}</span>}
+              {errors.name && (
+                <span className="text-xs text-red-500 mt-1">{errors.name.message}</span>
+              )}
             </label>
 
             <label className="block sm:col-span-2">
-              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Descripción</span>
+              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                Descripción
+              </span>
               <textarea
                 {...register('description')}
                 rows={4}
@@ -129,18 +151,27 @@ export default function NuevoProducto() {
             </label>
 
             <label className="block">
-              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Precio *</span>
+              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                Precio *
+              </span>
               <input
                 type="number"
                 step="0.01"
-                {...register('price', { required: 'El precio es obligatorio', min: { value: 0.01, message: 'Precio debe ser positivo' } })}
+                {...register('price', {
+                  required: 'El precio es obligatorio',
+                  min: { value: 0.01, message: 'Precio debe ser positivo' },
+                })}
                 className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
               />
-              {errors.price && <span className="text-xs text-red-500 mt-1">{errors.price.message}</span>}
+              {errors.price && (
+                <span className="text-xs text-red-500 mt-1">{errors.price.message}</span>
+              )}
             </label>
 
             <label className="block">
-              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Precio original</span>
+              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                Precio original
+              </span>
               <input
                 type="number"
                 step="0.01"
@@ -151,18 +182,26 @@ export default function NuevoProducto() {
             </label>
 
             <label className="block">
-              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Categoría</span>
+              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                Categoría
+              </span>
               <select
                 {...register('category_id')}
                 className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
               >
                 <option value="">Sin categoría</option>
-                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
               </select>
             </label>
 
             <label className="block">
-              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Stock</span>
+              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                Stock
+              </span>
               <input
                 type="number"
                 {...register('stock', { min: 0 })}
@@ -171,7 +210,9 @@ export default function NuevoProducto() {
             </label>
 
             <label className="block sm:col-span-2">
-              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">URL de imagen</span>
+              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                URL de imagen
+              </span>
               <input
                 {...register('image_url')}
                 className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
@@ -180,7 +221,9 @@ export default function NuevoProducto() {
             </label>
 
             <label className="block">
-              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Badge</span>
+              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                Badge
+              </span>
               <input
                 {...register('badge')}
                 className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
@@ -189,7 +232,9 @@ export default function NuevoProducto() {
             </label>
 
             <label className="block">
-              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Slug</span>
+              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                Slug
+              </span>
               <input
                 {...register('slug')}
                 className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
@@ -197,7 +242,11 @@ export default function NuevoProducto() {
             </label>
 
             <label className="flex items-center gap-3 sm:col-span-2 cursor-pointer">
-              <input type="checkbox" {...register('featured')} className="size-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+              <input
+                type="checkbox"
+                {...register('featured')}
+                className="size-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+              />
               <span className="text-sm font-semibold text-slate-700">Producto destacado</span>
             </label>
           </div>

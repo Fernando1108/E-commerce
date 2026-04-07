@@ -7,15 +7,18 @@ import Icon from '@/components/ui/AppIcon';
 const privacyHighlights = [
   {
     title: 'Uso responsable',
-    description: 'Los datos se tratan con criterio operativo, enfocados en mejorar la compra, el soporte y la trazabilidad del pedido.',
+    description:
+      'Los datos se tratan con criterio operativo, enfocados en mejorar la compra, el soporte y la trazabilidad del pedido.',
   },
   {
     title: 'Minima exposicion',
-    description: 'Solo se solicita la informacion necesaria para procesar ordenes, atender requerimientos y mantener el servicio funcionando.',
+    description:
+      'Solo se solicita la informacion necesaria para procesar ordenes, atender requerimientos y mantener el servicio funcionando.',
   },
   {
     title: 'Control informado',
-    description: 'El usuario puede conocer como se recolecta y para que se usa su informacion dentro del ecosistema NovaStore.',
+    description:
+      'El usuario puede conocer como se recolecta y para que se usa su informacion dentro del ecosistema NovaStore.',
   },
 ];
 
@@ -43,22 +46,26 @@ const privacyPolicies = [
 const privacyPrinciples = [
   {
     title: 'Transparencia',
-    description: 'Explicamos que datos se utilizan y por que intervienen en procesos como checkout, soporte o seguimiento del pedido.',
+    description:
+      'Explicamos que datos se utilizan y por que intervienen en procesos como checkout, soporte o seguimiento del pedido.',
     icon: 'EyeIcon',
   },
   {
     title: 'Necesidad',
-    description: 'Evitamos pedir informacion que no aporte al funcionamiento real del servicio o a la atencion del cliente.',
+    description:
+      'Evitamos pedir informacion que no aporte al funcionamiento real del servicio o a la atencion del cliente.',
     icon: 'DocumentTextIcon',
   },
   {
     title: 'Seguridad',
-    description: 'Protegemos el acceso a la informacion con una aproximacion proporcional al tipo de dato y al flujo donde participa.',
+    description:
+      'Protegemos el acceso a la informacion con una aproximacion proporcional al tipo de dato y al flujo donde participa.',
     icon: 'ShieldCheckIcon',
   },
   {
     title: 'Trazabilidad',
-    description: 'Relacionamos los datos con procesos concretos para que la operacion sea auditable y mas facil de explicar.',
+    description:
+      'Relacionamos los datos con procesos concretos para que la operacion sea auditable y mas facil de explicar.',
     icon: 'ClipboardDocumentCheckIcon',
   },
 ];
@@ -90,7 +97,8 @@ export default function PrivacidadPage() {
         <div
           className="absolute inset-0 pointer-events-none opacity-[0.025]"
           style={{
-            backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(28,28,28,0.8) 1px, transparent 0)',
+            backgroundImage:
+              'radial-gradient(circle at 1px 1px, rgba(28,28,28,0.8) 1px, transparent 0)',
             backgroundSize: '40px 40px',
           }}
         />
@@ -127,17 +135,25 @@ export default function PrivacidadPage() {
               </h1>
 
               <p className="mt-6 max-w-xl text-base leading-relaxed text-[#5A5A5A] lg:text-lg">
-                Esta pagina explica como NovaStore recopila, utiliza y protege la informacion personal dentro de la experiencia de compra, soporte y relacion con el cliente.
+                Esta pagina explica como NovaStore recopila, utiliza y protege la informacion
+                personal dentro de la experiencia de compra, soporte y relacion con el cliente.
               </p>
 
               <div className="mt-10 grid gap-4 sm:grid-cols-3">
                 {privacyHighlights.map((item, index) => (
-                  <div key={item.title} className="border border-[#DDD9D3] bg-white/75 px-5 py-5 backdrop-blur-sm">
+                  <div
+                    key={item.title}
+                    className="border border-[#DDD9D3] bg-white/75 px-5 py-5 backdrop-blur-sm"
+                  >
                     <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#8A8A8A]">
                       0{index + 1}
                     </p>
-                    <p className="mt-3 text-xl font-display font-900 text-[#1C1C1C]">{item.title}</p>
-                    <p className="mt-3 text-sm leading-relaxed text-[#5A5A5A]">{item.description}</p>
+                    <p className="mt-3 text-xl font-display font-900 text-[#1C1C1C]">
+                      {item.title}
+                    </p>
+                    <p className="mt-3 text-sm leading-relaxed text-[#5A5A5A]">
+                      {item.description}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -162,12 +178,19 @@ export default function PrivacidadPage() {
 
                 <div className="mt-8 space-y-5">
                   {privacyPolicies.map((policy) => (
-                    <article key={policy.title} className="border border-[#E6E1DA] bg-[#FCFBF9] p-5">
+                    <article
+                      key={policy.title}
+                      className="border border-[#E6E1DA] bg-[#FCFBF9] p-5"
+                    >
                       <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[#8A8A8A]">
                         {policy.label}
                       </p>
-                      <h3 className="mt-3 text-xl font-display font-900 text-[#1C1C1C]">{policy.title}</h3>
-                      <p className="mt-3 text-sm leading-relaxed text-[#5A5A5A]">{policy.description}</p>
+                      <h3 className="mt-3 text-xl font-display font-900 text-[#1C1C1C]">
+                        {policy.title}
+                      </h3>
+                      <p className="mt-3 text-sm leading-relaxed text-[#5A5A5A]">
+                        {policy.description}
+                      </p>
                     </article>
                   ))}
                 </div>
@@ -187,7 +210,9 @@ export default function PrivacidadPage() {
               Datos tratados con enfoque operativo y claridad.
             </h2>
             <p className="mt-5 text-base leading-relaxed text-[#5A5A5A]">
-              La informacion personal no debe convertirse en ruido. Debe tener una finalidad concreta, ser gestionada con criterio y mantenerse vinculada al servicio que el cliente espera recibir.
+              La informacion personal no debe convertirse en ruido. Debe tener una finalidad
+              concreta, ser gestionada con criterio y mantenerse vinculada al servicio que el
+              cliente espera recibir.
             </p>
           </div>
 
@@ -219,7 +244,8 @@ export default function PrivacidadPage() {
               Aclaraciones clave sobre privacidad y uso de informacion.
             </h2>
             <p className="mt-5 max-w-lg text-base leading-relaxed text-[#5A5A5A]">
-              Un resumen breve para resolver las dudas mas habituales sobre recopilacion, intercambio y proteccion de datos dentro de NovaStore.
+              Un resumen breve para resolver las dudas mas habituales sobre recopilacion,
+              intercambio y proteccion de datos dentro de NovaStore.
             </p>
           </div>
 
@@ -239,7 +265,8 @@ export default function PrivacidadPage() {
                 Necesitas una aclaracion puntual?
               </h3>
               <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/75">
-                Si necesitas resolver una duda relacionada con informacion personal, pedidos o uso de datos dentro del servicio, soporte puede orientarte.
+                Si necesitas resolver una duda relacionada con informacion personal, pedidos o uso
+                de datos dentro del servicio, soporte puede orientarte.
               </p>
               <div className="mt-6 flex flex-wrap gap-4">
                 <Link

@@ -7,15 +7,18 @@ import Icon from '@/components/ui/AppIcon';
 const termsHighlights = [
   {
     title: 'Uso claro',
-    description: 'Los terminos definen como interactua el usuario con la tienda, los servicios y los procesos comerciales asociados.',
+    description:
+      'Los terminos definen como interactua el usuario con la tienda, los servicios y los procesos comerciales asociados.',
   },
   {
     title: 'Compra informada',
-    description: 'Las condiciones permiten entender el alcance de pedidos, pagos, soporte y validaciones operativas dentro de NovaStore.',
+    description:
+      'Las condiciones permiten entender el alcance de pedidos, pagos, soporte y validaciones operativas dentro de NovaStore.',
   },
   {
     title: 'Reglas visibles',
-    description: 'El objetivo es reducir ambiguedades y dejar claro el marco bajo el cual se presta el servicio.',
+    description:
+      'El objetivo es reducir ambiguedades y dejar claro el marco bajo el cual se presta el servicio.',
   },
 ];
 
@@ -43,22 +46,26 @@ const termsPolicies = [
 const termsAreas = [
   {
     title: 'Pedidos y confirmacion',
-    description: 'Toda orden puede requerir verificacion adicional antes de pasar a preparacion o despacho.',
+    description:
+      'Toda orden puede requerir verificacion adicional antes de pasar a preparacion o despacho.',
     icon: 'ShoppingBagIcon',
   },
   {
     title: 'Pagos y validaciones',
-    description: 'El procesamiento del pago depende de la informacion suministrada y de la aprobacion del operador correspondiente.',
+    description:
+      'El procesamiento del pago depende de la informacion suministrada y de la aprobacion del operador correspondiente.',
     icon: 'CreditCardIcon',
   },
   {
     title: 'Contenido y disponibilidad',
-    description: 'Precios, descripciones y referencias pueden ajustarse sin previo aviso cuando la operacion lo requiera.',
+    description:
+      'Precios, descripciones y referencias pueden ajustarse sin previo aviso cuando la operacion lo requiera.',
     icon: 'DocumentTextIcon',
   },
   {
     title: 'Soporte y seguimiento',
-    description: 'El equipo de soporte atiende novedades operativas dentro del alcance real del servicio ofrecido por la tienda.',
+    description:
+      'El equipo de soporte atiende novedades operativas dentro del alcance real del servicio ofrecido por la tienda.',
     icon: 'ChatBubbleLeftRightIcon',
   },
 ];
@@ -90,7 +97,8 @@ export default function TerminosPage() {
         <div
           className="absolute inset-0 pointer-events-none opacity-[0.025]"
           style={{
-            backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(28,28,28,0.8) 1px, transparent 0)',
+            backgroundImage:
+              'radial-gradient(circle at 1px 1px, rgba(28,28,28,0.8) 1px, transparent 0)',
             backgroundSize: '40px 40px',
           }}
         />
@@ -127,17 +135,25 @@ export default function TerminosPage() {
               </h1>
 
               <p className="mt-6 max-w-xl text-base leading-relaxed text-[#5A5A5A] lg:text-lg">
-                Esta pagina resume los terminos y condiciones que regulan el uso del sitio, las compras, el alcance del servicio y las validaciones operativas dentro de NovaStore.
+                Esta pagina resume los terminos y condiciones que regulan el uso del sitio, las
+                compras, el alcance del servicio y las validaciones operativas dentro de NovaStore.
               </p>
 
               <div className="mt-10 grid gap-4 sm:grid-cols-3">
                 {termsHighlights.map((item, index) => (
-                  <div key={item.title} className="border border-[#DDD9D3] bg-white/75 px-5 py-5 backdrop-blur-sm">
+                  <div
+                    key={item.title}
+                    className="border border-[#DDD9D3] bg-white/75 px-5 py-5 backdrop-blur-sm"
+                  >
                     <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#8A8A8A]">
                       0{index + 1}
                     </p>
-                    <p className="mt-3 text-xl font-display font-900 text-[#1C1C1C]">{item.title}</p>
-                    <p className="mt-3 text-sm leading-relaxed text-[#5A5A5A]">{item.description}</p>
+                    <p className="mt-3 text-xl font-display font-900 text-[#1C1C1C]">
+                      {item.title}
+                    </p>
+                    <p className="mt-3 text-sm leading-relaxed text-[#5A5A5A]">
+                      {item.description}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -162,12 +178,19 @@ export default function TerminosPage() {
 
                 <div className="mt-8 space-y-5">
                   {termsPolicies.map((policy) => (
-                    <article key={policy.title} className="border border-[#E6E1DA] bg-[#FCFBF9] p-5">
+                    <article
+                      key={policy.title}
+                      className="border border-[#E6E1DA] bg-[#FCFBF9] p-5"
+                    >
                       <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[#8A8A8A]">
                         {policy.label}
                       </p>
-                      <h3 className="mt-3 text-xl font-display font-900 text-[#1C1C1C]">{policy.title}</h3>
-                      <p className="mt-3 text-sm leading-relaxed text-[#5A5A5A]">{policy.description}</p>
+                      <h3 className="mt-3 text-xl font-display font-900 text-[#1C1C1C]">
+                        {policy.title}
+                      </h3>
+                      <p className="mt-3 text-sm leading-relaxed text-[#5A5A5A]">
+                        {policy.description}
+                      </p>
                     </article>
                   ))}
                 </div>
@@ -187,7 +210,8 @@ export default function TerminosPage() {
               Condiciones que acompañan toda la experiencia comercial.
             </h2>
             <p className="mt-5 text-base leading-relaxed text-[#5A5A5A]">
-              Los terminos no solo cubren el momento de compra. Tambien atraviesan pagos, validaciones, contenidos del sitio y la relacion operativa posterior con el cliente.
+              Los terminos no solo cubren el momento de compra. Tambien atraviesan pagos,
+              validaciones, contenidos del sitio y la relacion operativa posterior con el cliente.
             </p>
           </div>
 
@@ -219,7 +243,8 @@ export default function TerminosPage() {
               Aclaraciones utiles sobre uso del sitio y condiciones de compra.
             </h2>
             <p className="mt-5 max-w-lg text-base leading-relaxed text-[#5A5A5A]">
-              Un bloque breve para resolver inquietudes comunes sobre aceptacion de terminos, pedidos y limites del servicio.
+              Un bloque breve para resolver inquietudes comunes sobre aceptacion de terminos,
+              pedidos y limites del servicio.
             </p>
           </div>
 
@@ -239,7 +264,8 @@ export default function TerminosPage() {
                 Necesitas revisar una condicion puntual?
               </h3>
               <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/75">
-                Si tienes dudas sobre el alcance de los terminos, validaciones comerciales o reglas aplicables a un pedido, soporte puede orientarte.
+                Si tienes dudas sobre el alcance de los terminos, validaciones comerciales o reglas
+                aplicables a un pedido, soporte puede orientarte.
               </p>
               <div className="mt-6 flex flex-wrap gap-4">
                 <Link

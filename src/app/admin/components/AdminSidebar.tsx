@@ -24,7 +24,12 @@ interface AdminSidebarProps {
   onMobileClose: () => void;
 }
 
-export default function AdminSidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: AdminSidebarProps) {
+export default function AdminSidebar({
+  collapsed,
+  onToggle,
+  mobileOpen,
+  onMobileClose,
+}: AdminSidebarProps) {
   const pathname = usePathname();
 
   const isActive = (href: string) => {
@@ -35,7 +40,9 @@ export default function AdminSidebar({ collapsed, onToggle, mobileOpen, onMobile
   const sidebarContent = (
     <div className="flex flex-col h-full">
       {/* Logo */}
-      <div className={`flex items-center h-16 border-b border-slate-700/50 ${collapsed ? 'justify-center px-2' : 'px-6'}`}>
+      <div
+        className={`flex items-center h-16 border-b border-slate-700/50 ${collapsed ? 'justify-center px-2' : 'px-6'}`}
+      >
         <Link href="/admin" className="flex items-center gap-3 group">
           <div className="size-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
             <span className="text-white text-sm font-black">N</span>

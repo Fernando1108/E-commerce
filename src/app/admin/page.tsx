@@ -2,7 +2,17 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+} from 'recharts';
 import StatCard from './components/StatCard';
 import ChartCard from './components/ChartCard';
 import Icon from '@/components/ui/AppIcon';
@@ -32,8 +42,8 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetch('/api/admin/stats')
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         setStats(data);
         setLoading(false);
       })
@@ -95,7 +105,10 @@ export default function AdminDashboard() {
             <div className="h-64 bg-slate-50 rounded-lg animate-pulse" />
           ) : (
             <ResponsiveContainer width="100%" height={280}>
-              <AreaChart data={stats?.salesByDay || []} margin={{ top: 8, right: 8, left: -10, bottom: 0 }}>
+              <AreaChart
+                data={stats?.salesByDay || []}
+                margin={{ top: 8, right: 8, left: -10, bottom: 0 }}
+              >
                 <defs>
                   <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.15} />
@@ -153,7 +166,12 @@ export default function AdminDashboard() {
                 margin={{ top: 0, right: 8, left: 0, bottom: 0 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" horizontal={false} />
-                <XAxis type="number" tick={{ fontSize: 11, fill: '#94a3b8' }} tickLine={false} axisLine={false} />
+                <XAxis
+                  type="number"
+                  tick={{ fontSize: 11, fill: '#94a3b8' }}
+                  tickLine={false}
+                  axisLine={false}
+                />
                 <YAxis
                   type="category"
                   dataKey="name"
@@ -161,7 +179,7 @@ export default function AdminDashboard() {
                   tickLine={false}
                   axisLine={false}
                   width={100}
-                  tickFormatter={(v) => v.length > 14 ? v.substring(0, 14) + '…' : v}
+                  tickFormatter={(v) => (v.length > 14 ? v.substring(0, 14) + '…' : v)}
                 />
                 <Tooltip
                   contentStyle={{
@@ -193,7 +211,10 @@ export default function AdminDashboard() {
             <h3 className="text-sm font-bold text-slate-900">Pedidos recientes</h3>
             <p className="text-xs text-slate-400 mt-0.5">Últimos 5 pedidos</p>
           </div>
-          <a href="/admin/pedidos" className="text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors">
+          <a
+            href="/admin/pedidos"
+            className="text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+          >
             Ver todos →
           </a>
         </div>
@@ -202,10 +223,18 @@ export default function AdminDashboard() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50/50">
-                <th className="px-5 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-slate-500">Orden</th>
-                <th className="px-5 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-slate-500">Fecha</th>
-                <th className="px-5 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-slate-500">Total</th>
-                <th className="px-5 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-slate-500">Estado</th>
+                <th className="px-5 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                  Orden
+                </th>
+                <th className="px-5 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                  Fecha
+                </th>
+                <th className="px-5 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                  Total
+                </th>
+                <th className="px-5 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                  Estado
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
@@ -236,9 +265,11 @@ export default function AdminDashboard() {
                       {formatCurrency(order.total)}
                     </td>
                     <td className="px-5 py-3">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold ${
-                        statusColors[order.status] || 'bg-slate-100 text-slate-600'
-                      }`}>
+                      <span
+                        className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold ${
+                          statusColors[order.status] || 'bg-slate-100 text-slate-600'
+                        }`}
+                      >
                         {statusLabels[order.status] || order.status}
                       </span>
                     </td>
