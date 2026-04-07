@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import DataTable, { Column } from '../components/DataTable';
 import AdminModal from '../components/AdminModal';
 import Icon from '@/components/ui/AppIcon';
+import { formatPrice } from '@/lib/utils';
 import type { Employee } from '@/types';
 
 const statusColors: Record<string, string> = {
@@ -101,9 +102,6 @@ export default function AdminEmpleados() {
     fetchEmployees();
   };
 
-  const formatCurrency = (v: number) =>
-    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(v);
-
   const columns: Column<Employee>[] = [
     {
       key: 'name',
@@ -131,7 +129,7 @@ export default function AdminEmpleados() {
       label: 'Salario',
       sortable: true,
       render: (item) => (
-        <span className="text-sm font-semibold text-slate-800">{formatCurrency(item.salary)}</span>
+        <span className="text-sm font-semibold text-slate-800">{formatPrice(item.salary)}</span>
       ),
     },
     {
@@ -211,7 +209,7 @@ export default function AdminEmpleados() {
           </>
         }
       >
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <form className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label className="block sm:col-span-2">
             <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
               Nombre *

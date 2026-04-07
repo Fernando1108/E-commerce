@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import DataTable, { Column } from '../components/DataTable';
 import Icon from '@/components/ui/AppIcon';
+import { formatPrice } from '@/lib/utils';
 
 interface InvoiceRow {
   id: string;
@@ -46,9 +47,6 @@ export default function AdminFacturacion() {
       });
   }, []);
 
-  const formatCurrency = (v: number) =>
-    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(v);
-
   const columns: Column<InvoiceRow>[] = [
     {
       key: 'id',
@@ -78,7 +76,7 @@ export default function AdminFacturacion() {
       label: 'Total',
       sortable: true,
       render: (item) => (
-        <span className="text-sm font-semibold text-slate-800">{formatCurrency(item.total)}</span>
+        <span className="text-sm font-semibold text-slate-800">{formatPrice(item.total)}</span>
       ),
     },
     {

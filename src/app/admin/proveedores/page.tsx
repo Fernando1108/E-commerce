@@ -213,7 +213,7 @@ export default function AdminProveedores() {
           </>
         }
       >
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <form className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label className="block sm:col-span-2">
             <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
               Nombre *

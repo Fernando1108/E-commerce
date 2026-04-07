@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
+import Link from 'next/link';
 import { motion, useInView } from 'framer-motion';
 import Icon from '@/components/ui/AppIcon';
 import { toast } from 'sonner';
@@ -99,7 +100,7 @@ export default function NewsletterSection() {
             {!submitted ? (
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="relative flex flex-col gap-2 sm:flex-row">
-                  <div data-v-4914bf38="" className="contents">
+                  <div className="contents">
                     <input
                       type="email"
                       value={email}
@@ -128,9 +129,9 @@ export default function NewsletterSection() {
                 </div>
                 <p className="text-[11px] leading-relaxed text-white/25">
                   Al suscribirte aceptas nuestra{' '}
-                  <a href="/privacidad" className="underline transition-colors hover:text-white/60">
+                  <Link href="/privacidad" className="underline transition-colors hover:text-white/60">
                     politica de privacidad
-                  </a>
+                  </Link>
                   . Mas de <strong className="text-white/50">8.000 profesionales</strong> ya estan
                   suscritos.
                 </p>

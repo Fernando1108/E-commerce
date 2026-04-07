@@ -10,6 +10,7 @@ import { getFeaturedProducts } from '@/lib/supabase/services';
 import { formatPrice } from '@/lib/utils';
 import { useCart } from '@/hooks/useCart';
 import { useWishlist } from '@/hooks/useWishlist';
+import { toast } from 'sonner';
 import type { Product } from '@/types';
 
 const badgeConfig: Record<string, { label: string; color: string; bg: string }> = {
@@ -192,6 +193,7 @@ export default function FeaturedProductsSection() {
   const handleAddToCart = useCallback(
     (product: Product) => {
       addItem(product, 1);
+      toast.success('Agregado al carrito');
     },
     [addItem]
   );

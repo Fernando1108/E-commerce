@@ -356,20 +356,16 @@ export default function Header() {
       >
         {/* Animated bottom highlight line on scroll */}
         <div
-          className={`absolute bottom-0 left-0 right-0 h-px transition-opacity duration-500 ${
+          className={`absolute bottom-0 left-0 right-0 h-px header-gradient-line transition-opacity duration-500 ${
             scrolled ? 'opacity-100' : 'opacity-0'
           }`}
-          style={{
-            background:
-              'linear-gradient(90deg, transparent 0%, #DDD9D3 20%, #2563EB 50%, #DDD9D3 80%, transparent 100%)',
-          }}
         />
 
         <div className="max-w-[1440px] mx-auto px-6 lg:px-12 h-[72px] flex items-center justify-between gap-6">
           {/* LEFT: Logo */}
           <Link
             href="/homepage"
-            className="flex items-center gap-2.5 shrink-0 z-10"
+            className="flex items-center gap-2.5 shrink-0 z-10 transition-transform duration-300 hover:scale-[1.02]"
             aria-label="NovaStore — Inicio"
           >
             <AppLogo size={137} />
@@ -575,11 +571,12 @@ export default function Header() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.07 + 0.1 }}
+                  whileTap={{ scale: 0.97 }}
                 >
                   <Link
                     href={link.href}
                     onClick={() => setMobileOpen(false)}
-                    className={`block py-4 text-3xl font-display font-900 italic tracking-editorial border-b border-[#DDD9D3] transition-colors ${
+                    className={`mobile-nav-link block py-4 text-3xl font-display font-900 italic tracking-editorial border-b border-[#DDD9D3] transition-colors ${
                       pathname === link.href.split('?')[0]
                         ? 'text-[#2563EB]'
                         : 'text-[#1C1C1C] hover:text-[#2563EB]'

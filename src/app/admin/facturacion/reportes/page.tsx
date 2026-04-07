@@ -18,6 +18,7 @@ import {
 import ChartCard from '../../components/ChartCard';
 import StatCard from '../../components/StatCard';
 import Icon from '@/components/ui/AppIcon';
+import { formatPrice } from '@/lib/utils';
 
 interface ReportData {
   salesByDay: { date: string; total: number; orders: number }[];
@@ -53,9 +54,6 @@ export default function AdminReportes() {
       .catch(() => setLoading(false));
   }, [period]);
 
-  const formatCurrency = (v: number) =>
-    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(v);
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -86,7 +84,7 @@ export default function AdminReportes() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StatCard
           label="Ingresos del periodo"
-          value={loading ? '—' : formatCurrency(data?.summary.totalRevenue || 0)}
+          value={loading ? '—' : formatPrice(data?.summary.totalRevenue || 0)}
           icon="CurrencyDollarIcon"
           color="green"
           loading={loading}
@@ -100,7 +98,7 @@ export default function AdminReportes() {
         />
         <StatCard
           label="Ticket promedio"
-          value={loading ? '—' : formatCurrency(data?.summary.averageOrder || 0)}
+          value={loading ? '—' : formatPrice(data?.summary.averageOrder || 0)}
           icon="ReceiptPercentIcon"
           color="purple"
           loading={loading}
@@ -145,7 +143,7 @@ export default function AdminReportes() {
                   fontSize: '12px',
                   color: '#fff',
                 }}
-                formatter={(value: any) => [formatCurrency(Number(value)), 'Ventas']}
+                formatter={(value: any) => [formatPrice(Number(value)), 'Ventas']}
               />
               <Area
                 type="monotone"
@@ -229,7 +227,7 @@ export default function AdminReportes() {
                       fontSize: '12px',
                       color: '#fff',
                     }}
-                    formatter={(value: any) => [formatCurrency(Number(value)), 'Ingresos']}
+                    formatter={(value: any) => [formatPrice(Number(value)), 'Ingresos']}
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -242,7 +240,7 @@ export default function AdminReportes() {
                     />
                     <span className="text-xs text-slate-600 flex-1 truncate">{cat.name}</span>
                     <span className="text-xs font-semibold text-slate-800">
-                      {formatCurrency(cat.revenue)}
+                      {formatPrice(cat.revenue)}
                     </span>
                   </div>
                 ))}

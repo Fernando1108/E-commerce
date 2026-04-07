@@ -10,6 +10,7 @@ import { getProducts } from '@/lib/supabase/services';
 import { formatPrice } from '@/lib/utils';
 import { useCart } from '@/hooks/useCart';
 import { useWishlist } from '@/hooks/useWishlist';
+import { toast } from 'sonner';
 import type { Product } from '@/types';
 
 const PAGE_SIZE = 8;
@@ -207,6 +208,7 @@ export default function ProductGridSection({
   const handleAddToCart = useCallback(
     (product: Product) => {
       addItem(product, 1);
+      toast.success('Agregado al carrito');
     },
     [addItem]
   );

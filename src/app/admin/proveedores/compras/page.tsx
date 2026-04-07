@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import DataTable, { Column } from '../../components/DataTable';
 import Icon from '@/components/ui/AppIcon';
+import { formatPrice } from '@/lib/utils';
 
 interface PurchaseRow {
   id: string;
@@ -38,9 +39,6 @@ export default function AdminCompras() {
       });
   }, []);
 
-  const formatCurrency = (v: number) =>
-    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(v);
-
   const columns: Column<PurchaseRow>[] = [
     {
       key: 'id',
@@ -61,7 +59,7 @@ export default function AdminCompras() {
       label: 'Total',
       sortable: true,
       render: (item) => (
-        <span className="text-sm font-semibold text-slate-800">{formatCurrency(item.total)}</span>
+        <span className="text-sm font-semibold text-slate-800">{formatPrice(item.total)}</span>
       ),
     },
     {

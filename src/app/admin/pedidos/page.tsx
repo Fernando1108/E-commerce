@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import DataTable, { Column } from '../components/DataTable';
 import Icon from '@/components/ui/AppIcon';
 import { statusColors, statusLabels } from '@/constants';
+import { formatPrice } from '@/lib/utils';
 
 const statusFilters = [
   'all',
@@ -44,9 +45,6 @@ export default function AdminPedidos() {
     fetchOrders();
   }, [statusFilter]);
 
-  const formatCurrency = (v: number) =>
-    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(v);
-
   const columns: Column<OrderRow>[] = [
     {
       key: 'id',
@@ -83,7 +81,7 @@ export default function AdminPedidos() {
       label: 'Total',
       sortable: true,
       render: (item) => (
-        <span className="text-sm font-semibold text-slate-800">{formatCurrency(item.total)}</span>
+        <span className="text-sm font-semibold text-slate-800">{formatPrice(item.total)}</span>
       ),
     },
     {

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import DataTable, { Column } from '../components/DataTable';
 import Icon from '@/components/ui/AppIcon';
+import { formatPrice } from '@/lib/utils';
 
 interface CustomerRow {
   id: string;
@@ -27,9 +28,6 @@ export default function AdminClientes() {
         setLoading(false);
       });
   }, []);
-
-  const formatCurrency = (v: number) =>
-    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(v);
 
   const filteredCustomers = search
     ? customers.filter((c) => (c.name || '').toLowerCase().includes(search.toLowerCase()))
@@ -75,7 +73,7 @@ export default function AdminClientes() {
       sortable: true,
       render: (item) => (
         <span className="text-sm font-semibold text-slate-800">
-          {formatCurrency(item.total_spent)}
+          {formatPrice(item.total_spent)}
         </span>
       ),
     },

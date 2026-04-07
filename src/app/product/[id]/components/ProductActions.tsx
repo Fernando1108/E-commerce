@@ -58,7 +58,7 @@ export default function ProductActions({
         <motion.button
           onClick={onAddToCart}
           whileTap={{ scale: 0.97 }}
-          className={`flex-1 py-3.5 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2.5 transition-all duration-400 ${
+          className={`btn-shine flex-1 py-3.5 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2.5 transition-all duration-400 ${
             addedToCart ? 'bg-[#22C55E] text-white' : 'bg-[#1C1C1C] text-white hover:bg-[#2563EB]'
           }`}
         >
@@ -95,7 +95,7 @@ export default function ProductActions({
         onClick={onBuyNow}
         whileHover={{ scale: 1.005 }}
         whileTap={{ scale: 0.98 }}
-        className="w-full py-4 border-2 border-[#1C1C1C] text-[#1C1C1C] text-[10px] font-black uppercase tracking-widest hover:bg-[#1C1C1C] hover:text-white transition-all duration-300 flex items-center justify-center gap-2.5"
+        className="btn-shine w-full py-4 border-2 border-[#1C1C1C] text-[#1C1C1C] text-[10px] font-black uppercase tracking-widest hover:bg-[#1C1C1C] hover:text-white transition-all duration-300 flex items-center justify-center gap-2.5"
       >
         <Icon name="BoltIcon" size={14} variant="outline" />
         Comprar ahora — Entrega en 24h

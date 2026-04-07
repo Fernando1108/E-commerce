@@ -146,7 +146,7 @@ export default function HeroSection() {
             >
               <Link
                 href="/products"
-                className="group inline-flex items-center gap-3 bg-[#1C1C1C] text-white text-[11px] font-black uppercase tracking-widest hover:bg-[#2563EB] hover:text-white transition-all duration-300"
+                className="btn-shine group inline-flex items-center gap-3 bg-[#1C1C1C] text-white text-[11px] font-black uppercase tracking-widest hover:bg-[#2563EB] hover:text-white transition-all duration-300"
                 style={{ padding: '1.125rem 2.25rem' }}
               >
                 Explorar Tienda

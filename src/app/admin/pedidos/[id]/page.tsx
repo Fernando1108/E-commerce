@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import Icon from '@/components/ui/AppIcon';
 import { toast } from 'sonner';
 import { statusColors, statusLabels } from '@/constants';
+import { formatPrice } from '@/lib/utils';
 const allStatuses = ['pending', 'processing', 'shipped', 'delivered', 'completed', 'cancelled'];
 
 interface OrderDetail {
@@ -61,9 +62,6 @@ export default function PedidoDetalle({ params }: { params: Promise<{ id: string
     }
     setUpdating(false);
   };
-
-  const formatCurrency = (v: number) =>
-    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(v);
 
   if (loading) {
     return (
@@ -142,14 +140,14 @@ export default function PedidoDetalle({ params }: { params: Promise<{ id: string
                   <p className="text-xs text-slate-400">Cantidad: {item.quantity}</p>
                 </div>
                 <p className="text-sm font-semibold text-slate-800">
-                  {formatCurrency(item.price * item.quantity)}
+                  {formatPrice(item.price * item.quantity)}
                 </p>
               </div>
             ))}
           </div>
           <div className="px-5 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
             <span className="text-sm font-bold text-slate-700">Total</span>
-            <span className="text-lg font-bold text-slate-900">{formatCurrency(order.total)}</span>
+            <span className="text-lg font-bold text-slate-900">{formatPrice(order.total)}</span>
           </div>
         </motion.div>
 

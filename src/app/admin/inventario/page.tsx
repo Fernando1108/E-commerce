@@ -252,7 +252,7 @@ export default function AdminInventario() {
           </>
         }
       >
-        <form onSubmit={handleSubmitMovement} className="space-y-4">
+        <form className="space-y-4">
           <label className="block">
             <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
               Producto

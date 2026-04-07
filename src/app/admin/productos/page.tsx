@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import DataTable, { Column } from '../components/DataTable';
 import AdminModal from '../components/AdminModal';
 import Icon from '@/components/ui/AppIcon';
+import { formatPrice } from '@/lib/utils';
 import type { Product, Category } from '@/types';
 
 export default function AdminProductos() {
@@ -60,9 +61,6 @@ export default function AdminProductos() {
     setDeleting(false);
   };
 
-  const formatCurrency = (v: number) =>
-    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(v);
-
   const columns: Column<Product>[] = [
     {
       key: 'image',
@@ -99,10 +97,10 @@ export default function AdminProductos() {
       sortable: true,
       render: (item) => (
         <div>
-          <span className="font-semibold text-slate-800">{formatCurrency(item.price)}</span>
+          <span className="font-semibold text-slate-800">{formatPrice(item.price)}</span>
           {item.original_price && (
             <span className="text-xs text-slate-400 line-through ml-2">
-              {formatCurrency(item.original_price)}
+              {formatPrice(item.original_price)}
             </span>
           )}
         </div>

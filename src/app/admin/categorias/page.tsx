@@ -17,18 +17,22 @@ interface CategoryRow {
   product_count?: number;
 }
 
+const emptyForm = {
+  name: '',
+  description: '',
+  image_url: '',
+  accent_color: '#6C63FF',
+  display_size: 'normal',
+};
+
 export default function AdminCategorias() {
   const [categories, setCategories] = useState<CategoryRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [editModal, setEditModal] = useState(false);
+  const [editing, setEditing] = useState<CategoryRow | null>(null);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({
-    name: '',
-    description: '',
-    image_url: '',
-    accent_color: '#6C63FF',
-    display_size: 'normal',
-  });
+  const [form, setForm] = useState(emptyForm);
 
   const fetchCategories = async () => {
     setLoading(true);
@@ -68,19 +72,35 @@ export default function AdminCategorias() {
       }
       toast.success('Categoría creada');
       setModalOpen(false);
-      setForm({
-        name: '',
-        description: '',
-        image_url: '',
-        accent_color: '#6C63FF',
-        display_size: 'normal',
-      });
+      setForm(emptyForm);
       fetchCategories();
     } catch (error: any) {
       toast.error(error.message || 'Error al crear categoría');
     } finally {
       setSaving(false);
     }
+  };
+
+  const openEdit = (cat: CategoryRow) => {
+    setEditing(cat);
+    setForm({
+      name: cat.name,
+      description: cat.description || '',
+      image_url: cat.image_url || '',
+      accent_color: cat.accent_color,
+      display_size: cat.display_size,
+    });
+    setEditModal(true);
+  };
+
+  const handleDelete = (cat: CategoryRow) => {
+    if (!confirm(`¿Eliminar la categoría "${cat.name}"?`)) return;
+    toast.info('Próximamente');
+  };
+
+  const handleEditSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast.info('Próximamente');
   };
 
   const columns: Column<CategoryRow>[] = [
@@ -152,14 +172,14 @@ export default function AdminCategorias() {
         actions={(item) => (
           <>
             <button
-              onClick={() => toast.info('Próximamente')}
+              onClick={() => openEdit(item)}
               className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
               aria-label={`Editar ${item.name}`}
             >
               <Icon name="PencilIcon" size={14} />
             </button>
             <button
-              onClick={() => toast.info('Próximamente')}
+              onClick={() => handleDelete(item)}
               className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
               aria-label={`Eliminar ${item.name}`}
             >
@@ -169,6 +189,95 @@ export default function AdminCategorias() {
         )}
       />
 
+      {/* Edit modal */}
+      <AdminModal
+        open={editModal}
+        onClose={() => { setEditModal(false); setEditing(null); }}
+        title={`Editar: ${editing?.name || ''}`}
+      >
+        <form onSubmit={handleEditSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+              Nombre *
+            </label>
+            <input
+              type="text"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              required
+              className="w-full h-10 px-3 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+              Descripción
+            </label>
+            <textarea
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              rows={3}
+              className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 resize-none"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+              URL de imagen
+            </label>
+            <input
+              type="url"
+              value={form.image_url}
+              onChange={(e) => setForm({ ...form, image_url: e.target.value })}
+              className="w-full h-10 px-3 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
+              placeholder="https://..."
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                Color de acento
+              </label>
+              <input
+                type="color"
+                value={form.accent_color}
+                onChange={(e) => setForm({ ...form, accent_color: e.target.value })}
+                className="w-full h-10 rounded-lg border border-slate-200 cursor-pointer"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                Tamaño
+              </label>
+              <select
+                value={form.display_size}
+                onChange={(e) => setForm({ ...form, display_size: e.target.value })}
+                className="w-full h-10 px-3 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
+              >
+                <option value="normal">Normal</option>
+                <option value="large">Grande</option>
+                <option value="featured">Destacado</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => { setEditModal(false); setEditing(null); }}
+              className="px-4 py-2.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100 transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={!form.name.trim()}
+              className="px-4 py-2.5 rounded-lg bg-slate-900 text-white text-xs font-bold hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Guardar cambios
+            </button>
+          </div>
+        </form>
+      </AdminModal>
+
+      {/* Create modal */}
       <AdminModal open={modalOpen} onClose={() => setModalOpen(false)} title="Nueva categoría">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

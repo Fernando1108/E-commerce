@@ -16,25 +16,9 @@ import {
 import StatCard from './components/StatCard';
 import ChartCard from './components/ChartCard';
 import Icon from '@/components/ui/AppIcon';
+import { statusColors, statusLabels } from '@/constants';
+import { formatPrice } from '@/lib/utils';
 import type { AdminStats } from '@/types';
-
-const statusColors: Record<string, string> = {
-  pending: 'bg-amber-100 text-amber-700',
-  processing: 'bg-blue-100 text-blue-700',
-  shipped: 'bg-indigo-100 text-indigo-700',
-  delivered: 'bg-emerald-100 text-emerald-700',
-  completed: 'bg-emerald-100 text-emerald-700',
-  cancelled: 'bg-red-100 text-red-700',
-};
-
-const statusLabels: Record<string, string> = {
-  pending: 'Pendiente',
-  processing: 'Procesando',
-  shipped: 'Enviado',
-  delivered: 'Entregado',
-  completed: 'Completado',
-  cancelled: 'Cancelado',
-};
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<AdminStats | null>(null);
@@ -50,9 +34,6 @@ export default function AdminDashboard() {
       .catch(() => setLoading(false));
   }, []);
 
-  const formatCurrency = (value: number) =>
-    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
-
   return (
     <div className="space-y-6">
       {/* Page header */}
@@ -65,7 +46,7 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatCard
           label="Ventas totales"
-          value={loading ? '—' : formatCurrency(stats?.totalSales || 0)}
+          value={loading ? '—' : formatPrice(stats?.totalSales || 0)}
           icon="CurrencyDollarIcon"
           color="green"
           loading={loading}
@@ -138,7 +119,7 @@ export default function AdminDashboard() {
                     boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
                   }}
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  formatter={(value: any) => [formatCurrency(Number(value)), 'Ventas']}
+                  formatter={(value: any) => [formatPrice(Number(value)), 'Ventas']}
                 />
                 <Area
                   type="monotone"
@@ -262,7 +243,7 @@ export default function AdminDashboard() {
                       })}
                     </td>
                     <td className="px-5 py-3 text-sm font-semibold text-slate-700">
-                      {formatCurrency(order.total)}
+                      {formatPrice(order.total)}
                     </td>
                     <td className="px-5 py-3">
                       <span

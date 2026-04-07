@@ -95,6 +95,8 @@ export default function ContactoPage() {
         body: JSON.stringify({
           name: values.fullName,
           email: values.email,
+          phone: values.phone,
+          subject: values.subject,
           message: values.message,
         }),
       });
