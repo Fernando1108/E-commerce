@@ -357,7 +357,7 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 - [x] Panel Admin — Dashboard con gráficas (Recharts)
 - [x] Panel Admin — CRUD productos (crear, editar, eliminar)
 - [x] Panel Admin — Pedidos (lista, detalle, cambiar estado)
-- [x] Panel Admin — Categorías (crear)
+- [x] Panel Admin — Categorías (crear) + link en sidebar
 - [x] Panel Admin — Inventario (stock, movimientos)
 - [x] Panel Admin — Proveedores CRUD + lista de compras
 - [x] Panel Admin — Empleados CRUD
@@ -368,6 +368,12 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 - [x] Google Analytics componente condicional
 - [x] Responsive completo en todas las páginas
 - [x] Animaciones Framer Motion
+- [x] Header + Footer en `product/[id]`, `cart`, `checkout/success`
+- [x] Link correcto `/profile/orders` en checkout success
+- [x] Links "Ir a soporte" apuntando a `/contacto` en páginas legales
+- [x] Google OAuth en register + login
+- [x] Checkout `page.tsx` redirige al carrito
+- [x] Categorías en sidebar del admin
 
 **Backend (Anderson):**
 - [x] GET/POST `/api/products` + Zod + verificación admin
@@ -392,46 +398,40 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 ### 🚧 Pendiente
 
 **Diego (Frontend):**
-- [ ] Agregar `<Header />` y `<Footer />` a `product/[id]/page.tsx`, `cart/page.tsx`, `checkout/success/page.tsx`
-- [ ] Corregir link `/account/orders` → `/profile/orders` en `checkout/success/page.tsx`
-- [ ] Corregir links "Ir a soporte" → `/contacto` en envíos, devoluciones, privacidad, términos
-- [ ] Corregir link privacidad `href="#"` → `/privacidad` en NewsletterSection
-- [ ] Implementar `onClick` en botones: "Comprar ahora", "Compartir", "Cargar más productos"
 - [ ] Implementar `onClick` en botones de card: "Añadir al carrito" y "Favoritos" en FeaturedProducts, ProductGrid, RelatedProducts
-- [ ] Agregar "Categorías" al sidebar del admin (`AdminSidebar.tsx`)
-- [ ] Agregar editar/eliminar categorías en admin
-- [ ] Corregir selector de producto vacío en modal inventario (cuando está en tab movimientos)
-- [ ] Eliminar duplicados de AuthField/StatusMessage en contacto y profile/settings
-- [ ] Extraer StarRating a componente reutilizable en `components/ui/`
-- [ ] Extraer `statusColors`/`statusLabels`/`formatCurrency` a constantes compartidas
-- [ ] Corregir estilos de `checkout/success/page.tsx` al design system NovaStore
-- [ ] Agregar links reales de redes sociales en Footer
-- [ ] Completar links de navegación en Header (Categorías, Novedades, Ofertas con filtros)
 - [ ] Agregar links con filtro de categoría en CategoryBannersSection
+- [ ] Completar links de navegación en Header (Categorías con filtro real)
 - [ ] Resolver doble-submit en modales admin (inventario, proveedores, empleados)
-- [ ] Agregar Google OAuth en register (login ya lo tiene)
-- [ ] Implementar `checkout/page.tsx` o redirigir al carrito
-- [ ] Agregar WhatsApp real en contacto (actualmente placeholder)
+- [ ] Enviar `phone` y `subject` al API contacto (actualmente solo se envían name, email, message)
+- [ ] Corregir selector de producto vacío en modal inventario (tab movimientos)
+- [ ] Eliminar `statusColors`/`statusLabels` duplicados en admin/page.tsx → usar `constants/index.ts`
+- [ ] Extraer `formatCurrency` a `lib/utils.ts` (duplicado en admin/page.tsx)
+- [ ] Eliminar `data-v-4914bf38=""` residual en NewsletterSection.tsx
+- [ ] Cambiar `<a href="/privacidad">` a `<Link>` en NewsletterSection
+- [ ] Agregar editar/eliminar categorías en admin
+- [ ] Extraer StarRating a componente reutilizable en `components/ui/`
+- [ ] Agregar links reales de redes sociales en Footer
+- [ ] Botón "Cargar más productos" funcional en catálogo
+- [ ] Confirmar WhatsApp real en contacto
 
 **Anderson (Backend):**
-- [ ] Crear endpoint `/api/orders/[id]/receipt` para descarga PDF (jsPDF instalado)
+- [ ] 🔴 Corregir `variant_id: ''` → `null` en capture-order
+- [ ] 🔴 Comparar `serverTotal` vs monto capturado por PayPal en `capture-order`
+- [ ] 🔴 Agregar error handling en `getAccessToken()` (`lib/paypal/api.ts`)
+- [ ] 🔴 Sanitizar HTML en email de contacto (prevenir XSS)
+- [ ] 🔴 Eliminar `ignoreBuildErrors: true` en `next.config.mjs` (producción)
 - [ ] Agregar Zod en PayPal create/capture order
 - [ ] Agregar Zod en admin endpoints (inventory, suppliers, employees, purchases, admin orders)
-- [ ] Validar total server-side en `create-order` (no confiar en frontend)
-- [ ] Comparar `serverTotal` vs monto capturado por PayPal en `capture-order`
-- [ ] Agregar error handling en `getAccessToken()` (`lib/paypal/api.ts`)
-- [ ] Sanitizar HTML en email de contacto (prevenir XSS)
 - [ ] Mover email hardcodeado a variable de entorno (`contact/route.ts`)
-- [ ] Unificar enums de estado de pedido (Zod vs admin inline)
 - [ ] Consolidar `lib/admin.ts` y `lib/auth/verify-admin.ts` en un solo módulo
+- [ ] Unificar enums de estado de pedido (Zod vs admin inline)
+- [ ] Agregar `phone` y `subject` al `contactSchema` y procesarlos en el API
 - [ ] Agregar field filtering en PUT de suppliers (evitar inyección de columnas)
-- [ ] Corregir `variant_id: ''` → `null` en capture-order
+- [ ] Remover imports no usados (`startOfWeek`/`startOfMonth` en reports)
+- [ ] Crear endpoint `/api/orders/[id]/receipt` para descarga PDF
 - [ ] Agregar paginación en admin endpoints (customers, suppliers, employees, purchases)
 - [ ] Rate limiting en endpoints críticos (welcome, contact, newsletter)
 - [ ] Logging estructurado (reemplazar console.error)
-- [ ] Enviar `phone` y `subject` desde contacto al API (actualmente se pierden)
-- [ ] Remover imports no usados (`startOfWeek`/`startOfMonth` en reports, `useState` en AdminSidebar)
-- [ ] Eliminar `ignoreBuildErrors: true` en `next.config.mjs` (producción)
 
 ---
 

@@ -9,47 +9,10 @@ import Footer from '@/components/Footer';
 import { useAuth } from '@/hooks/useAuth';
 import { createClient } from '@/lib/supabase/client';
 
-/* ─── Inline UI primitives ──────────────────────────────────────── */
-type AuthFieldProps = {
-  label: string;
-  type: string;
-  placeholder: string;
-  registration: ReturnType<ReturnType<typeof useForm>['register']>;
-  error?: { message?: string };
-};
-
-function AuthField({ label, type, placeholder, registration, error }: AuthFieldProps) {
-  return (
-    <label className="block">
-      <span className="mb-2 block text-[11px] font-black uppercase tracking-[0.24em] text-[#5A5A5A]">
-        {label}
-      </span>
-      <input
-        type={type}
-        placeholder={placeholder}
-        {...registration}
-        className={`h-14 w-full border px-4 text-[15px] text-[#1C1C1C] outline-none transition ${
-          error
-            ? 'border-[#C33D2F] bg-[#FFF7F5] focus:border-[#C33D2F]'
-            : 'border-[#DDD9D3] bg-[#FCFBF9] focus:border-[#1C1C1C] focus:bg-white'
-        }`}
-      />
-      {error?.message && <span className="mt-2 block text-sm text-[#C33D2F]">{error.message}</span>}
-    </label>
-  );
-}
+import AuthField from '@/components/ui/AuthField';
+import StatusMessage from '@/components/ui/StatusMessage';
 
 type StatusState = 'idle' | 'loading' | 'success' | 'error';
-
-function StatusMessage({ status, message }: { status: StatusState; message: string | null }) {
-  if (!message || status === 'idle') return null;
-  const cls =
-    status === 'success'
-      ? 'border-[#D8E4FF] bg-[#EFF6FF] text-[#2563EB]'
-      : 'border-[#F1C8C2] bg-[#FFF7F5] text-[#C33D2F]';
-  return <div className={`border px-4 py-3 text-sm leading-relaxed ${cls}`}>{message}</div>;
-}
-/* ─────────────────────────────────────────────────────────────────── */
 
 type SettingsFormValues = {
   name: string;
@@ -273,7 +236,10 @@ export default function ProfileSettingsPage() {
                       </Link>
                     </div>
 
-                    <StatusMessage status={status} message={feedbackMessage} />
+                    <StatusMessage
+                      type={status === 'error' ? 'error' : 'success'}
+                      message={status !== 'idle' ? feedbackMessage : null}
+                    />
 
                     <button
                       type="submit"

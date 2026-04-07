@@ -96,22 +96,26 @@ export default function Footer() {
 
           <div className="flex items-center gap-4">
             <a
-              href="#"
+              href="https://instagram.com/kodexasolutions"
+              target="_blank"
+              rel="noreferrer"
               aria-label="Instagram de NovaStore"
               className="size-9 flex items-center justify-center text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
             >
               <Icon name="CameraIcon" size={18} variant="outline" />
             </a>
             <a
-              href="#"
-              aria-label="Twitter de NovaStore"
+              href="https://wa.me/50766449530"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="WhatsApp de NovaStore"
               className="size-9 flex items-center justify-center text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
             >
               <Icon name="ChatBubbleLeftIcon" size={18} variant="outline" />
             </a>
             <a
-              href="#"
-              aria-label="LinkedIn de NovaStore"
+              href="mailto:kodexasolutions@gmail.com"
+              aria-label="Email de NovaStore"
               className="size-9 flex items-center justify-center text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
             >
               <Icon name="BuildingOfficeIcon" size={18} variant="outline" />

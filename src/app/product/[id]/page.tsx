@@ -200,127 +200,127 @@ export default function ProductDetailPage() {
 
   return (
     <>
-    <Header />
-    <div className="min-h-screen bg-[#F8F7F5]">
-      {/* Breadcrumb */}
-      <motion.div
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="pt-[88px] pb-5 bg-white border-b border-[#DDD9D3]"
-      >
-        <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
-          <nav className="flex items-center gap-2 text-[10px] font-700 text-[#8A8A8A] uppercase tracking-widest">
-            <Link href="/homepage" className="hover:text-[#1C1C1C] transition-colors">
-              Inicio
-            </Link>
-            <Icon name="ChevronRightIcon" size={9} variant="outline" />
-            <Link href="/products" className="hover:text-[#1C1C1C] transition-colors">
-              Tienda
-            </Link>
-            <Icon name="ChevronRightIcon" size={9} variant="outline" />
-            {product.category?.name && (
-              <>
-                <Link href="/products" className="hover:text-[#1C1C1C] transition-colors">
-                  {product.category.name}
-                </Link>
-                <Icon name="ChevronRightIcon" size={9} variant="outline" />
-              </>
-            )}
-            <span className="text-[#1C1C1C]">{product.name}</span>
-          </nav>
-        </div>
-      </motion.div>
-
-      {/* Main Product Section */}
-      <section className="py-12 lg:py-20">
-        <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_460px] xl:grid-cols-[1fr_500px] gap-12 lg:gap-20 items-start">
-            <motion.div
-              initial={{ opacity: 0, x: -28 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <ProductGallery images={galleryImages} />
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, x: 28 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.75, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="lg:sticky lg:top-[96px] space-y-7"
-            >
-              <ProductInfo
-                product={product}
-                rating={rating}
-                reviewCount={reviewCount}
-                discount={discount}
-              />
-              <ProductVariants
-                variants={product.variants || []}
-                selectedVariant={selectedVariant}
-                onSelect={setSelectedVariant}
-              />
-              <ProductActions
-                stock={product.stock}
-                quantity={quantity}
-                addedToCart={addedToCart}
-                isWishlisted={isInWishlist(productId)}
-                onQuantityChange={setQuantity}
-                onAddToCart={handleAddToCart}
-                onToggleWishlist={handleToggleWishlist}
-                onBuyNow={handleBuyNow}
-                onShare={handleShare}
-              />
-              <TrustSignals />
-              {product.stock <= 10 && product.stock > 0 && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1.0 }}
-                  className="flex items-center gap-3 p-4 bg-[#FFF7ED] border border-[#FED7AA]"
-                >
-                  <Icon
-                    name="FireIcon"
-                    size={17}
-                    variant="solid"
-                    className="text-[#EA580C] shrink-0"
-                  />
-                  <p className="text-[11px] text-[#9A3412] font-600 leading-snug">
-                    <span className="font-black">¡Solo quedan {product.stock} unidades!</span> —
-                    Alta demanda en las últimas 24h.
-                  </p>
-                </motion.div>
+      <Header />
+      <div className="min-h-screen bg-[#F8F7F5]">
+        {/* Breadcrumb */}
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="pt-[88px] pb-5 bg-white border-b border-[#DDD9D3]"
+        >
+          <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
+            <nav className="flex items-center gap-2 text-[10px] font-700 text-[#8A8A8A] uppercase tracking-widest">
+              <Link href="/homepage" className="hover:text-[#1C1C1C] transition-colors">
+                Inicio
+              </Link>
+              <Icon name="ChevronRightIcon" size={9} variant="outline" />
+              <Link href="/products" className="hover:text-[#1C1C1C] transition-colors">
+                Tienda
+              </Link>
+              <Icon name="ChevronRightIcon" size={9} variant="outline" />
+              {product.category?.name && (
+                <>
+                  <Link href="/products" className="hover:text-[#1C1C1C] transition-colors">
+                    {product.category.name}
+                  </Link>
+                  <Icon name="ChevronRightIcon" size={9} variant="outline" />
+                </>
               )}
-              <div className="pt-1 border-t border-[#DDD9D3]">
-                <p className="text-[9px] font-black uppercase tracking-widest text-[#8A8A8A] mb-3">
-                  Métodos de pago aceptados
-                </p>
-                <div className="flex items-center gap-2 flex-wrap">
-                  {['Visa', 'Mastercard', 'PayPal', 'Bizum', 'Apple Pay'].map((m) => (
-                    <span
-                      key={m}
-                      className="px-2.5 py-1.5 border border-[#DDD9D3] text-[9px] font-black uppercase tracking-widest text-[#5A5A5A] bg-white"
-                    >
-                      {m}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
+              <span className="text-[#1C1C1C]">{product.name}</span>
+            </nav>
           </div>
-        </div>
-      </section>
+        </motion.div>
 
-      <ProductTabs
-        product={product}
-        galleryImages={galleryImages}
-        rating={rating}
-        reviewCount={reviewCount}
-        user={user}
-      />
-      <RelatedProducts products={relatedProducts} />
-    </div>
-    <Footer />
+        {/* Main Product Section */}
+        <section className="py-12 lg:py-20">
+          <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_460px] xl:grid-cols-[1fr_500px] gap-12 lg:gap-20 items-start">
+              <motion.div
+                initial={{ opacity: 0, x: -28 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <ProductGallery images={galleryImages} />
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, x: 28 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.75, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+                className="lg:sticky lg:top-[96px] space-y-7"
+              >
+                <ProductInfo
+                  product={product}
+                  rating={rating}
+                  reviewCount={reviewCount}
+                  discount={discount}
+                />
+                <ProductVariants
+                  variants={product.variants || []}
+                  selectedVariant={selectedVariant}
+                  onSelect={setSelectedVariant}
+                />
+                <ProductActions
+                  stock={product.stock}
+                  quantity={quantity}
+                  addedToCart={addedToCart}
+                  isWishlisted={isInWishlist(productId)}
+                  onQuantityChange={setQuantity}
+                  onAddToCart={handleAddToCart}
+                  onToggleWishlist={handleToggleWishlist}
+                  onBuyNow={handleBuyNow}
+                  onShare={handleShare}
+                />
+                <TrustSignals />
+                {product.stock <= 10 && product.stock > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 1.0 }}
+                    className="flex items-center gap-3 p-4 bg-[#FFF7ED] border border-[#FED7AA]"
+                  >
+                    <Icon
+                      name="FireIcon"
+                      size={17}
+                      variant="solid"
+                      className="text-[#EA580C] shrink-0"
+                    />
+                    <p className="text-[11px] text-[#9A3412] font-600 leading-snug">
+                      <span className="font-black">¡Solo quedan {product.stock} unidades!</span> —
+                      Alta demanda en las últimas 24h.
+                    </p>
+                  </motion.div>
+                )}
+                <div className="pt-1 border-t border-[#DDD9D3]">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-[#8A8A8A] mb-3">
+                    Métodos de pago aceptados
+                  </p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {['Visa', 'Mastercard', 'PayPal', 'Bizum', 'Apple Pay'].map((m) => (
+                      <span
+                        key={m}
+                        className="px-2.5 py-1.5 border border-[#DDD9D3] text-[9px] font-black uppercase tracking-widest text-[#5A5A5A] bg-white"
+                      >
+                        {m}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        <ProductTabs
+          product={product}
+          galleryImages={galleryImages}
+          rating={rating}
+          reviewCount={reviewCount}
+          user={user}
+        />
+        <RelatedProducts products={relatedProducts} />
+      </div>
+      <Footer />
     </>
   );
 }

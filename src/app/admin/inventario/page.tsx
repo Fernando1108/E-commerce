@@ -45,7 +45,9 @@ export default function AdminInventario() {
   useEffect(() => {
     fetch('/api/admin/inventory?view=stock')
       .then((r) => r.json())
-      .then((d) => { if (Array.isArray(d)) setStockData(d); })
+      .then((d) => {
+        if (Array.isArray(d)) setStockData(d);
+      })
       .catch(() => {});
   }, []);
 

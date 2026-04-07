@@ -10,14 +10,7 @@ import Icon from '@/components/ui/AppIcon';
 import { useAuth } from '@/hooks/useAuth';
 import { formatPrice } from '@/lib/utils';
 import type { Order } from '@/types';
-
-const STATUS_MAP: Record<string, { label: string; cls: string }> = {
-  pending: { label: 'Pendiente', cls: 'bg-yellow-50 text-yellow-700 border-yellow-200' },
-  paid: { label: 'Pagado', cls: 'bg-blue-50 text-blue-700 border-blue-200' },
-  shipped: { label: 'Enviado', cls: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
-  delivered: { label: 'Entregado', cls: 'bg-green-50 text-green-700 border-green-200' },
-  cancelled: { label: 'Cancelado', cls: 'bg-red-50 text-red-700 border-red-200' },
-};
+import { statusColors, statusLabels } from '@/constants';
 
 export default function OrdersPage() {
   const { user, loading: authLoading } = useAuth();
@@ -136,10 +129,6 @@ export default function OrdersPage() {
           {!loading && !error && orders.length > 0 && (
             <div className="space-y-4">
               {orders.map((order, index) => {
-                const statusInfo = STATUS_MAP[order.status] ?? {
-                  label: order.status,
-                  cls: 'bg-gray-50 text-gray-700 border-gray-200',
-                };
                 const isExpanded = expandedId === order.id;
 
                 return (
@@ -193,9 +182,9 @@ export default function OrdersPage() {
                           </div>
                         )}
                         <span
-                          className={`px-3 py-1.5 border text-[9px] font-black uppercase tracking-[0.18em] ${statusInfo.cls}`}
+                          className={`px-3 py-1.5 border text-[9px] font-black uppercase tracking-[0.18em] ${statusColors[order.status] ?? 'bg-gray-50 text-gray-700 border-gray-200'}`}
                         >
-                          {statusInfo.label}
+                          {statusLabels[order.status] ?? order.status}
                         </span>
                       </div>
                       <Icon

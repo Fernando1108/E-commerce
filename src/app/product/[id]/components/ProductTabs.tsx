@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
-import { StarRating } from './ProductInfo';
+import StarRating from '@/components/ui/StarRating';
 import ProductSpecs from './ProductSpecs';
 import { toast } from 'sonner';
 import type { Product } from '@/types';
@@ -31,7 +31,6 @@ function ReviewsTab({
   reviewCount: number;
   user: { id?: string; email?: string | null } | null;
 }) {
-  const [hoveredStar, setHoveredStar] = useState(0);
   const [selectedStar, setSelectedStar] = useState(0);
   const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -110,7 +109,7 @@ function ReviewsTab({
           <p className="font-display font-900 italic text-[#1C1C1C] text-7xl tracking-tightest leading-none mb-3">
             {product.avg_rating?.toFixed(1) || '0.0'}
           </p>
-          <StarRating rating={rating} size={20} />
+          <StarRating rating={rating} size="md" />
           <p className="text-[11px] text-[#5A5A5A] mt-3">{reviewCount} valoraciones</p>
         </div>
 
@@ -127,7 +126,7 @@ function ReviewsTab({
               <div key={review.id} className="border border-[#DDD9D3] bg-[#FCFBF9] p-5">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-3">
-                    <StarRating rating={review.rating} size={14} />
+                    <StarRating rating={review.rating} size="sm" />
                     <span className="text-[12px] font-bold text-[#1C1C1C]">
                       {review.profiles?.name || 'Cliente'}
                     </span>
@@ -186,38 +185,12 @@ function ReviewsTab({
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#5A5A5A] mb-3">
                 Tu puntuación
               </p>
-              <div className="flex gap-2">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    type="button"
-                    onMouseEnter={() => setHoveredStar(star)}
-                    onMouseLeave={() => setHoveredStar(0)}
-                    onClick={() => setSelectedStar(star)}
-                    className="transition-transform hover:scale-110"
-                  >
-                    <svg
-                      width={28}
-                      height={28}
-                      viewBox="0 0 20 20"
-                      fill={star <= (hoveredStar || selectedStar) ? '#C8922A' : 'none'}
-                      stroke={star <= (hoveredStar || selectedStar) ? '#C8922A' : '#DDD9D3'}
-                      strokeWidth="1.5"
-                    >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                  </button>
-                ))}
-                {(hoveredStar || selectedStar) > 0 && (
-                  <span className="text-[12px] text-[#8A8A8A] self-center ml-1">
-                    {
-                      ['', 'Muy malo', 'Malo', 'Regular', 'Bueno', 'Excelente'][
-                        hoveredStar || selectedStar
-                      ]
-                    }
-                  </span>
-                )}
-              </div>
+              <StarRating
+                rating={selectedStar}
+                onChange={setSelectedStar}
+                size="lg"
+                readOnly={false}
+              />
             </div>
 
             <div>

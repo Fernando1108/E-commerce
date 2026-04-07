@@ -7,7 +7,7 @@ import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
 import { formatPrice } from '@/lib/utils';
 import { useCart } from '@/hooks/useCart';
-import { StarRating } from './ProductInfo';
+import StarRating from '@/components/ui/StarRating';
 import type { Product } from '@/types';
 
 function RelatedProductCard({
@@ -49,7 +49,11 @@ function RelatedProductCard({
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/12 transition-colors duration-400" />
           <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] z-10">
             <button
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onAddToCart(product); }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onAddToCart(product);
+              }}
               className="w-full py-3 bg-[#1C1C1C] text-white text-[9px] font-black uppercase tracking-widest hover:bg-[#2563EB] transition-colors flex items-center justify-center gap-1.5"
             >
               <Icon name="ShoppingBagIcon" size={12} variant="outline" />
@@ -64,7 +68,7 @@ function RelatedProductCard({
         </div>
         <div className="p-5 space-y-2.5">
           <div className="flex items-center gap-1.5">
-            <StarRating rating={rating} size={11} />
+            <StarRating rating={rating} size="sm" />
             <span className="text-[10px] text-[#8A8A8A]">({reviewCount})</span>
           </div>
           <h3 className="font-700 text-[#1C1C1C] text-[14px] leading-tight group-hover:text-[#2563EB] transition-colors duration-300 line-clamp-2">
@@ -93,9 +97,12 @@ type RelatedProductsProps = {
 
 export default function RelatedProducts({ products }: RelatedProductsProps) {
   const { addItem } = useCart();
-  const handleAddToCart = useCallback((product: Product) => {
-    addItem(product, 1);
-  }, [addItem]);
+  const handleAddToCart = useCallback(
+    (product: Product) => {
+      addItem(product, 1);
+    },
+    [addItem]
+  );
 
   if (products.length === 0) return null;
 

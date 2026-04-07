@@ -91,7 +91,11 @@ function ProductCard({
         <div className="absolute bottom-0 left-0 right-0 p-4 flex gap-2 translate-y-full group-hover:translate-y-0 transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] z-10">
           <button
             aria-label="Añadir al carrito"
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onAddToCart(product); }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onAddToCart(product);
+            }}
             className="flex-1 py-3 bg-[#1C1C1C] text-white text-[10px] font-black uppercase tracking-widest hover:bg-[#2563EB] transition-colors duration-200 flex items-center justify-center gap-2"
           >
             <Icon name="ShoppingBagIcon" size={14} variant="outline" />
@@ -99,10 +103,19 @@ function ProductCard({
           </button>
           <button
             aria-label="Añadir a favoritos"
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleWishlist(product.id); }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onToggleWishlist(product.id);
+            }}
             className="size-11 bg-white/95 backdrop-blur-sm flex items-center justify-center hover:bg-[#1C1C1C] hover:text-white transition-colors duration-200 border border-[#DDD9D3]"
           >
-            <Icon name="HeartIcon" size={16} variant={isWishlisted ? 'solid' : 'outline'} className={isWishlisted ? 'text-red-500' : ''} />
+            <Icon
+              name="HeartIcon"
+              size={16}
+              variant={isWishlisted ? 'solid' : 'outline'}
+              className={isWishlisted ? 'text-red-500' : ''}
+            />
           </button>
         </div>
       </div>
@@ -176,13 +189,19 @@ export default function FeaturedProductsSection() {
   const { addItem } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
 
-  const handleAddToCart = useCallback((product: Product) => {
-    addItem(product, 1);
-  }, [addItem]);
+  const handleAddToCart = useCallback(
+    (product: Product) => {
+      addItem(product, 1);
+    },
+    [addItem]
+  );
 
-  const handleToggleWishlist = useCallback((id: string) => {
-    toggleWishlist(id);
-  }, [toggleWishlist]);
+  const handleToggleWishlist = useCallback(
+    (id: string) => {
+      toggleWishlist(id);
+    },
+    [toggleWishlist]
+  );
 
   useEffect(() => {
     getFeaturedProducts(4)

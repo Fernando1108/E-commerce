@@ -87,14 +87,22 @@ function ProductCard({
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/8 transition-colors duration-300 flex items-center justify-center gap-2.5 opacity-0 group-hover:opacity-100 z-10">
             <button
               aria-label={`Añadir ${product.name} al carrito`}
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onAddToCart(product); }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onAddToCart(product);
+              }}
               className="size-10 bg-white shadow-nova-md flex items-center justify-center hover:bg-[#1C1C1C] hover:text-white transition-colors"
             >
               <Icon name="ShoppingBagIcon" size={16} variant="outline" />
             </button>
             <button
               aria-label={`Añadir ${product.name} a favoritos`}
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleWishlist(product.id); }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onToggleWishlist(product.id);
+              }}
               className="size-10 bg-white shadow-nova-md flex items-center justify-center hover:bg-[#1C1C1C] hover:text-white transition-colors"
             >
               <Icon
@@ -196,13 +204,19 @@ export default function ProductGridSection({
   const { addItem } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
 
-  const handleAddToCart = useCallback((product: Product) => {
-    addItem(product, 1);
-  }, [addItem]);
+  const handleAddToCart = useCallback(
+    (product: Product) => {
+      addItem(product, 1);
+    },
+    [addItem]
+  );
 
-  const handleToggleWishlist = useCallback((id: string) => {
-    toggleWishlist(id);
-  }, [toggleWishlist]);
+  const handleToggleWishlist = useCallback(
+    (id: string) => {
+      toggleWishlist(id);
+    },
+    [toggleWishlist]
+  );
 
   // Reset and fetch on filter/search change
   useEffect(() => {
@@ -265,7 +279,9 @@ export default function ProductGridSection({
     <>
       <ProductFiltersSection
         activeCategory={activeCategory}
-        onCategoryChange={(cat) => { setActiveCategory(cat); }}
+        onCategoryChange={(cat) => {
+          setActiveCategory(cat);
+        }}
         activeSort={activeSort}
         onSortChange={setActiveSort}
         productCount={totalShown}
