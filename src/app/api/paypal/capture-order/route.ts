@@ -1,28 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { sendOrderConfirmation } from '@/lib/email'
-
-const PAYPAL_API = process.env.NODE_ENV === 'production'
-  ? 'https://api-m.paypal.com'
-  : 'https://api-m.sandbox.paypal.com'
-
-async function getAccessToken() {
-  const auth = Buffer.from(
-    `${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`
-  ).toString('base64')
-
-  const res = await fetch(`${PAYPAL_API}/v1/oauth2/token`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Basic ${auth}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: 'grant_type=client_credentials',
-  })
-
-  const data = await res.json()
-  return data.access_token
-}
+import { getAccessToken, PAYPAL_API } from '@/lib/paypal/api'
 
 export async function POST(request: Request) {
   try {
@@ -48,24 +27,37 @@ export async function POST(request: Request) {
     const captureData = await res.json()
 
     if (captureData.status === 'COMPLETED') {
+      // Recalcular total server-side
+      const productIds = cartItems.map((item: any) => item.product_id)
+      const { data: products } = await supabase
+        .from('products')
+        .select('id, price')
+        .in('id', productIds)
+
+      const priceMap = new Map(products?.map((p: any) => [p.id, p.price]) || [])
+      const serverTotal = cartItems.reduce((sum: number, item: any) => {
+        const realPrice = priceMap.get(item.product_id) || 0
+        return sum + realPrice * item.quantity
+      }, 0)
+
       const orderItems = cartItems.map((item: any) => ({
         product_id: item.product_id,
         variant_id: item.variant_id || '',
         quantity: item.quantity,
-        price: item.product?.price || 0,
+        price: priceMap.get(item.product_id) || 0,
       }))
 
       const { data: orderId, error } = await supabase.rpc('create_order', {
         p_user_id: user.id,
         p_items: orderItems,
-        p_total: total,
+        p_total: serverTotal,
       })
 
       if (error) throw error
 
       await supabase.from('invoices').insert({
         order_id: orderId,
-        total: total,
+        total: serverTotal,
       })
 
       // Enviar email de confirmación (non-blocking)
@@ -74,11 +66,11 @@ export async function POST(request: Request) {
           to: user.email!,
           customerName: user.user_metadata?.name || 'Cliente',
           orderId: orderId,
-          total: total,
+          total: serverTotal,
           items: cartItems.map((item: any) => ({
             name: item.product?.name || 'Producto',
             quantity: item.quantity,
-            price: item.product?.price || 0,
+            price: priceMap.get(item.product_id) || 0,
           })),
         })
       } catch (emailError) {

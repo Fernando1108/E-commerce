@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { requireAdmin } from '@/lib/admin'
+import { verifyAdmin } from '@/lib/auth/verify-admin'
+import { productSchema } from '@/lib/validations'
 
-// GET - Listar productos con filtros (público)
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const limit = Number(searchParams.get('limit')) || 20
@@ -22,25 +22,19 @@ export async function GET(request: Request) {
   return NextResponse.json(data)
 }
 
-// POST - Crear producto (requiere admin)
 export async function POST(request: Request) {
-  const { error: authError, supabase } = await requireAdmin()
+  const { error: authError, supabase } = await verifyAdmin()
   if (authError) return authError
 
   const body = await request.json()
+  const parsed = productSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 })
+  }
+
   const { data, error } = await supabase.from('products').insert({
-    name: body.name,
-    description: body.description,
-    price: body.price,
-    original_price: body.original_price || null,
-    badge: body.badge || null,
-    category_id: body.category_id,
-    image_url: body.image_url || null,
-    slug: body.slug || body.name.toLowerCase().replace(/\s+/g, '-'),
-    stock: body.stock || 0,
-    featured: body.featured || false,
-    specs: body.specs || {},
-    highlights: body.highlights || [],
+    ...parsed.data,
+    slug: parsed.data.slug || parsed.data.name.toLowerCase().replace(/\s+/g, '-'),
   }).select().single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

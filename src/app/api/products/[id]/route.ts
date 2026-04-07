@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { requireAdmin } from '@/lib/admin'
+import { verifyAdmin } from '@/lib/auth/verify-admin'
+import { productSchema } from '@/lib/validations'
 
-// GET - Obtener producto por ID (público)
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const supabase = await createClient()
@@ -13,36 +13,25 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   return NextResponse.json(data)
 }
 
-// PUT - Actualizar producto (requiere admin)
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const { error: authError, supabase } = await requireAdmin()
+  const { error: authError, supabase } = await verifyAdmin()
   if (authError) return authError
 
   const body = await request.json()
-  const { data, error } = await supabase.from('products').update({
-    name: body.name,
-    description: body.description,
-    price: body.price,
-    original_price: body.original_price,
-    badge: body.badge,
-    category_id: body.category_id,
-    image_url: body.image_url,
-    slug: body.slug,
-    stock: body.stock,
-    featured: body.featured,
-    specs: body.specs,
-    highlights: body.highlights,
-  }).eq('id', id).select().single()
+  const parsed = productSchema.partial().safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 })
+  }
 
+  const { data, error } = await supabase.from('products').update(parsed.data).eq('id', id).select().single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)
 }
 
-// DELETE - Eliminar producto (requiere admin)
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const { error: authError, supabase } = await requireAdmin()
+  const { error: authError, supabase } = await verifyAdmin()
   if (authError) return authError
 
   const { error } = await supabase.from('products').delete().eq('id', id)
