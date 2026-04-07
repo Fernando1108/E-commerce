@@ -96,4 +96,102 @@ export interface Shipment {
   carrier: string | null
   tracking_number: string | null
   status: string | null
+  shipped_at?: string | null
+  delivered_at?: string | null
+  created_at?: string
+}
+
+// ─── Admin Panel Interfaces ────────────────────────────────
+
+export interface Employee {
+  id: string
+  user_id: string | null
+  name: string
+  position: string | null
+  department: string | null
+  phone: string | null
+  email: string | null
+  hire_date: string | null
+  salary: number
+  status: 'active' | 'inactive' | 'terminated'
+  created_at: string
+}
+
+export interface Supplier {
+  id: string
+  name: string
+  contact_name: string | null
+  email: string | null
+  phone: string | null
+  address: string | null
+  city: string | null
+  country: string | null
+  notes: string | null
+  status: 'active' | 'inactive'
+  created_at: string
+}
+
+export interface Purchase {
+  id: string
+  supplier_id: string | null
+  total: number
+  status: 'pending' | 'received' | 'cancelled'
+  notes: string | null
+  created_at: string
+  supplier?: Supplier
+  items?: PurchaseItem[]
+}
+
+export interface PurchaseItem {
+  id: string
+  purchase_id: string
+  product_id: string | null
+  quantity: number
+  unit_price: number
+  product?: Product
+}
+
+export interface InventoryMovement {
+  id: string
+  product_id: string
+  type: 'in' | 'out' | 'adjustment'
+  quantity: number
+  reason: string | null
+  created_by: string | null
+  created_at: string
+  product?: Product
+}
+
+export interface Invoice {
+  id: string
+  order_id: string
+  total: number
+  status: 'paid' | 'pending' | 'cancelled' | 'refunded'
+  created_at: string
+  order?: Order
+}
+
+export interface Role {
+  id: string
+  name: string
+  description: string | null
+  created_at: string
+  permissions?: Permission[]
+}
+
+export interface Permission {
+  id: string
+  name: string
+  description: string | null
+  created_at: string
+}
+
+export interface AdminStats {
+  totalSales: number
+  newOrdersToday: number
+  lowStockCount: number
+  totalCustomers: number
+  recentOrders: Order[]
+  topProducts: { name: string; sold: number; revenue: number }[]
+  salesByDay: { date: string; total: number; orders: number }[]
 }
