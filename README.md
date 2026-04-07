@@ -426,8 +426,8 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 - [x] Cambiar `<a href="/privacidad">` a `<Link>` en NewsletterSection
 - [x] Agregar editar/eliminar categorías en admin
 - [x] Extraer StarRating a componente reutilizable en `components/ui/`
-- [ ] Agregar links reales de redes sociales en Footer
-- [ ] Botón "Cargar más productos" funcional en catálogo
+- [x] Agregar links reales de redes sociales en Footer
+- [x] Botón "Cargar más productos" funcional en catálogo
 - [x] Confirmar WhatsApp real en contacto
 
 **Anderson (Backend):**

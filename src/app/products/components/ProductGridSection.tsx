@@ -6,7 +6,6 @@ import { motion, AnimatePresence, useInView } from 'framer-motion';
 import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
 import ProductFiltersSection from './ProductFiltersSection';
-import { getProducts } from '@/lib/supabase/services';
 import { formatPrice } from '@/lib/utils';
 import { useCart } from '@/hooks/useCart';
 import { useWishlist } from '@/hooks/useWishlist';
@@ -229,13 +228,12 @@ export default function ProductGridSection({
     setLoading(true);
     setOffset(0);
     setProducts([]);
-    getProducts({
-      categoryId: activeCategory === 'all' ? null : activeCategory,
-      search: searchQuery.trim() || null,
-      limit: PAGE_SIZE,
-      offset: 0,
-    })
-      .then((data) => {
+    const params = new URLSearchParams({ limit: String(PAGE_SIZE), offset: '0' });
+    if (activeCategory !== 'all') params.set('category', activeCategory);
+    if (searchQuery.trim()) params.set('search', searchQuery.trim());
+    fetch(`/api/products?${params}`)
+      .then((r) => r.json())
+      .then((data: Product[]) => {
         setProducts(data);
         setHasMore(data.length === PAGE_SIZE);
         setLoading(false);
@@ -247,12 +245,14 @@ export default function ProductGridSection({
     const nextOffset = offset + PAGE_SIZE;
     setLoadingMore(true);
     try {
-      const data = await getProducts({
-        categoryId: activeCategory === 'all' ? null : activeCategory,
-        search: searchQuery.trim() || null,
-        limit: PAGE_SIZE,
-        offset: nextOffset,
+      const params = new URLSearchParams({
+        limit: String(PAGE_SIZE),
+        offset: String(nextOffset),
       });
+      if (activeCategory !== 'all') params.set('category', activeCategory);
+      if (searchQuery.trim()) params.set('search', searchQuery.trim());
+      const res = await fetch(`/api/products?${params}`);
+      const data: Product[] = await res.json();
       setProducts((prev) => [...prev, ...data]);
       setOffset(nextOffset);
       setHasMore(data.length === PAGE_SIZE);
@@ -378,21 +378,33 @@ export default function ProductGridSection({
               {hasMore && (
                 <>
                   <div className="w-full max-w-xs bg-[#DDD9D3] h-1 rounded-full overflow-hidden">
-                    <div className="bg-[#1C1C1C] h-1 rounded-full" style={{ width: '60%' }} />
+                    <div
+                      className={`bg-[#1C1C1C] h-1 rounded-full transition-all duration-500 ${
+                        loadingMore ? 'animate-pulse' : ''
+                      }`}
+                      style={{ width: `${Math.min(((offset + PAGE_SIZE) / (offset + PAGE_SIZE * 2)) * 100, 90)}%` }}
+                    />
                   </div>
                   <button
                     onClick={handleLoadMore}
                     disabled={loadingMore}
                     className="mt-4 px-10 py-4 border-2 border-[#1C1C1C] text-[#1C1C1C] text-[11px] font-black uppercase tracking-widest hover:bg-[#1C1C1C] hover:text-white transition-all duration-300 inline-flex items-center gap-3 group disabled:opacity-60"
                   >
-                    {loadingMore ? 'Cargando...' : 'Cargar más productos'}
-                    {!loadingMore && (
-                      <Icon
-                        name="ArrowDownIcon"
-                        size={14}
-                        variant="outline"
-                        className="group-hover:translate-y-1 transition-transform"
-                      />
+                    {loadingMore ? (
+                      <>
+                        <Icon name="ArrowPathIcon" size={14} variant="outline" className="animate-spin" />
+                        Cargando...
+                      </>
+                    ) : (
+                      <>
+                        Cargar más productos
+                        <Icon
+                          name="ArrowDownIcon"
+                          size={14}
+                          variant="outline"
+                          className="group-hover:translate-y-1 transition-transform"
+                        />
+                      </>
                     )}
                   </button>
                 </>
