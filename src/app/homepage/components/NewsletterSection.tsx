@@ -128,7 +128,7 @@ export default function NewsletterSection() {
                 </div>
                 <p className="text-[11px] leading-relaxed text-white/25">
                   Al suscribirte aceptas nuestra{' '}
-                  <a href="#" className="underline transition-colors hover:text-white/60">
+                  <a href="/privacidad" className="underline transition-colors hover:text-white/60">
                     politica de privacidad
                   </a>
                   . Mas de <strong className="text-white/50">8.000 profesionales</strong> ya estan

@@ -1,6 +1,6 @@
 # NovaStore — E-commerce Platform
 
-Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación completa (Supabase Auth), gestión de productos, cupones, emails transaccionales y UI premium con animaciones.
+Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación completa (Supabase Auth), panel de administración ERP, gestión de productos, pedidos, inventario, proveedores, empleados, facturación, clientes, cupones, emails transaccionales y UI premium con animaciones.
 
 **Desarrollado por [Kodexa Solutions](https://kodexasolutions.com)**
 
@@ -20,6 +20,11 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 | Emails | Resend + React Email | ^6.10 |
 | Estado global | Zustand (persist) | ^5.0 |
 | Formularios | React Hook Form | ^7.72 |
+| Validación | Zod | ^4.3 |
+| Gráficas | Recharts | ^3.8 |
+| Notificaciones | Sonner (toasts) | ^2.0 |
+| PDF | jsPDF | ^4.2 |
+| Fechas | date-fns | ^4.1 |
 | Iconos | Heroicons React | ^2.2 |
 | Tipografía | DM Sans + Fraunces (Google Fonts) | — |
 | Deploy | Netlify | — |
@@ -30,7 +35,8 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 
 - **Supabase** — PostgreSQL, autenticación (email + Google OAuth), Row Level Security, Stored Procedures
 - **PayPal** — Checkout, captura de pagos, modo Sandbox para desarrollo
-- **Resend** — Emails transaccionales (confirmación de pedido, bienvenida)
+- **Resend** — Emails transaccionales (confirmación de pedido, bienvenida, contacto)
+- **Google Analytics** — GA4 tracking (componente condicional)
 
 ---
 
@@ -44,27 +50,82 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 │
 └── src/
     ├── app/
-    │   ├── layout.tsx                  # Root layout (metadata, viewport)
-    │   ├── not-found.tsx               # Página 404 (español)
+    │   ├── layout.tsx                  # Root layout (metadata, viewport, Toaster)
+    │   ├── not-found.tsx               # Página 404 (español, animaciones)
     │   ├── robots.ts                   # robots.txt dinámico
     │   ├── sitemap.ts                  # sitemap.xml dinámico
     │   │
     │   ├── api/
     │   │   ├── auth/welcome/route.ts   # POST - Email de bienvenida
-    │   │   ├── categories/route.ts     # GET, POST categorías
-    │   │   ├── orders/route.ts         # GET pedidos del usuario
+    │   │   ├── categories/route.ts     # GET, POST categorías (+Zod +admin)
+    │   │   ├── contact/route.ts        # POST contacto (+Zod)
+    │   │   ├── newsletter/route.ts     # POST newsletter (+Zod)
+    │   │   ├── orders/
+    │   │   │   ├── route.ts            # GET pedidos del usuario
+    │   │   │   └── [id]/status/route.ts # PUT cambiar estado (+Zod +admin)
     │   │   ├── paypal/
     │   │   │   ├── create-order/route.ts  # POST crear orden PayPal
     │   │   │   └── capture-order/route.ts # POST capturar pago + email
-    │   │   └── products/
-    │   │       ├── route.ts            # GET (filtros), POST
-    │   │       └── [id]/route.ts       # GET, PUT, DELETE
+    │   │   ├── products/
+    │   │   │   ├── route.ts            # GET (filtros), POST (+Zod +admin)
+    │   │   │   └── [id]/route.ts       # GET, PUT (+Zod +admin), DELETE (+admin)
+    │   │   ├── reviews/
+    │   │   │   ├── route.ts            # GET, POST (+Zod +auth)
+    │   │   │   └── [id]/route.ts       # DELETE (+auth, owner-or-admin)
+    │   │   ├── wishlist/
+    │   │   │   ├── route.ts            # GET, POST (+Zod +auth)
+    │   │   │   └── [productId]/route.ts # DELETE (+auth)
+    │   │   └── admin/
+    │   │       ├── stats/route.ts      # GET estadísticas dashboard
+    │   │       ├── orders/
+    │   │       │   ├── route.ts        # GET todos los pedidos
+    │   │       │   └── [id]/route.ts   # GET detalle, PUT estado
+    │   │       ├── inventory/route.ts  # GET stock, POST movimiento
+    │   │       ├── suppliers/
+    │   │       │   ├── route.ts        # GET, POST proveedores
+    │   │       │   └── [id]/route.ts   # PUT, DELETE proveedor
+    │   │       ├── purchases/route.ts  # GET, POST compras
+    │   │       ├── employees/
+    │   │       │   ├── route.ts        # GET, POST empleados
+    │   │       │   └── [id]/route.ts   # PUT, DELETE empleado
+    │   │       ├── invoices/route.ts   # GET facturas
+    │   │       ├── reports/route.ts    # GET reportes (ventas, productos, categorías)
+    │   │       └── customers/route.ts  # GET clientes
+    │   │
+    │   ├── admin/
+    │   │   ├── layout.tsx              # Layout admin (sidebar + topbar)
+    │   │   ├── page.tsx                # Dashboard con stats y gráficas
+    │   │   ├── components/
+    │   │   │   ├── AdminSidebar.tsx     # Sidebar colapsable
+    │   │   │   ├── AdminTopbar.tsx      # Topbar con breadcrumbs + usuario
+    │   │   │   ├── AdminModal.tsx       # Modal reutilizable
+    │   │   │   ├── ChartCard.tsx        # Wrapper para gráficas
+    │   │   │   ├── DataTable.tsx        # Tabla genérica (sort, search, paginación)
+    │   │   │   └── StatCard.tsx         # Tarjeta de estadísticas
+    │   │   ├── productos/
+    │   │   │   ├── page.tsx            # Lista productos + buscar + eliminar
+    │   │   │   ├── nuevo/page.tsx      # Crear producto (react-hook-form)
+    │   │   │   └── [id]/editar/page.tsx # Editar producto
+    │   │   ├── pedidos/
+    │   │   │   ├── page.tsx            # Lista pedidos + filtro estado
+    │   │   │   └── [id]/page.tsx       # Detalle pedido + cambiar estado
+    │   │   ├── categorias/page.tsx     # Lista + crear categorías
+    │   │   ├── inventario/page.tsx     # Stock + movimientos
+    │   │   ├── proveedores/
+    │   │   │   ├── page.tsx            # CRUD proveedores
+    │   │   │   └── compras/page.tsx    # Lista compras (solo lectura)
+    │   │   ├── empleados/page.tsx      # CRUD empleados
+    │   │   ├── facturacion/
+    │   │   │   ├── page.tsx            # Lista facturas (solo lectura)
+    │   │   │   └── reportes/page.tsx   # Reportes con gráficas
+    │   │   └── clientes/page.tsx       # Lista clientes (solo lectura)
     │   │
     │   ├── auth/
     │   │   ├── callback/route.ts       # OAuth callback (Supabase)
     │   │   ├── login/page.tsx          # Login (email + Google OAuth)
     │   │   ├── register/page.tsx       # Registro con validación
-    │   │   └── forgot-password/page.tsx # Recuperar contraseña
+    │   │   ├── forgot-password/page.tsx # Recuperar contraseña
+    │   │   └── reset-password/page.tsx # Resetear contraseña
     │   │
     │   ├── homepage/                   # Landing page (7 secciones)
     │   │   ├── page.tsx
@@ -84,29 +145,54 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
     │   │       ├── ProductGridSection.tsx
     │   │       └── ProductFiltersSection.tsx
     │   │
-    │   ├── product/[id]/page.tsx       # Detalle de producto (galería, variantes, tabs)
-    │   ├── cart/page.tsx               # Carrito + PayPal Checkout
+    │   ├── product/[id]/              # Detalle de producto
+    │   │   ├── page.tsx
+    │   │   └── components/
+    │   │       ├── ProductActions.tsx
+    │   │       ├── ProductGallery.tsx
+    │   │       ├── ProductInfo.tsx
+    │   │       ├── ProductSpecs.tsx
+    │   │       ├── ProductTabs.tsx      # Incluye reviews
+    │   │       ├── ProductVariants.tsx
+    │   │       └── RelatedProducts.tsx
+    │   │
+    │   ├── cart/                       # Carrito + PayPal Checkout
+    │   │   ├── page.tsx
+    │   │   └── components/
+    │   │       ├── CartHeader.tsx
+    │   │       ├── CartItemCard.tsx
+    │   │       ├── CartPayPalButton.tsx
+    │   │       ├── CartSummary.tsx
+    │   │       ├── CouponInput.tsx
+    │   │       └── EmptyCart.tsx
+    │   │
     │   ├── checkout/
     │   │   ├── page.tsx                # Checkout (en construcción)
     │   │   └── success/page.tsx        # Confirmación post-pago
     │   │
     │   ├── profile/
     │   │   ├── page.tsx                # Datos del perfil
-    │   │   └── settings/page.tsx       # Editar perfil (nombre, contraseña)
+    │   │   ├── settings/page.tsx       # Editar perfil (nombre, contraseña)
+    │   │   └── orders/page.tsx         # Historial de pedidos
     │   │
+    │   ├── wishlist/page.tsx           # Lista de deseos
     │   ├── contacto/page.tsx           # Formulario de contacto
     │   ├── envios/page.tsx             # Política de envíos
-    │   ├── devoluciones/page.tsx        # Política de devoluciones
+    │   ├── devoluciones/page.tsx       # Política de devoluciones
     │   ├── privacidad/page.tsx         # Política de privacidad
     │   └── terminos/page.tsx           # Términos y condiciones
     │
     ├── components/
     │   ├── Header.tsx                  # Header global (auth-aware, mobile menu)
     │   ├── Footer.tsx                  # Footer global
+    │   ├── GoogleAnalytics.tsx         # GA4 tracking condicional
+    │   ├── SearchModal.tsx             # Búsqueda global (debounced)
     │   └── ui/
     │       ├── AppIcon.tsx             # Wrapper dinámico de Heroicons
     │       ├── AppImage.tsx            # Wrapper next/image con fallback
-    │       └── AppLogo.tsx             # Logo del sitio
+    │       ├── AppLogo.tsx             # Logo del sitio
+    │       ├── AuthField.tsx           # Input de formulario reutilizable
+    │       └── StatusMessage.tsx       # Mensajes de feedback
     │
     ├── emails/
     │   ├── OrderConfirmation.tsx       # Template confirmación pedido
@@ -115,16 +201,28 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
     ├── hooks/
     │   ├── useAuth.ts                  # Hook (sign in/up/out, Google OAuth)
     │   ├── useCart.ts                  # Hook wrapper del store
-    │   └── useProfile.ts              # Hook perfil + detección admin
+    │   ├── useProfile.ts              # Hook perfil + detección admin
+    │   └── useWishlist.ts             # Hook wishlist (API-backed)
     │
     ├── lib/
+    │   ├── admin.ts                    # requireAdmin helper
     │   ├── email.ts                    # Servicio de emails (Resend)
     │   ├── utils.ts                    # Helpers (formatPrice USD)
-    │   ├── paypal/PayPalProvider.tsx   # Provider de PayPal
-    │   └── supabase/
-    │       ├── client.ts              # Cliente browser
-    │       ├── server.ts              # Cliente server
-    │       └── services.ts            # Funciones RPC (stored procedures)
+    │   ├── auth/
+    │   │   └── verify-admin.ts         # verifyAdmin + verifyAuth helpers
+    │   ├── paypal/
+    │   │   ├── api.ts                  # getAccessToken + createPayPalOrder
+    │   │   └── PayPalProvider.tsx      # Provider de PayPal
+    │   ├── supabase/
+    │   │   ├── client.ts              # Cliente browser
+    │   │   ├── server.ts              # Cliente server
+    │   │   ├── services.ts            # Funciones RPC (stored procedures)
+    │   │   └── migrations/
+    │   │       ├── admin-tables.sql   # Tablas admin (employees, suppliers, etc.)
+    │   │       ├── newsletter.sql     # Tabla newsletter
+    │   │       └── seed-data.sql      # Datos de prueba
+    │   └── validations/
+    │       └── index.ts               # Esquemas Zod centralizados
     │
     ├── store/
     │   └── cart-store.ts              # Zustand store (persist localStorage)
@@ -141,19 +239,59 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 
 ## API Endpoints
 
-| Método | Ruta | Función | Auth |
-|--------|------|---------|------|
-| POST | /api/paypal/create-order | Crear orden PayPal | ✅ |
-| POST | /api/paypal/capture-order | Capturar pago + crear pedido + email | ✅ |
-| GET | /api/products?limit&offset&category&search | Listar productos | ❌ |
-| POST | /api/products | Crear producto | ✅ |
-| GET | /api/products/[id] | Obtener producto | ❌ |
-| PUT | /api/products/[id] | Actualizar producto | ✅ |
-| DELETE | /api/products/[id] | Eliminar producto | ✅ |
-| GET | /api/orders | Pedidos del usuario | ✅ |
-| GET | /api/categories | Listar categorías | ❌ |
-| POST | /api/categories | Crear categoría | ✅ |
-| POST | /api/auth/welcome | Enviar email de bienvenida | ❌ |
+### Públicos (sin autenticación)
+
+| Método | Ruta | Función |
+|--------|------|---------|
+| GET | /api/products?limit&offset&category&search | Listar productos con filtros |
+| GET | /api/products/[id] | Obtener producto por ID |
+| GET | /api/categories | Listar categorías |
+| GET | /api/reviews?product_id | Listar reseñas de un producto |
+| POST | /api/contact | Enviar formulario de contacto |
+| POST | /api/newsletter | Suscribirse a newsletter |
+
+### Autenticados (requieren sesión)
+
+| Método | Ruta | Función |
+|--------|------|---------|
+| POST | /api/paypal/create-order | Crear orden PayPal |
+| POST | /api/paypal/capture-order | Capturar pago + crear pedido + email |
+| GET | /api/orders | Pedidos del usuario autenticado |
+| POST | /api/reviews | Crear reseña |
+| DELETE | /api/reviews/[id] | Eliminar reseña (dueño o admin) |
+| GET | /api/wishlist | Lista de deseos del usuario |
+| POST | /api/wishlist | Agregar a wishlist |
+| DELETE | /api/wishlist/[productId] | Eliminar de wishlist |
+| POST | /api/auth/welcome | Enviar email de bienvenida |
+
+### Admin (requieren rol admin)
+
+| Método | Ruta | Función |
+|--------|------|---------|
+| POST | /api/products | Crear producto |
+| PUT | /api/products/[id] | Actualizar producto |
+| DELETE | /api/products/[id] | Eliminar producto |
+| POST | /api/categories | Crear categoría |
+| PUT | /api/orders/[id]/status | Cambiar estado de pedido |
+| GET | /api/admin/stats | Estadísticas del dashboard |
+| GET | /api/admin/orders | Todos los pedidos |
+| GET | /api/admin/orders/[id] | Detalle de pedido |
+| PUT | /api/admin/orders/[id] | Actualizar estado de pedido |
+| GET | /api/admin/inventory | Stock actual |
+| POST | /api/admin/inventory | Registrar movimiento de inventario |
+| GET | /api/admin/suppliers | Listar proveedores |
+| POST | /api/admin/suppliers | Crear proveedor |
+| PUT | /api/admin/suppliers/[id] | Actualizar proveedor |
+| DELETE | /api/admin/suppliers/[id] | Eliminar proveedor |
+| GET | /api/admin/purchases | Listar compras |
+| POST | /api/admin/purchases | Crear compra |
+| GET | /api/admin/employees | Listar empleados |
+| POST | /api/admin/employees | Crear empleado |
+| PUT | /api/admin/employees/[id] | Actualizar empleado |
+| DELETE | /api/admin/employees/[id] | Eliminar empleado |
+| GET | /api/admin/invoices | Listar facturas |
+| GET | /api/admin/reports | Reportes (ventas, productos, categorías) |
+| GET | /api/admin/customers | Listar clientes |
 
 ---
 
@@ -191,95 +329,109 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 - **roles / permissions / role_permissions** — Sistema de roles
 - **employees** — Empleados
 - **suppliers / purchases / purchase_items** — Proveedores y compras
+- **newsletter_subscribers** — Suscriptores de newsletter
+- **wishlists** — Lista de deseos por usuario
 
 ---
 
 ## Estado del Proyecto
 
 ### ✅ Completado
-- [x] UI/UX — Landing (7 secciones), catálogo con filtros, detalle de producto con galería/tabs, carrito
-- [x] SEO — Metadata, sitemap, robots.txt, Open Graph, `lang="es"`
-- [x] Supabase — Cliente browser/server, tipos, productos desde DB (RPC)
-- [x] Auth — Login, registro, Google OAuth, recuperar contraseña (Supabase Auth)
-- [x] Carrito — Zustand store con persistencia en localStorage + cupones reales
-- [x] PayPal — Checkout + captura de pagos (Sandbox)
-- [x] Emails — Confirmación de pedido + bienvenida (Resend + React Email)
-- [x] Páginas legales — Envíos, devoluciones, privacidad, términos
-- [x] Perfil — Página de perfil + editar configuración (nombre, contraseña)
-- [x] Contacto — Formulario de contacto (UI)
-- [x] Middleware — Protección de rutas con Supabase Auth
-- [x] Design system — Tokens CSS, componentes reutilizables, animaciones Framer Motion
-- [x] Responsive — Layout responsive en todas las páginas + menú mobile
-- [x] CRUD de productos — API completa (GET, POST, PUT, DELETE)
+
+**Frontend (Diego):**
+- [x] Landing page (7 secciones animadas con Framer Motion)
+- [x] Catálogo con filtros por categoría, búsqueda y ordenamiento
+- [x] Detalle de producto (galería zoom, variantes, tabs, reviews)
+- [x] Carrito descompuesto en 6 componentes + PayPal Checkout
+- [x] Checkout success page
+- [x] Perfil de usuario + editar configuración (nombre, contraseña)
+- [x] Historial de pedidos con detalles expandibles
+- [x] Wishlist conectada a backend (API-backed)
+- [x] Contacto conectado a `/api/contact`
+- [x] Newsletter conectado a `/api/newsletter`
+- [x] Reviews UI con formulario + listado en detalle de producto
+- [x] Páginas legales (envíos, devoluciones, privacidad, términos)
+- [x] Auth completo (login, register, forgot-password, reset-password, Google OAuth)
+- [x] Página 404 con animaciones
+- [x] Búsqueda global en Header (SearchModal con debounce)
+- [x] Panel Admin — Dashboard con gráficas (Recharts)
+- [x] Panel Admin — CRUD productos (crear, editar, eliminar)
+- [x] Panel Admin — Pedidos (lista, detalle, cambiar estado)
+- [x] Panel Admin — Categorías (crear)
+- [x] Panel Admin — Inventario (stock, movimientos)
+- [x] Panel Admin — Proveedores CRUD + lista de compras
+- [x] Panel Admin — Empleados CRUD
+- [x] Panel Admin — Facturación + reportes con gráficas
+- [x] Panel Admin — Clientes
+- [x] AuthField y StatusMessage en `components/ui/`
+- [x] Toasts (sonner) en vez de `alert()`
+- [x] Google Analytics componente condicional
+- [x] Responsive completo en todas las páginas
+- [x] Animaciones Framer Motion
+
+**Backend (Anderson):**
+- [x] GET/POST `/api/products` + Zod + verificación admin
+- [x] GET/PUT/DELETE `/api/products/[id]` + Zod + verificación admin
+- [x] GET/POST `/api/categories` + Zod + verificación admin
+- [x] GET `/api/orders` (pedidos del usuario autenticado)
+- [x] PUT `/api/orders/[id]/status` + Zod + admin
+- [x] POST `/api/paypal/create-order` + `capture-order`
+- [x] POST `/api/auth/welcome` (protegido con auth)
+- [x] POST `/api/contact` + Zod
+- [x] POST `/api/newsletter` + Zod
+- [x] GET/POST/DELETE `/api/reviews` + Zod
+- [x] GET/POST/DELETE `/api/wishlist` + Zod
+- [x] GET `/api/admin/stats`
+- [x] APIs admin completas (orders, inventory, suppliers, purchases, employees, invoices, reports, customers)
+- [x] `verifyAdmin` helper reutilizable
+- [x] `getAccessToken` extraído a `lib/paypal/api.ts`
+- [x] Validación Zod en endpoints públicos
+- [x] Interfaces TypeScript (Review, Invoice, Employee, Supplier, etc.)
+- [x] Esquemas Zod centralizados en `lib/validations/`
 
 ### 🚧 Pendiente
-- [ ] Panel Admin — Gestión de productos, pedidos y categorías (UI + APIs seguras)
-- [ ] Historial de pedidos — UI con lista de pedidos + descarga de comprobante PDF
-- [ ] Comprobante PDF — Endpoint `/api/orders/[id]/receipt` + jsPDF
-- [ ] Formulario de contacto — Conectar a endpoint real (enviar email)
-- [ ] Newsletter — Endpoint de suscripción + conectar UI
-- [ ] Búsqueda global — Barra de búsqueda funcional en header
-- [ ] Wishlist — Lista de deseos con persistencia en DB
-- [ ] Reviews — UI para crear/leer reseñas de productos
-- [ ] Google Analytics — Implementar tracking GA4
-- [ ] Dark mode — Tokens existen pero no hay toggle
-- [ ] Página reset-password — Ruta faltante para completar flujo
-- [ ] Validación server-side — Zod en endpoints de mutación
-- [ ] Verificación admin — APIs de productos/categorías no verifican rol admin
 
----
+**Diego (Frontend):**
+- [ ] Agregar `<Header />` y `<Footer />` a `product/[id]/page.tsx`, `cart/page.tsx`, `checkout/success/page.tsx`
+- [ ] Corregir link `/account/orders` → `/profile/orders` en `checkout/success/page.tsx`
+- [ ] Corregir links "Ir a soporte" → `/contacto` en envíos, devoluciones, privacidad, términos
+- [ ] Corregir link privacidad `href="#"` → `/privacidad` en NewsletterSection
+- [ ] Implementar `onClick` en botones: "Comprar ahora", "Compartir", "Cargar más productos"
+- [ ] Implementar `onClick` en botones de card: "Añadir al carrito" y "Favoritos" en FeaturedProducts, ProductGrid, RelatedProducts
+- [ ] Agregar "Categorías" al sidebar del admin (`AdminSidebar.tsx`)
+- [ ] Agregar editar/eliminar categorías en admin
+- [ ] Corregir selector de producto vacío en modal inventario (cuando está en tab movimientos)
+- [ ] Eliminar duplicados de AuthField/StatusMessage en contacto y profile/settings
+- [ ] Extraer StarRating a componente reutilizable en `components/ui/`
+- [ ] Extraer `statusColors`/`statusLabels`/`formatCurrency` a constantes compartidas
+- [ ] Corregir estilos de `checkout/success/page.tsx` al design system NovaStore
+- [ ] Agregar links reales de redes sociales en Footer
+- [ ] Completar links de navegación en Header (Categorías, Novedades, Ofertas con filtros)
+- [ ] Agregar links con filtro de categoría en CategoryBannersSection
+- [ ] Resolver doble-submit en modales admin (inventario, proveedores, empleados)
+- [ ] Agregar Google OAuth en register (login ya lo tiene)
+- [ ] Implementar `checkout/page.tsx` o redirigir al carrito
+- [ ] Agregar WhatsApp real en contacto (actualmente placeholder)
 
-## Tareas de Diego (Frontend)
-
-### Bugs que corregir
-- [ ] Corregir link "Mi cuenta" en Header → cambiar `/account` por `/profile`
-- [ ] Corregir link "Soporte" en Header → cambiar `/homepage` por `/contacto`
-- [ ] Corregir estilos de página 404 (`not-found.tsx`) — usa clases CSS que no existen en el design system
-
-### Nuevas features
-- [ ] **Panel Admin** — Dashboard con gestión visual de productos, pedidos, categorías
-- [ ] **Historial de pedidos** — Página `/profile/orders` con lista de pedidos y descarga PDF
-- [ ] **Búsqueda global** — Modal/dropdown de búsqueda en Header
-- [ ] **Wishlist** — Persistir en DB en vez de localStorage
-- [ ] **Reviews** — Formulario y listado de reseñas en detalle de producto
-- [ ] **Página reset-password** — `/auth/reset-password` para completar flujo de recuperación
-- [ ] **Sistema de toasts** — Reemplazar `alert()` por notificaciones elegantes
-- [ ] **Google Analytics** — Implementar script GA4
-
-### Refactoring
-- [ ] Extraer `AuthField` y `StatusMessage` duplicados a `components/ui/`
-- [ ] Descomponer `cart/page.tsx` (657 líneas) en componentes
-- [ ] Descomponer `product/[id]/page.tsx` (858 líneas) en componentes
-- [ ] Crear componente `DotBackground` para fondo punteado reutilizable
-- [ ] Conectar formulario de contacto a endpoint
-- [ ] Conectar newsletter a endpoint
-
----
-
-## Tareas de Anderson (Backend)
-
-### Bugs que corregir
-- [ ] **CRÍTICO:** Añadir verificación de rol admin en POST/PUT/DELETE de `/api/products` y `/api/categories`
-- [ ] **CRÍTICO:** Proteger `/api/auth/welcome` con autenticación (prevenir spam)
-- [ ] Recalcular total del pedido server-side en `capture-order` (no confiar en frontend)
-
-### Nuevas features
-- [ ] **Endpoint comprobante PDF** — `/api/orders/[id]/receipt` con jsPDF
-- [ ] **Endpoint de contacto** — `/api/contact` para enviar email
-- [ ] **Endpoint de newsletter** — `/api/newsletter` para suscripción
-- [ ] **Endpoints de reviews** — CRUD para reseñas
-- [ ] **Endpoints de wishlist** — CRUD para lista de deseos
-- [ ] **Carrito persistente** — Sincronizar tabla `cart_items` con frontend
-
-### Refactoring
-- [ ] Extraer `getAccessToken()` duplicada a `lib/paypal/api.ts`
-- [ ] Validación server-side con Zod en todos los POST/PUT
-- [ ] Rate limiting en endpoints críticos
-- [ ] RLS Policies en Supabase (solo admin = mutaciones, usuario = sus propios datos)
-- [ ] Logging estructurado (pino/winston) en vez de `console.error`
-- [ ] Limpiar `catch {}` vacío en `lib/supabase/server.ts`
-- [ ] Añadir interfaces TypeScript faltantes: `Review`, `Invoice`, `Employee`, etc.
-- [ ] Unificar interface `UserProfile` (types/) vs `Profile` (useProfile)
+**Anderson (Backend):**
+- [ ] Crear endpoint `/api/orders/[id]/receipt` para descarga PDF (jsPDF instalado)
+- [ ] Agregar Zod en PayPal create/capture order
+- [ ] Agregar Zod en admin endpoints (inventory, suppliers, employees, purchases, admin orders)
+- [ ] Validar total server-side en `create-order` (no confiar en frontend)
+- [ ] Comparar `serverTotal` vs monto capturado por PayPal en `capture-order`
+- [ ] Agregar error handling en `getAccessToken()` (`lib/paypal/api.ts`)
+- [ ] Sanitizar HTML en email de contacto (prevenir XSS)
+- [ ] Mover email hardcodeado a variable de entorno (`contact/route.ts`)
+- [ ] Unificar enums de estado de pedido (Zod vs admin inline)
+- [ ] Consolidar `lib/admin.ts` y `lib/auth/verify-admin.ts` en un solo módulo
+- [ ] Agregar field filtering en PUT de suppliers (evitar inyección de columnas)
+- [ ] Corregir `variant_id: ''` → `null` en capture-order
+- [ ] Agregar paginación en admin endpoints (customers, suppliers, employees, purchases)
+- [ ] Rate limiting en endpoints críticos (welcome, contact, newsletter)
+- [ ] Logging estructurado (reemplazar console.error)
+- [ ] Enviar `phone` y `subject` desde contacto al API (actualmente se pierden)
+- [ ] Remover imports no usados (`startOfWeek`/`startOfMonth` en reports, `useState` en AdminSidebar)
+- [ ] Eliminar `ignoreBuildErrors: true` en `next.config.mjs` (producción)
 
 ---
 
@@ -302,6 +454,7 @@ NEXT_PUBLIC_SITE_URL=http://localhost:4028
 | Supabase URL + Anon Key | [supabase.com](https://supabase.com) → Settings → API |
 | PayPal Client ID + Secret | [developer.paypal.com](https://developer.paypal.com) → Apps & Credentials → Sandbox |
 | Resend API Key | [resend.com](https://resend.com) → API Keys |
+| GA Measurement ID | [analytics.google.com](https://analytics.google.com) → Admin → Data Streams |
 
 ---
 
@@ -345,6 +498,7 @@ npm run dev  # Puerto 4028
 | Rama | Dueño | Descripción |
 |------|-------|-------------|
 | main | Protegida | Solo merge vía PR |
+| dashboard-v2 | Ambos | Panel admin + integraciones |
 | feature/supabase-core | Anderson | Backend + integraciones |
 | feature/ui-pages | Diego | Páginas UI + diseño |
 
@@ -358,14 +512,14 @@ npm run dev  # Puerto 4028
 
 ### Guía de contribución
 
-1. **Antes de empezar:** Verifica que estás en la rama correcta (`feature/ui-pages` para Diego, `feature/supabase-core` para Anderson)
+1. **Antes de empezar:** Verifica que estás en la rama correcta
 2. **Instalar dependencias:** `npm install` después de cada pull
 3. **Verificar tipos:** `npm run type-check` antes de hacer commit
 4. **Formatear código:** `npm run format` antes de hacer commit
 5. **Regla de no-console:** No usar `console.log()` — revisar las reglas de ESLint
 6. **Tipado:** Evitar `any` — usar interfaces de `src/types/index.ts`
 7. **Componentes nuevos:** Crear en `src/components/ui/` si son reutilizables, o en `src/app/<page>/components/` si son específicos de página
-8. **API routes nuevas:** Siempre verificar autenticación y rol (si aplica)
+8. **API routes nuevas:** Siempre verificar autenticación y rol (si aplica). Usar Zod para validación.
 9. **Pull Requests:** Crear PR hacia `main` con descripción clara de los cambios
 
 ---

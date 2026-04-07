@@ -7,6 +7,8 @@ import Icon from '@/components/ui/AppIcon';
 import { useCart } from '@/hooks/useCart';
 import { validateCoupon } from '@/lib/supabase/services';
 import { formatPrice } from '@/lib/utils';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 import CartHeader from './components/CartHeader';
 import CartItemCard from './components/CartItemCard';
 import CartSummary from './components/CartSummary';
@@ -74,6 +76,7 @@ export default function CartPage() {
 
   return (
     <main className="min-h-screen bg-[#F8F7F5] pt-[72px]">
+      <Header />
       <CartHeader itemCount={itemCount} />
       {items.length === 0 ? (
         <EmptyCart />
@@ -232,6 +235,7 @@ export default function CartPage() {
           </div>
         </section>
       )}
+      <Footer />
     </main>
   );
 }

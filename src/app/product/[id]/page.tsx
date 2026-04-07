@@ -2,14 +2,17 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 import Icon from '@/components/ui/AppIcon';
 import { getProductById, getProductImages, getProducts } from '@/lib/supabase/services';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
 import { useWishlist } from '@/hooks/useWishlist';
 import type { Product } from '@/types';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 import ProductGallery from './components/ProductGallery';
 import ProductInfo from './components/ProductInfo';
 import ProductVariants from './components/ProductVariants';
@@ -60,6 +63,7 @@ function TrustSignals() {
 
 export default function ProductDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const productId = params.id as string;
   const { user } = useAuth();
 
@@ -118,50 +122,74 @@ export default function ProductDetailPage() {
     toggleWishlist(productId);
   };
 
+  const handleBuyNow = () => {
+    if (!product) return;
+    addItem(product, quantity, selectedVariant);
+    router.push('/cart');
+  };
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      await navigator.share({ title: product?.name, url });
+    } else {
+      await navigator.clipboard.writeText(url);
+      toast.success('Link copiado');
+    }
+  };
+
   if (loading)
     return (
-      <div className="min-h-screen bg-[#F8F7F5] pt-[88px]">
-        <div className="max-w-[1440px] mx-auto px-6 lg:px-12 py-12 lg:py-20">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_460px] gap-12 lg:gap-20 animate-pulse">
-            <div className="bg-[#EFEDE9] aspect-[4/5]" />
-            <div className="space-y-6">
-              <div className="h-4 bg-[#EFEDE9] rounded w-24" />
-              <div className="h-10 bg-[#EFEDE9] rounded w-3/4" />
-              <div className="h-12 bg-[#EFEDE9] rounded w-40" />
-              <div className="h-14 bg-[#EFEDE9] rounded w-full" />
+      <>
+        <Header />
+        <div className="min-h-screen bg-[#F8F7F5] pt-[88px]">
+          <div className="max-w-[1440px] mx-auto px-6 lg:px-12 py-12 lg:py-20">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_460px] gap-12 lg:gap-20 animate-pulse">
+              <div className="bg-[#EFEDE9] aspect-[4/5]" />
+              <div className="space-y-6">
+                <div className="h-4 bg-[#EFEDE9] rounded w-24" />
+                <div className="h-10 bg-[#EFEDE9] rounded w-3/4" />
+                <div className="h-12 bg-[#EFEDE9] rounded w-40" />
+                <div className="h-14 bg-[#EFEDE9] rounded w-full" />
+              </div>
             </div>
           </div>
         </div>
-      </div>
+        <Footer />
+      </>
     );
 
   if (notFound || !product)
     return (
-      <div className="min-h-screen bg-[#F8F7F5] pt-[88px] flex flex-col items-center justify-center">
-        <div className="text-center space-y-6">
-          <div className="size-20 bg-[#EFEDE9] rounded-full flex items-center justify-center mx-auto">
-            <Icon
-              name="ExclamationTriangleIcon"
-              size={36}
-              variant="outline"
-              className="text-[#8A8A8A]"
-            />
+      <>
+        <Header />
+        <div className="min-h-screen bg-[#F8F7F5] pt-[88px] flex flex-col items-center justify-center">
+          <div className="text-center space-y-6">
+            <div className="size-20 bg-[#EFEDE9] rounded-full flex items-center justify-center mx-auto">
+              <Icon
+                name="ExclamationTriangleIcon"
+                size={36}
+                variant="outline"
+                className="text-[#8A8A8A]"
+              />
+            </div>
+            <h1 className="font-display font-900 italic text-3xl text-[#1C1C1C] tracking-editorial">
+              Producto no encontrado
+            </h1>
+            <p className="text-[#5A5A5A] text-sm">
+              El producto que buscas no existe o ha sido eliminado.
+            </p>
+            <Link
+              href="/products"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-[#1C1C1C] text-white text-[10px] font-black uppercase tracking-widest hover:bg-[#2563EB] transition-colors"
+            >
+              <Icon name="ArrowLeftIcon" size={13} variant="outline" />
+              Ver catálogo
+            </Link>
           </div>
-          <h1 className="font-display font-900 italic text-3xl text-[#1C1C1C] tracking-editorial">
-            Producto no encontrado
-          </h1>
-          <p className="text-[#5A5A5A] text-sm">
-            El producto que buscas no existe o ha sido eliminado.
-          </p>
-          <Link
-            href="/products"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-[#1C1C1C] text-white text-[10px] font-black uppercase tracking-widest hover:bg-[#2563EB] transition-colors"
-          >
-            <Icon name="ArrowLeftIcon" size={13} variant="outline" />
-            Ver catálogo
-          </Link>
         </div>
-      </div>
+        <Footer />
+      </>
     );
 
   const rating = Math.round(product.avg_rating ?? 0);
@@ -171,6 +199,8 @@ export default function ProductDetailPage() {
     : null;
 
   return (
+    <>
+    <Header />
     <div className="min-h-screen bg-[#F8F7F5]">
       {/* Breadcrumb */}
       <motion.div
@@ -238,6 +268,8 @@ export default function ProductDetailPage() {
                 onQuantityChange={setQuantity}
                 onAddToCart={handleAddToCart}
                 onToggleWishlist={handleToggleWishlist}
+                onBuyNow={handleBuyNow}
+                onShare={handleShare}
               />
               <TrustSignals />
               {product.stock <= 10 && product.stock > 0 && (
@@ -288,5 +320,7 @@ export default function ProductDetailPage() {
       />
       <RelatedProducts products={relatedProducts} />
     </div>
+    <Footer />
+    </>
   );
 }

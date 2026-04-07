@@ -41,6 +41,14 @@ export default function AdminInventario() {
   const [form, setForm] = useState({ product_id: '', type: 'in', quantity: '', reason: '' });
   const [submitting, setSubmitting] = useState(false);
 
+  // Always keep stockData loaded (needed for the product selector in the movement modal)
+  useEffect(() => {
+    fetch('/api/admin/inventory?view=stock')
+      .then((r) => r.json())
+      .then((d) => { if (Array.isArray(d)) setStockData(d); })
+      .catch(() => {});
+  }, []);
+
   useEffect(() => {
     setLoading(true);
     fetch(`/api/admin/inventory?view=${view}`)

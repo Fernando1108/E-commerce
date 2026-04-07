@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
@@ -8,6 +8,8 @@ import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
 import { getFeaturedProducts } from '@/lib/supabase/services';
 import { formatPrice } from '@/lib/utils';
+import { useCart } from '@/hooks/useCart';
+import { useWishlist } from '@/hooks/useWishlist';
 import type { Product } from '@/types';
 
 const badgeConfig: Record<string, { label: string; color: string; bg: string }> = {
@@ -32,7 +34,19 @@ function StarRating({ rating }: { rating: number }) {
   );
 }
 
-function ProductCard({ product, index }: { product: Product; index: number }) {
+function ProductCard({
+  product,
+  index,
+  onAddToCart,
+  onToggleWishlist,
+  isWishlisted,
+}: {
+  product: Product;
+  index: number;
+  onAddToCart: (product: Product) => void;
+  onToggleWishlist: (id: string) => void;
+  isWishlisted: boolean;
+}) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-60px' });
   const badge = product.badge ? badgeConfig[product.badge.toLowerCase()] : null;
@@ -77,6 +91,7 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
         <div className="absolute bottom-0 left-0 right-0 p-4 flex gap-2 translate-y-full group-hover:translate-y-0 transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] z-10">
           <button
             aria-label="Añadir al carrito"
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onAddToCart(product); }}
             className="flex-1 py-3 bg-[#1C1C1C] text-white text-[10px] font-black uppercase tracking-widest hover:bg-[#2563EB] transition-colors duration-200 flex items-center justify-center gap-2"
           >
             <Icon name="ShoppingBagIcon" size={14} variant="outline" />
@@ -84,9 +99,10 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
           </button>
           <button
             aria-label="Añadir a favoritos"
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleWishlist(product.id); }}
             className="size-11 bg-white/95 backdrop-blur-sm flex items-center justify-center hover:bg-[#1C1C1C] hover:text-white transition-colors duration-200 border border-[#DDD9D3]"
           >
-            <Icon name="HeartIcon" size={16} variant="outline" />
+            <Icon name="HeartIcon" size={16} variant={isWishlisted ? 'solid' : 'outline'} className={isWishlisted ? 'text-red-500' : ''} />
           </button>
         </div>
       </div>
@@ -157,6 +173,16 @@ function SkeletonCard() {
 export default function FeaturedProductsSection() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const { addItem } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
+
+  const handleAddToCart = useCallback((product: Product) => {
+    addItem(product, 1);
+  }, [addItem]);
+
+  const handleToggleWishlist = useCallback((id: string) => {
+    toggleWishlist(id);
+  }, [toggleWishlist]);
 
   useEffect(() => {
     getFeaturedProducts(4)
@@ -207,7 +233,14 @@ export default function FeaturedProductsSection() {
           {loading
             ? Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
             : products.map((product, i) => (
-                <ProductCard key={product.id} product={product} index={i} />
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  index={i}
+                  onAddToCart={handleAddToCart}
+                  onToggleWishlist={handleToggleWishlist}
+                  isWishlisted={isInWishlist(product.id)}
+                />
               ))}
         </div>
 

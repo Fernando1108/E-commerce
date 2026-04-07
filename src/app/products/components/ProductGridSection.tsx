@@ -1,15 +1,18 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
-import { useRef } from 'react';
 import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
 import ProductFiltersSection from './ProductFiltersSection';
 import { getProducts } from '@/lib/supabase/services';
 import { formatPrice } from '@/lib/utils';
+import { useCart } from '@/hooks/useCart';
+import { useWishlist } from '@/hooks/useWishlist';
 import type { Product } from '@/types';
+
+const PAGE_SIZE = 8;
 
 const badgeConfig: Record<string, { label: string; textColor: string; bg: string }> = {
   nuevo: { label: 'Nuevo', textColor: '#2563EB', bg: '#EFF6FF' },
@@ -33,7 +36,19 @@ function StarRating({ rating }: { rating: number }) {
   );
 }
 
-function ProductCard({ product, index }: { product: Product; index: number }) {
+function ProductCard({
+  product,
+  index,
+  onAddToCart,
+  onToggleWishlist,
+  isWishlisted,
+}: {
+  product: Product;
+  index: number;
+  onAddToCart: (product: Product) => void;
+  onToggleWishlist: (id: string) => void;
+  isWishlisted: boolean;
+}) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-40px' });
   const badge = product.badge ? badgeConfig[product.badge.toLowerCase()] : null;
@@ -72,25 +87,31 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/8 transition-colors duration-300 flex items-center justify-center gap-2.5 opacity-0 group-hover:opacity-100 z-10">
             <button
               aria-label={`Añadir ${product.name} al carrito`}
-              onClick={(e) => e.preventDefault()}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onAddToCart(product); }}
               className="size-10 bg-white shadow-nova-md flex items-center justify-center hover:bg-[#1C1C1C] hover:text-white transition-colors"
             >
               <Icon name="ShoppingBagIcon" size={16} variant="outline" />
             </button>
             <button
               aria-label={`Añadir ${product.name} a favoritos`}
-              onClick={(e) => e.preventDefault()}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleWishlist(product.id); }}
               className="size-10 bg-white shadow-nova-md flex items-center justify-center hover:bg-[#1C1C1C] hover:text-white transition-colors"
             >
-              <Icon name="HeartIcon" size={16} variant="outline" />
+              <Icon
+                name="HeartIcon"
+                size={16}
+                variant={isWishlisted ? 'solid' : 'outline'}
+                className={isWishlisted ? 'text-red-500' : ''}
+              />
             </button>
-            <button
+            <Link
+              href={`/product/${product.id}`}
               aria-label={`Vista rápida de ${product.name}`}
-              onClick={(e) => e.preventDefault()}
+              onClick={(e) => e.stopPropagation()}
               className="size-10 bg-white shadow-nova-md flex items-center justify-center hover:bg-[#1C1C1C] hover:text-white transition-colors"
             >
               <Icon name="EyeIcon" size={16} variant="outline" />
-            </button>
+            </Link>
           </div>
         </div>
       </Link>
@@ -126,6 +147,7 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
           </div>
           <button
             aria-label={`Añadir ${product.name} al carrito`}
+            onClick={() => onAddToCart(product)}
             className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#1C1C1C] text-white text-[10px] font-black uppercase tracking-widest hover:bg-[#2563EB] transition-colors"
           >
             Añadir
@@ -151,27 +173,80 @@ function SkeletonCard() {
   );
 }
 
-export default function ProductGridSection({ searchQuery = '' }: { searchQuery?: string }) {
-  const [activeCategory, setActiveCategory] = useState('all');
-  const [activeSort, setActiveSort] = useState('featured');
+export default function ProductGridSection({
+  searchQuery = '',
+  initialCategory = 'all',
+  initialSort = 'featured',
+  initialBadge = '',
+}: {
+  searchQuery?: string;
+  initialCategory?: string;
+  initialSort?: string;
+  initialBadge?: string;
+}) {
+  const [activeCategory, setActiveCategory] = useState(initialCategory);
+  const [activeSort, setActiveSort] = useState(initialSort);
+  const [activeBadge] = useState(initialBadge);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [offset, setOffset] = useState(0);
 
+  const { addItem } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
+
+  const handleAddToCart = useCallback((product: Product) => {
+    addItem(product, 1);
+  }, [addItem]);
+
+  const handleToggleWishlist = useCallback((id: string) => {
+    toggleWishlist(id);
+  }, [toggleWishlist]);
+
+  // Reset and fetch on filter/search change
   useEffect(() => {
     setLoading(true);
+    setOffset(0);
+    setProducts([]);
     getProducts({
       categoryId: activeCategory === 'all' ? null : activeCategory,
       search: searchQuery.trim() || null,
+      limit: PAGE_SIZE,
+      offset: 0,
     })
       .then((data) => {
         setProducts(data);
+        setHasMore(data.length === PAGE_SIZE);
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, [activeCategory, searchQuery]);
 
+  const handleLoadMore = async () => {
+    const nextOffset = offset + PAGE_SIZE;
+    setLoadingMore(true);
+    try {
+      const data = await getProducts({
+        categoryId: activeCategory === 'all' ? null : activeCategory,
+        search: searchQuery.trim() || null,
+        limit: PAGE_SIZE,
+        offset: nextOffset,
+      });
+      setProducts((prev) => [...prev, ...data]);
+      setOffset(nextOffset);
+      setHasMore(data.length === PAGE_SIZE);
+    } catch {
+      /* empty */
+    }
+    setLoadingMore(false);
+  };
+
   const sorted = useMemo(() => {
-    const list = [...products];
+    let list = [...products];
+    if (activeBadge) {
+      list = list.filter((p) => p.badge?.toLowerCase() === activeBadge.toLowerCase());
+    }
     if (activeSort === 'newest') {
       return list.reverse();
     } else if (activeSort === 'price-asc') {
@@ -182,23 +257,25 @@ export default function ProductGridSection({ searchQuery = '' }: { searchQuery?:
       return list.sort((a, b) => (b.avg_rating ?? 0) - (a.avg_rating ?? 0));
     }
     return list;
-  }, [products, activeSort]);
+  }, [products, activeSort, activeBadge]);
+
+  const totalShown = sorted.length;
 
   return (
     <>
       <ProductFiltersSection
         activeCategory={activeCategory}
-        onCategoryChange={setActiveCategory}
+        onCategoryChange={(cat) => { setActiveCategory(cat); }}
         activeSort={activeSort}
         onSortChange={setActiveSort}
-        productCount={sorted.length}
+        productCount={totalShown}
       />
 
       <section className="py-10 lg:py-16 bg-[#F8F7F5]">
         <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
           {/* Count on mobile */}
           <div className="flex items-center justify-between mb-8 sm:hidden">
-            <span className="label-eyebrow text-[#8A8A8A]">{sorted.length} productos</span>
+            <span className="label-eyebrow text-[#8A8A8A]">{totalShown} productos</span>
           </div>
 
           {/* Product grid */}
@@ -224,7 +301,14 @@ export default function ProductGridSection({ searchQuery = '' }: { searchQuery?:
                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-5"
               >
                 {sorted.map((product, i) => (
-                  <ProductCard key={product.id} product={product} index={i} />
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    index={i}
+                    onAddToCart={handleAddToCart}
+                    onToggleWishlist={handleToggleWishlist}
+                    isWishlisted={isInWishlist(product.id)}
+                  />
                 ))}
               </motion.div>
             ) : (
@@ -267,20 +351,35 @@ export default function ProductGridSection({ searchQuery = '' }: { searchQuery?:
               className="flex flex-col items-center gap-4 mt-16"
             >
               <p className="label-eyebrow text-[#8A8A8A]">
-                Mostrando {sorted.length} de {sorted.length} productos
+                Mostrando {totalShown} producto{totalShown !== 1 ? 's' : ''}
               </p>
-              <div className="w-full max-w-xs bg-[#DDD9D3] h-1 rounded-full overflow-hidden">
-                <div className="bg-[#1C1C1C] h-1 w-full rounded-full" />
-              </div>
-              <button className="mt-4 px-10 py-4 border-2 border-[#1C1C1C] text-[#1C1C1C] text-[11px] font-black uppercase tracking-widest hover:bg-[#1C1C1C] hover:text-white transition-all duration-300 inline-flex items-center gap-3 group">
-                Cargar más productos
-                <Icon
-                  name="ArrowDownIcon"
-                  size={14}
-                  variant="outline"
-                  className="group-hover:translate-y-1 transition-transform"
-                />
-              </button>
+              {hasMore && (
+                <>
+                  <div className="w-full max-w-xs bg-[#DDD9D3] h-1 rounded-full overflow-hidden">
+                    <div className="bg-[#1C1C1C] h-1 rounded-full" style={{ width: '60%' }} />
+                  </div>
+                  <button
+                    onClick={handleLoadMore}
+                    disabled={loadingMore}
+                    className="mt-4 px-10 py-4 border-2 border-[#1C1C1C] text-[#1C1C1C] text-[11px] font-black uppercase tracking-widest hover:bg-[#1C1C1C] hover:text-white transition-all duration-300 inline-flex items-center gap-3 group disabled:opacity-60"
+                  >
+                    {loadingMore ? 'Cargando...' : 'Cargar más productos'}
+                    {!loadingMore && (
+                      <Icon
+                        name="ArrowDownIcon"
+                        size={14}
+                        variant="outline"
+                        className="group-hover:translate-y-1 transition-transform"
+                      />
+                    )}
+                  </button>
+                </>
+              )}
+              {!hasMore && (
+                <div className="w-full max-w-xs bg-[#DDD9D3] h-1 rounded-full overflow-hidden">
+                  <div className="bg-[#1C1C1C] h-1 w-full rounded-full" />
+                </div>
+              )}
             </motion.div>
           )}
         </div>

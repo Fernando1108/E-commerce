@@ -149,6 +149,24 @@ export default function AdminCategorias() {
         loading={loading}
         pageSize={20}
         emptyMessage="No hay categorías"
+        actions={(item) => (
+          <>
+            <button
+              onClick={() => toast.info('Próximamente')}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+              aria-label={`Editar ${item.name}`}
+            >
+              <Icon name="PencilIcon" size={14} />
+            </button>
+            <button
+              onClick={() => toast.info('Próximamente')}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+              aria-label={`Eliminar ${item.name}`}
+            >
+              <Icon name="TrashIcon" size={14} />
+            </button>
+          </>
+        )}
       />
 
       <AdminModal open={modalOpen} onClose={() => setModalOpen(false)} title="Nueva categoría">

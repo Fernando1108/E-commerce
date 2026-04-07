@@ -266,7 +266,7 @@ export default function DevolucionesPage() {
               </p>
               <div className="mt-6 flex flex-wrap gap-4">
                 <Link
-                  href="/homepage"
+                  href="/contacto"
                   className="inline-flex items-center gap-2 bg-white px-5 py-3 text-[11px] font-black uppercase tracking-[0.24em] text-[#1C1C1C] transition hover:bg-[#EFF6FF]"
                 >
                   Ir a soporte

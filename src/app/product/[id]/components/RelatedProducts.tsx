@@ -1,15 +1,24 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { motion, useInView } from 'framer-motion';
 import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
 import { formatPrice } from '@/lib/utils';
+import { useCart } from '@/hooks/useCart';
 import { StarRating } from './ProductInfo';
 import type { Product } from '@/types';
 
-function RelatedProductCard({ product, index }: { product: Product; index: number }) {
+function RelatedProductCard({
+  product,
+  index,
+  onAddToCart,
+}: {
+  product: Product;
+  index: number;
+  onAddToCart: (product: Product) => void;
+}) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-40px' });
   const rating = Math.round(product.avg_rating ?? 0);
@@ -39,7 +48,10 @@ function RelatedProductCard({ product, index }: { product: Product; index: numbe
           )}
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/12 transition-colors duration-400" />
           <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] z-10">
-            <button className="w-full py-3 bg-[#1C1C1C] text-white text-[9px] font-black uppercase tracking-widest hover:bg-[#2563EB] transition-colors flex items-center justify-center gap-1.5">
+            <button
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onAddToCart(product); }}
+              className="w-full py-3 bg-[#1C1C1C] text-white text-[9px] font-black uppercase tracking-widest hover:bg-[#2563EB] transition-colors flex items-center justify-center gap-1.5"
+            >
               <Icon name="ShoppingBagIcon" size={12} variant="outline" />
               Añadir al carrito
             </button>
@@ -80,6 +92,11 @@ type RelatedProductsProps = {
 };
 
 export default function RelatedProducts({ products }: RelatedProductsProps) {
+  const { addItem } = useCart();
+  const handleAddToCart = useCallback((product: Product) => {
+    addItem(product, 1);
+  }, [addItem]);
+
   if (products.length === 0) return null;
 
   return (
@@ -112,7 +129,7 @@ export default function RelatedProducts({ products }: RelatedProductsProps) {
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
           {products.map((p, i) => (
-            <RelatedProductCard key={p.id} product={p} index={i} />
+            <RelatedProductCard key={p.id} product={p} index={i} onAddToCart={handleAddToCart} />
           ))}
         </div>
         <div className="mt-10 flex justify-center md:hidden">

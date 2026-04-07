@@ -12,6 +12,8 @@ type ProductActionsProps = {
   onQuantityChange: (qty: number) => void;
   onAddToCart: () => void;
   onToggleWishlist: () => void;
+  onBuyNow: () => void;
+  onShare: () => void;
 };
 
 export default function ProductActions({
@@ -22,6 +24,8 @@ export default function ProductActions({
   onQuantityChange,
   onAddToCart,
   onToggleWishlist,
+  onBuyNow,
+  onShare,
 }: ProductActionsProps) {
   return (
     <div className="space-y-3">
@@ -88,6 +92,7 @@ export default function ProductActions({
 
       {/* Buy now */}
       <motion.button
+        onClick={onBuyNow}
         whileHover={{ scale: 1.005 }}
         whileTap={{ scale: 0.98 }}
         className="w-full py-4 border-2 border-[#1C1C1C] text-[#1C1C1C] text-[10px] font-black uppercase tracking-widest hover:bg-[#1C1C1C] hover:text-white transition-all duration-300 flex items-center justify-center gap-2.5"
@@ -112,7 +117,10 @@ export default function ProductActions({
           {isWishlisted ? 'Guardado' : 'Guardar'}
         </motion.button>
         <span className="text-[#DDD9D3]">|</span>
-        <button className="flex items-center gap-1.5 text-[10px] font-700 uppercase tracking-widest text-[#5A5A5A] hover:text-[#1C1C1C] transition-colors">
+        <button
+          onClick={onShare}
+          className="flex items-center gap-1.5 text-[10px] font-700 uppercase tracking-widest text-[#5A5A5A] hover:text-[#1C1C1C] transition-colors"
+        >
           <Icon name="ShareIcon" size={14} variant="outline" />
           Compartir
         </button>

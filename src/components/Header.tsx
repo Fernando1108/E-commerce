@@ -13,8 +13,8 @@ import SearchModal from '@/components/SearchModal';
 const navLinks = [
   { label: 'Tienda', href: '/products' },
   { label: 'Categorías', href: '/products' },
-  { label: 'Novedades', href: '/products' },
-  { label: 'Ofertas', href: '/products' },
+  { label: 'Novedades', href: '/products?sort=newest' },
+  { label: 'Ofertas', href: '/products?badge=oferta' },
 ];
 
 export default function Header() {

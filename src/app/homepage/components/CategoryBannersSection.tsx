@@ -31,7 +31,7 @@ function CategoryCard({
       transition={{ duration: 0.75, delay: index * 0.07, ease: [0.16, 1, 0.3, 1] }}
       className={`relative overflow-hidden group cursor-pointer ${className}`}
     >
-      <Link href="/products" className="block w-full h-full">
+      <Link href={`/products?category=${cat.id}`} className="block w-full h-full">
         {/* ── Background image ── */}
         <div className="absolute inset-0">
           {cat.image_url ? (
