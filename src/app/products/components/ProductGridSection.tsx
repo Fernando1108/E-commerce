@@ -62,6 +62,7 @@ function ProductCard({
       initial={{ opacity: 0, y: 24 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.5, delay: (index % 4) * 0.08, ease: [0.4, 0, 0.2, 1] }}
+      whileHover={{ y: -4, transition: { type: 'spring', stiffness: 300, damping: 24 } }}
       className="product-card group"
     >
       {/* Image */}
@@ -76,12 +77,15 @@ function ProductCard({
           />
 
           {badge && (
-            <div
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={inView ? { scale: 1 } : {}}
+              transition={{ type: 'spring', stiffness: 420, damping: 18, delay: (index % 4) * 0.08 + 0.2 }}
               className="absolute top-3 left-3 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest z-10"
               style={{ backgroundColor: badge.bg, color: badge.textColor }}
             >
               {badge.label}
-            </div>
+            </motion.div>
           )}
 
           {/* Hover actions */}
@@ -170,7 +174,7 @@ function ProductCard({
 
 function SkeletonCard() {
   return (
-    <div className="bg-white border border-[#DDD9D3] overflow-hidden animate-pulse">
+    <div className="skeleton-shimmer bg-white border border-[#DDD9D3] overflow-hidden">
       <div className="bg-[#EFEDE9] aspect-square" />
       <div className="p-4 space-y-2.5">
         <div className="h-3 bg-[#EFEDE9] rounded w-20" />

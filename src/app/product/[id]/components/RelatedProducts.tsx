@@ -36,7 +36,8 @@ function RelatedProductCard({
       initial={{ opacity: 0, y: 32 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.65, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
-      className="group relative bg-white border border-[#E8E5E0] overflow-hidden hover:border-[#0F0F0F] hover:shadow-nova-xl transition-all duration-500"
+      whileHover={{ y: -4, transition: { type: 'spring', stiffness: 300, damping: 24 } }}
+      className="group relative bg-white border border-[#E8E5E0] overflow-hidden hover:border-[#0F0F0F] hover:shadow-nova-xl transition-[border-color,box-shadow] duration-500"
     >
       <Link href={`/product/${product.id}`} className="block">
         <div className="relative overflow-hidden bg-[#F4F2EF]" style={{ aspectRatio: '4/5' }}>

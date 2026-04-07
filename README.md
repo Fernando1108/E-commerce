@@ -192,6 +192,8 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
     │       ├── AppImage.tsx            # Wrapper next/image con fallback
     │       ├── AppLogo.tsx             # Logo del sitio
     │       ├── AuthField.tsx           # Input de formulario reutilizable
+    │       ├── ScrollProgress.tsx      # Barra de progreso de scroll (fixed top)
+    │       ├── StarRating.tsx          # Estrellas (readOnly + clickeable, sm/md/lg)
     │       └── StatusMessage.tsx       # Mensajes de feedback
     │
     ├── emails/
@@ -374,6 +376,20 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 - [x] Google OAuth en register + login
 - [x] Checkout `page.tsx` redirige al carrito
 - [x] Categorías en sidebar del admin
+- [x] Header — línea de gradiente animada al hacer scroll
+- [x] Footer — animaciones de entrada (useInView) y hover en links y redes sociales
+- [x] Botones CTA — efecto shine sweep en hover (btn-shine)
+- [x] Mobile menu — tap feedback con Framer Motion whileTap
+- [x] Admin Dashboard — StatCards con count-up animado y micro-animaciones
+- [x] Admin Sidebar — hover con slide-in bg + active indicator layoutId
+- [x] Product Cards — hover elevated (y:-4, spring) + badge scale-in
+- [x] Skeleton loaders premium con shimmer sweep (sin animate-pulse)
+- [x] Scroll progress indicator global (barra azul fixed top-0)
+- [x] StarRating como componente reutilizable (`components/ui/StarRating.tsx`)
+- [x] Indicador de stock bajo (< 10) con pulse amber en ProductInfo
+- [x] Shake periódico en botón "Añadir al carrito" cuando stock < 5
+- [x] Cursor personalizado en galería de producto (desktop)
+- [x] Panel Admin — Categorías con editar/eliminar (modal)
 
 **Backend (Anderson):**
 - [x] GET/POST `/api/products` + Zod + verificación admin
@@ -398,21 +414,21 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 ### 🚧 Pendiente
 
 **Diego (Frontend):**
-- [ ] Implementar `onClick` en botones de card: "Añadir al carrito" y "Favoritos" en FeaturedProducts, ProductGrid, RelatedProducts
-- [ ] Agregar links con filtro de categoría en CategoryBannersSection
+- [x] Implementar `onClick` en botones de card: "Añadir al carrito" y "Favoritos" en FeaturedProducts, ProductGrid, RelatedProducts
+- [x] Agregar links con filtro de categoría en CategoryBannersSection
 - [ ] Completar links de navegación en Header (Categorías con filtro real)
-- [ ] Resolver doble-submit en modales admin (inventario, proveedores, empleados)
-- [ ] Enviar `phone` y `subject` al API contacto (actualmente solo se envían name, email, message)
-- [ ] Corregir selector de producto vacío en modal inventario (tab movimientos)
-- [ ] Eliminar `statusColors`/`statusLabels` duplicados en admin/page.tsx → usar `constants/index.ts`
-- [ ] Extraer `formatCurrency` a `lib/utils.ts` (duplicado en admin/page.tsx)
-- [ ] Eliminar `data-v-4914bf38=""` residual en NewsletterSection.tsx
-- [ ] Cambiar `<a href="/privacidad">` a `<Link>` en NewsletterSection
-- [ ] Agregar editar/eliminar categorías en admin
-- [ ] Extraer StarRating a componente reutilizable en `components/ui/`
+- [x] Resolver doble-submit en modales admin (inventario, proveedores, empleados)
+- [x] Enviar `phone` y `subject` al API contacto (actualmente solo se envían name, email, message)
+- [x] Corregir selector de producto vacío en modal inventario (tab movimientos)
+- [x] Eliminar `statusColors`/`statusLabels` duplicados en admin/page.tsx → usar `constants/index.ts`
+- [x] Extraer `formatCurrency` a `lib/utils.ts` (duplicado en admin/page.tsx)
+- [x] Eliminar `data-v-4914bf38=""` residual en NewsletterSection.tsx
+- [x] Cambiar `<a href="/privacidad">` a `<Link>` en NewsletterSection
+- [x] Agregar editar/eliminar categorías en admin
+- [x] Extraer StarRating a componente reutilizable en `components/ui/`
 - [ ] Agregar links reales de redes sociales en Footer
 - [ ] Botón "Cargar más productos" funcional en catálogo
-- [ ] Confirmar WhatsApp real en contacto
+- [x] Confirmar WhatsApp real en contacto
 
 **Anderson (Backend):**
 - [ ] 🔴 Corregir `variant_id: ''` → `null` en capture-order

@@ -7,15 +7,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Icon from '@/components/ui/AppIcon';
 
 const navItems = [
-  { label: 'Dashboard', href: '/admin', icon: 'ChartBarIcon' },
-  { label: 'Productos', href: '/admin/productos', icon: 'CubeIcon' },
-  { label: 'Categorías', href: '/admin/categorias', icon: 'TagIcon' },
-  { label: 'Pedidos', href: '/admin/pedidos', icon: 'ShoppingCartIcon' },
-  { label: 'Inventario', href: '/admin/inventario', icon: 'ArchiveBoxIcon' },
-  { label: 'Proveedores', href: '/admin/proveedores', icon: 'TruckIcon' },
-  { label: 'Empleados', href: '/admin/empleados', icon: 'UserGroupIcon' },
-  { label: 'Facturación', href: '/admin/facturacion', icon: 'DocumentTextIcon' },
-  { label: 'Clientes', href: '/admin/clientes', icon: 'UsersIcon' },
+  { label: 'Dashboard',   href: '/admin',              icon: 'ChartBarIcon' },
+  { label: 'Productos',   href: '/admin/productos',     icon: 'CubeIcon' },
+  { label: 'Categorías',  href: '/admin/categorias',    icon: 'TagIcon' },
+  { label: 'Pedidos',     href: '/admin/pedidos',       icon: 'ShoppingCartIcon' },
+  { label: 'Inventario',  href: '/admin/inventario',    icon: 'ArchiveBoxIcon' },
+  { label: 'Proveedores', href: '/admin/proveedores',   icon: 'TruckIcon' },
+  { label: 'Empleados',   href: '/admin/empleados',     icon: 'UserGroupIcon' },
+  { label: 'Facturación', href: '/admin/facturacion',   icon: 'DocumentTextIcon' },
+  { label: 'Clientes',    href: '/admin/clientes',      icon: 'UsersIcon' },
 ];
 
 interface AdminSidebarProps {
@@ -32,6 +32,7 @@ export default function AdminSidebar({
   onMobileClose,
 }: AdminSidebarProps) {
   const pathname = usePathname();
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
   const isActive = (href: string) => {
     if (href === '/admin') return pathname === '/admin';
@@ -70,31 +71,64 @@ export default function AdminSidebar({
         {navItems.map((item) => {
           const active = isActive(item.href);
           return (
-            <Link
+            <div
               key={item.href}
-              href={item.href}
-              onClick={onMobileClose}
-              className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
-                active
-                  ? 'bg-blue-600/20 text-blue-400 shadow-sm'
-                  : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-              } ${collapsed ? 'justify-center' : ''}`}
-              title={collapsed ? item.label : undefined}
+              className="relative"
+              onMouseEnter={() => setHoveredItem(item.href)}
+              onMouseLeave={() => setHoveredItem(null)}
             >
-              <Icon
-                name={item.icon}
-                size={20}
-                variant={active ? 'solid' : 'outline'}
-                className={active ? 'text-blue-400' : 'text-slate-500 group-hover:text-white'}
-              />
-              {!collapsed && <span>{item.label}</span>}
-              {active && !collapsed && (
-                <motion.div
-                  layoutId="admin-nav-indicator"
-                  className="ml-auto size-1.5 rounded-full bg-blue-400"
+              <Link
+                href={item.href}
+                onClick={onMobileClose}
+                className={`group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200 overflow-hidden ${
+                  active
+                    ? 'bg-blue-600/20 text-blue-400'
+                    : 'text-slate-400 hover:text-white'
+                } ${collapsed ? 'justify-center' : ''}`}
+              >
+                {/* Slide-in hover background (inactive items only) */}
+                {!active && (
+                  <span className="absolute inset-0 rounded-lg bg-slate-800 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out" />
+                )}
+
+                {/* Active: left bar with gradient */}
+                {active && (
+                  <motion.span
+                    layoutId="admin-nav-bar"
+                    className="absolute left-0 top-1 bottom-1 w-[3px] rounded-r-full"
+                    style={{ background: 'linear-gradient(180deg, #3b82f6, #6366f1)' }}
+                  />
+                )}
+
+                <Icon
+                  name={item.icon}
+                  size={20}
+                  variant={active ? 'solid' : 'outline'}
+                  className={`relative z-10 transition-colors duration-200 ${
+                    active ? 'text-blue-400' : 'text-slate-500 group-hover:text-white'
+                  }`}
                 />
-              )}
-            </Link>
+                {!collapsed && (
+                  <span className="relative z-10">{item.label}</span>
+                )}
+              </Link>
+
+              {/* Collapsed tooltip */}
+              <AnimatePresence>
+                {collapsed && hoveredItem === item.href && (
+                  <motion.div
+                    initial={{ opacity: 0, x: -6 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -6 }}
+                    transition={{ duration: 0.14, ease: 'easeOut' }}
+                    className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 bg-slate-700 text-white text-xs font-semibold rounded-lg whitespace-nowrap z-50 shadow-xl pointer-events-none"
+                  >
+                    {item.label}
+                    <span className="absolute -left-1.5 top-1/2 -translate-y-1/2 size-3 bg-slate-700 rotate-45 rounded-sm" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           );
         })}
       </nav>

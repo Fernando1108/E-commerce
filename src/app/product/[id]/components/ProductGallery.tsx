@@ -11,6 +11,8 @@ export default function ProductGallery({ images }: { images: GalleryImage[] }) {
   const [active, setActive] = useState(0);
   const [zoomed, setZoomed] = useState(false);
   const [direction, setDirection] = useState(0);
+  const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
+  const [cursorVisible, setCursorVisible] = useState(false);
 
   const navigate = (dir: number) => {
     setDirection(dir);
@@ -31,9 +33,15 @@ export default function ProductGallery({ images }: { images: GalleryImage[] }) {
   return (
     <div className="flex flex-col gap-5">
       <div
-        className="relative overflow-hidden bg-[#F4F2EF] cursor-zoom-in group"
+        className="relative overflow-hidden bg-[#F4F2EF] cursor-zoom-in md:cursor-none group"
         style={{ aspectRatio: '4 / 5' }}
         onClick={() => setZoomed(!zoomed)}
+        onMouseMove={(e) => {
+          const rect = e.currentTarget.getBoundingClientRect();
+          setCursorPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+        }}
+        onMouseEnter={() => setCursorVisible(true)}
+        onMouseLeave={() => setCursorVisible(false)}
       >
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
@@ -109,6 +117,25 @@ export default function ProductGallery({ images }: { images: GalleryImage[] }) {
               aria-label={`Ir a imagen ${i + 1}`}
             />
           ))}
+        </div>
+
+        {/* Custom cursor — desktop only */}
+        <div
+          className={`absolute pointer-events-none z-30 hidden md:flex items-center justify-center size-11 rounded-full border border-white/70 bg-black/30 backdrop-blur-sm transition-opacity duration-200 ${
+            cursorVisible ? 'opacity-100' : 'opacity-0'
+          }`}
+          style={{
+            left: cursorPos.x,
+            top: cursorPos.y,
+            transform: 'translate(-50%, -50%)',
+          }}
+        >
+          <Icon
+            name={zoomed ? 'MagnifyingGlassMinusIcon' : 'MagnifyingGlassPlusIcon'}
+            size={14}
+            variant="outline"
+            className="text-white"
+          />
         </div>
       </div>
 

@@ -4,6 +4,7 @@ import '../styles/tailwind.css';
 import { Toaster } from 'sonner';
 import GoogleAnalytics from '@/components/GoogleAnalytics';
 import SessionManager from '@/components/SessionManager';
+import ScrollProgress from '@/components/ui/ScrollProgress';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -33,6 +34,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body suppressHydrationWarning>
+        <ScrollProgress />
         <GoogleAnalytics />
         <SessionManager />
         {children}

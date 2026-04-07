@@ -58,6 +58,12 @@ export default function ProductActions({
         <motion.button
           onClick={onAddToCart}
           whileTap={{ scale: 0.97 }}
+          animate={stock < 5 ? { x: [0, -5, 5, -5, 5, -3, 3, 0] } : { x: 0 }}
+          transition={
+            stock < 5
+              ? { duration: 0.5, repeat: Infinity, repeatDelay: 3.5, ease: 'easeInOut' }
+              : {}
+          }
           className={`btn-shine flex-1 py-3.5 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2.5 transition-all duration-400 ${
             addedToCart ? 'bg-[#22C55E] text-white' : 'bg-[#1C1C1C] text-white hover:bg-[#2563EB]'
           }`}

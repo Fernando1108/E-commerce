@@ -24,12 +24,24 @@ export default function ProductInfo({ product, rating, reviewCount, discount }: 
             </span>
           )}
           {product.stock > 0 && (
-            <span className="flex items-center gap-1.5 text-[10px] text-[#22C55E] font-black uppercase tracking-widest">
+            <span
+              className={`flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest ${
+                product.stock < 10 ? 'text-[#F59E0B]' : 'text-[#22C55E]'
+              }`}
+            >
               <span className="relative flex size-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22C55E] opacity-60" />
-                <span className="relative inline-flex rounded-full size-2 bg-[#22C55E]" />
+                <span
+                  className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-60 ${
+                    product.stock < 10 ? 'bg-[#F59E0B]' : 'bg-[#22C55E]'
+                  }`}
+                />
+                <span
+                  className={`relative inline-flex rounded-full size-2 ${
+                    product.stock < 10 ? 'bg-[#F59E0B]' : 'bg-[#22C55E]'
+                  }`}
+                />
               </span>
-              En stock
+              {product.stock < 10 ? `¡Solo ${product.stock} restantes!` : 'En stock'}
             </span>
           )}
         </div>
@@ -59,7 +71,11 @@ export default function ProductInfo({ product, rating, reviewCount, discount }: 
             {reviewCount} valoraciones
           </button>
           <span className="text-[11px] text-[#8A8A8A]">·</span>
-          <span className="text-[11px] text-[#5A5A5A] font-500">
+          <span
+            className={`text-[11px] font-500 ${
+              product.stock < 10 ? 'text-[#F59E0B] font-700' : 'text-[#5A5A5A]'
+            }`}
+          >
             {product.stock} unidades restantes
           </span>
         </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import Icon from '@/components/ui/AppIcon';
 
@@ -11,18 +11,15 @@ interface StatCardProps {
   trend?: { value: number; label: string };
   color?: 'blue' | 'green' | 'amber' | 'red' | 'purple';
   loading?: boolean;
+  index?: number;
 }
 
 const colorMap = {
-  blue: { bg: 'bg-blue-50', icon: 'text-blue-600', badge: 'bg-blue-100 text-blue-700' },
-  green: {
-    bg: 'bg-emerald-50',
-    icon: 'text-emerald-600',
-    badge: 'bg-emerald-100 text-emerald-700',
-  },
-  amber: { bg: 'bg-amber-50', icon: 'text-amber-600', badge: 'bg-amber-100 text-amber-700' },
-  red: { bg: 'bg-red-50', icon: 'text-red-600', badge: 'bg-red-100 text-red-700' },
-  purple: { bg: 'bg-purple-50', icon: 'text-purple-600', badge: 'bg-purple-100 text-purple-700' },
+  blue:   { bg: 'bg-blue-50',    icon: 'text-blue-600',   badge: 'bg-blue-100 text-blue-700' },
+  green:  { bg: 'bg-emerald-50', icon: 'text-emerald-600', badge: 'bg-emerald-100 text-emerald-700' },
+  amber:  { bg: 'bg-amber-50',   icon: 'text-amber-600',  badge: 'bg-amber-100 text-amber-700' },
+  red:    { bg: 'bg-red-50',     icon: 'text-red-600',    badge: 'bg-red-100 text-red-700' },
+  purple: { bg: 'bg-purple-50',  icon: 'text-purple-600', badge: 'bg-purple-100 text-purple-700' },
 };
 
 export default function StatCard({
@@ -32,12 +29,38 @@ export default function StatCard({
   trend,
   color = 'blue',
   loading,
+  index = 0,
 }: StatCardProps) {
   const c = colorMap[color];
+  const rafRef = useRef<number | null>(null);
+  const [displayValue, setDisplayValue] = useState<string | number>(
+    typeof value === 'number' ? 0 : value
+  );
+
+  // Count-up animation for numeric values
+  useEffect(() => {
+    if (typeof value !== 'number') {
+      setDisplayValue(value);
+      return;
+    }
+    const startTime = performance.now();
+    const duration = 900;
+    const to = value;
+
+    const tick = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+      setDisplayValue(Math.round(to * eased));
+      if (progress < 1) rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, [value]);
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl border border-slate-200 p-5 animate-pulse">
+      <div className="skeleton-shimmer bg-white rounded-xl border border-slate-200 p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-3 flex-1">
             <div className="h-3 w-20 bg-slate-200 rounded" />
@@ -53,12 +76,18 @@ export default function StatCard({
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md hover:shadow-slate-100 transition-shadow duration-300"
+      transition={{ duration: 0.5, delay: index * 0.05, ease: [0.16, 1, 0.3, 1] }}
+      whileHover={{
+        y: -2,
+        scale: 1.02,
+        transition: { type: 'spring', stiffness: 400, damping: 25 },
+      }}
+      className="bg-white rounded-xl border border-slate-200 p-5 cursor-default hover:shadow-lg hover:shadow-slate-200/60 transition-shadow duration-300"
     >
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-1">
           <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{label}</p>
-          <p className="text-2xl font-bold text-slate-900 tracking-tight">{value}</p>
+          <p className="text-2xl font-bold text-slate-900 tracking-tight">{displayValue}</p>
           {trend && (
             <div className="flex items-center gap-1.5 mt-1">
               <span
@@ -73,9 +102,7 @@ export default function StatCard({
             </div>
           )}
         </div>
-        <div
-          className={`size-11 rounded-xl ${c.bg} flex items-center justify-center flex-shrink-0`}
-        >
+        <div className={`size-11 rounded-xl ${c.bg} flex items-center justify-center flex-shrink-0`}>
           <Icon name={icon} size={20} className={c.icon} />
         </div>
       </div>

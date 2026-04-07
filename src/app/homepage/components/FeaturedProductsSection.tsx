@@ -60,7 +60,8 @@ function ProductCard({
       initial={{ opacity: 0, y: 36 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.7, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
-      className="group relative bg-white border border-[#DDD9D3] overflow-hidden transition-all duration-500 hover:border-[#1C1C1C] hover:shadow-nova-xl"
+      whileHover={{ y: -4, transition: { type: 'spring', stiffness: 300, damping: 24 } }}
+      className="group relative bg-white border border-[#DDD9D3] overflow-hidden transition-[border-color,box-shadow] duration-500 hover:border-[#1C1C1C] hover:shadow-nova-xl"
     >
       {/* Image area */}
       <div className="relative overflow-hidden bg-[#EFEDE9]" style={{ aspectRatio: '4/5' }}>
@@ -75,12 +76,15 @@ function ProductCard({
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500" />
 
         {badge && (
-          <div
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={inView ? { scale: 1 } : {}}
+            transition={{ type: 'spring', stiffness: 420, damping: 18, delay: index * 0.1 + 0.25 }}
             className="absolute top-4 left-4 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest z-10"
             style={{ backgroundColor: badge.bg, color: badge.color }}
           >
             {badge.label}
-          </div>
+          </motion.div>
         )}
 
         <div className="absolute top-4 right-4 z-10">
@@ -170,7 +174,7 @@ function ProductCard({
 
 function SkeletonCard() {
   return (
-    <div className="bg-white border border-[#DDD9D3] overflow-hidden animate-pulse">
+    <div className="skeleton-shimmer bg-white border border-[#DDD9D3] overflow-hidden">
       <div className="bg-[#EFEDE9] aspect-[4/5]" />
       <div className="p-6 space-y-4">
         <div className="h-3 bg-[#EFEDE9] rounded w-24" />

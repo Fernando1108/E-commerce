@@ -50,6 +50,7 @@ export default function AdminDashboard() {
           icon="CurrencyDollarIcon"
           color="green"
           loading={loading}
+          index={0}
         />
         <StatCard
           label="Pedidos hoy"
@@ -57,6 +58,7 @@ export default function AdminDashboard() {
           icon="ShoppingCartIcon"
           color="blue"
           loading={loading}
+          index={1}
         />
         <StatCard
           label="Stock bajo"
@@ -64,6 +66,7 @@ export default function AdminDashboard() {
           icon="ExclamationTriangleIcon"
           color={stats?.lowStockCount && stats.lowStockCount > 0 ? 'red' : 'amber'}
           loading={loading}
+          index={2}
         />
         <StatCard
           label="Clientes"
@@ -71,6 +74,7 @@ export default function AdminDashboard() {
           icon="UsersIcon"
           color="purple"
           loading={loading}
+          index={3}
         />
       </div>
 
@@ -83,7 +87,7 @@ export default function AdminDashboard() {
           className="xl:col-span-2"
         >
           {loading ? (
-            <div className="h-64 bg-slate-50 rounded-lg animate-pulse" />
+            <div className="skeleton-shimmer h-64 bg-slate-100 rounded-lg" />
           ) : (
             <ResponsiveContainer width="100%" height={280}>
               <AreaChart
@@ -138,7 +142,7 @@ export default function AdminDashboard() {
         {/* Top products */}
         <ChartCard title="Top productos" subtitle="Más vendidos">
           {loading ? (
-            <div className="h-64 bg-slate-50 rounded-lg animate-pulse" />
+            <div className="skeleton-shimmer h-64 bg-slate-100 rounded-lg" />
           ) : (
             <ResponsiveContainer width="100%" height={280}>
               <BarChart
@@ -223,14 +227,15 @@ export default function AdminDashboard() {
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i}>
                     <td colSpan={4} className="px-5 py-3">
-                      <div className="h-4 bg-slate-100 rounded animate-pulse" />
+                      <div className="skeleton-shimmer h-4 bg-slate-100 rounded" />
                     </td>
                   </tr>
                 ))
               ) : stats?.recentOrders && stats.recentOrders.length > 0 ? (
                 stats.recentOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="px-5 py-3">
+                  <tr key={order.id} className="hover:bg-slate-50/80 transition-colors group">
+                    <td className="px-5 py-3 relative">
+                      <span className="absolute left-0 top-0 bottom-0 w-[3px] bg-blue-500 scale-y-0 group-hover:scale-y-100 transition-transform duration-200 origin-center" />
                       <span className="text-sm font-mono font-semibold text-slate-700">
                         #{order.id.slice(0, 8).toUpperCase()}
                       </span>

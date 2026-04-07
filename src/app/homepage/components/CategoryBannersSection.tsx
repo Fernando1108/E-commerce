@@ -207,7 +207,7 @@ function SectionHeader() {
 
 /* ─── Skeleton ─────────────────────────────────────────────────── */
 function SkeletonBanner({ className }: { className?: string }) {
-  return <div className={`bg-[#EFEDE9] animate-pulse ${className}`} />;
+  return <div className={`skeleton-shimmer bg-[#EFEDE9] ${className}`} />;
 }
 
 /* ─── Main Section ────────────────────────────────────────────── */
