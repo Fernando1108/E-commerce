@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, Suspense } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import AppLogo from '@/components/ui/AppLogo';
 import Icon from '@/components/ui/AppIcon';
@@ -19,6 +19,106 @@ const navLinks = [
   { label: 'Ofertas', href: '/products?badge=oferta' },
   { label: 'Soporte', href: '/contacto' },
 ] as const;
+
+// ─── Desktop Nav (needs useSearchParams → must be Suspense-wrapped) ───────────
+function DesktopNavLinks({ onLinkClick }: { onLinkClick?: () => void }) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const isActive = (href: string) => {
+    const [base, query] = href.split('?');
+    if (pathname !== base) return false;
+    if (!query) {
+      return (
+        !searchParams.get('view') &&
+        !searchParams.get('sort') &&
+        !searchParams.get('badge') &&
+        !searchParams.get('category')
+      );
+    }
+    const hrefParams = new URLSearchParams(query);
+    for (const [key, value] of hrefParams.entries()) {
+      if (searchParams.get(key) !== value) return false;
+    }
+    return true;
+  };
+
+  return (
+    <>
+      {navLinks.map((link) => {
+        const active = isActive(link.href);
+        return (
+          <Link
+            key={link.label}
+            href={link.href}
+            onClick={onLinkClick}
+            className={`relative text-[11px] font-bold uppercase tracking-widest transition-colors duration-200 group pb-0.5 ${
+              active ? 'text-[#2563EB]' : 'text-[#5A5A5A] hover:text-[#1C1C1C]'
+            }`}
+          >
+            {link.label}
+            <span
+              className={`absolute -bottom-0.5 left-1/2 h-[1.5px] bg-[#2563EB] -translate-x-1/2 transition-all duration-300 ${
+                active ? 'w-full' : 'w-0 group-hover:w-full'
+              }`}
+            />
+            {active && (
+              <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 size-1 rounded-full bg-[#2563EB]" />
+            )}
+          </Link>
+        );
+      })}
+    </>
+  );
+}
+
+// ─── Mobile Nav Links (same active logic) ─────────────────────────────────────
+function MobileNavLinkList({ onClose }: { onClose: () => void }) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const isActive = (href: string) => {
+    const [base, query] = href.split('?');
+    if (pathname !== base) return false;
+    if (!query) {
+      return (
+        !searchParams.get('view') &&
+        !searchParams.get('sort') &&
+        !searchParams.get('badge') &&
+        !searchParams.get('category')
+      );
+    }
+    const hrefParams = new URLSearchParams(query);
+    for (const [key, value] of hrefParams.entries()) {
+      if (searchParams.get(key) !== value) return false;
+    }
+    return true;
+  };
+
+  return (
+    <>
+      {navLinks.map((link, i) => (
+        <motion.div
+          key={link.label}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: i * 0.07 + 0.1 }}
+          whileTap={{ scale: 0.97 }}
+        >
+          <Link
+            href={link.href}
+            onClick={onClose}
+            className={`mobile-nav-link block py-4 text-3xl font-display font-900 italic tracking-editorial border-b border-[#DDD9D3] transition-colors ${
+              isActive(link.href) ? 'text-[#2563EB]' : 'text-[#1C1C1C] hover:text-[#2563EB]'
+            }`}
+          >
+            {link.label}
+          </Link>
+        </motion.div>
+      ))}
+    </>
+  );
+}
 
 // ─── Inline Search ────────────────────────────────────────────────────────────
 interface SearchResult {
@@ -322,15 +422,6 @@ export default function Header() {
     setMobileOpen(false);
   }, [pathname]);
 
-  // Is current link active? (pathname-based, SSR-safe)
-  const isActive = useCallback(
-    (href: string) => {
-      const base = href.split('?')[0];
-      return pathname === base;
-    },
-    [pathname]
-  );
-
   const handleSearchToggle = useCallback(() => {
     setSearchOpen((v) => !v);
     setUserDropdownOpen(false);
@@ -373,32 +464,21 @@ export default function Header() {
 
           {/* CENTER: Nav links (desktop) */}
           <nav className="hidden lg:flex items-center gap-8 xl:gap-10" aria-label="Navegación principal">
-            {navLinks.map((link) => {
-              const active = isActive(link.href);
-              return (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  className={`relative text-[11px] font-bold uppercase tracking-widest transition-colors duration-200 group pb-0.5 ${
-                    active ? 'text-[#2563EB]' : 'text-[#5A5A5A] hover:text-[#1C1C1C]'
-                  }`}
-                >
-                  {link.label}
-
-                  {/* Underline — expands from center */}
-                  <span
-                    className={`absolute -bottom-0.5 left-1/2 h-[1.5px] bg-[#2563EB] -translate-x-1/2 transition-all duration-300 ${
-                      active ? 'w-full' : 'w-0 group-hover:w-full'
-                    }`}
-                  />
-
-                  {/* Active dot */}
-                  {active && (
-                    <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 size-1 rounded-full bg-[#2563EB]" />
-                  )}
-                </Link>
-              );
-            })}
+            <Suspense fallback={
+              <>
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.label}
+                    href={link.href}
+                    className="relative text-[11px] font-bold uppercase tracking-widest text-[#5A5A5A] hover:text-[#1C1C1C] transition-colors duration-200 pb-0.5"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </>
+            }>
+              <DesktopNavLinks />
+            </Suspense>
           </nav>
 
           {/* RIGHT: Icon actions */}
@@ -565,27 +645,21 @@ export default function Header() {
 
             {/* Mobile nav links */}
             <nav className="flex flex-col px-6 pt-10 gap-1" aria-label="Navegación móvil">
-              {navLinks.map((link, i) => (
-                <motion.div
-                  key={link.label}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.07 + 0.1 }}
-                  whileTap={{ scale: 0.97 }}
-                >
-                  <Link
-                    href={link.href}
-                    onClick={() => setMobileOpen(false)}
-                    className={`mobile-nav-link block py-4 text-3xl font-display font-900 italic tracking-editorial border-b border-[#DDD9D3] transition-colors ${
-                      pathname === link.href.split('?')[0]
-                        ? 'text-[#2563EB]'
-                        : 'text-[#1C1C1C] hover:text-[#2563EB]'
-                    }`}
-                  >
-                    {link.label}
-                  </Link>
-                </motion.div>
-              ))}
+              <Suspense fallback={
+                <>
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.label}
+                      href={link.href}
+                      className="mobile-nav-link block py-4 text-3xl font-display font-900 italic tracking-editorial border-b border-[#DDD9D3] text-[#1C1C1C]"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </>
+              }>
+                <MobileNavLinkList onClose={() => setMobileOpen(false)} />
+              </Suspense>
             </nav>
 
             {/* Mobile bottom area */}

@@ -65,17 +65,17 @@ export default function AdminModal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className={`relative w-full ${sizeMap[size]} bg-white rounded-2xl shadow-2xl shadow-slate-900/10 overflow-hidden`}
+            className={`relative w-full ${sizeMap[size]} bg-white dark:bg-slate-800 rounded-2xl shadow-2xl shadow-slate-900/10 overflow-hidden`}
           >
             {/* Header */}
-            <div className="flex items-start justify-between gap-4 px-6 pt-6 pb-4 border-b border-slate-100">
+            <div className="flex items-start justify-between gap-4 px-6 pt-6 pb-4 border-b border-slate-100 dark:border-slate-700">
               <div>
-                <h3 className="text-lg font-bold text-slate-900">{title}</h3>
-                {subtitle && <p className="text-sm text-slate-500 mt-0.5">{subtitle}</p>}
+                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">{title}</h3>
+                {subtitle && <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{subtitle}</p>}
               </div>
               <button
                 onClick={onClose}
-                className="size-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors flex-shrink-0"
+                className="size-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex-shrink-0"
               >
                 <Icon name="XMarkIcon" size={18} />
               </button>
@@ -86,7 +86,7 @@ export default function AdminModal({
 
             {/* Footer */}
             {footer && (
-              <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-3">
+              <div className="px-6 py-4 bg-slate-50 dark:bg-slate-700/50 border-t border-slate-100 dark:border-slate-700 flex items-center justify-end gap-3">
                 {footer}
               </div>
             )}

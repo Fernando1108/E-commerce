@@ -1,12 +1,15 @@
 'use client';
 
 import React from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import Icon from '@/components/ui/AppIcon';
 import { useAuth } from '@/hooks/useAuth';
 
 interface AdminTopbarProps {
   onMenuToggle: () => void;
+  darkMode: boolean;
+  onToggleDark: () => void;
 }
 
 const breadcrumbMap: Record<string, string> = {
@@ -23,8 +26,9 @@ const breadcrumbMap: Record<string, string> = {
   '/admin/clientes': 'Clientes',
 };
 
-export default function AdminTopbar({ onMenuToggle }: AdminTopbarProps) {
+export default function AdminTopbar({ onMenuToggle, darkMode, onToggleDark }: AdminTopbarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, signOut } = useAuth();
 
   const getBreadcrumbs = () => {
@@ -38,7 +42,6 @@ export default function AdminTopbar({ onMenuToggle }: AdminTopbarProps) {
         crumbs.push({ label, path: currentPath });
       }
     }
-    // If we have a dynamic segment like /admin/pedidos/[id]
     if (crumbs.length === 0 || crumbs[crumbs.length - 1].path !== pathname) {
       const closestParent = Object.keys(breadcrumbMap)
         .filter((key) => pathname.startsWith(key))
@@ -50,15 +53,20 @@ export default function AdminTopbar({ onMenuToggle }: AdminTopbarProps) {
     return crumbs;
   };
 
+  const handleLogout = async () => {
+    await signOut();
+    router.push('/admin/login');
+  };
+
   const breadcrumbs = getBreadcrumbs();
 
   return (
-    <header className="sticky top-0 z-20 h-16 bg-white/80 backdrop-blur-xl border-b border-slate-200 flex items-center justify-between px-4 lg:px-8">
+    <header className="sticky top-0 z-20 h-16 bg-white/80 dark:bg-slate-900/90 backdrop-blur-xl border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-4 lg:px-8 transition-colors duration-300">
       {/* Left: mobile menu + breadcrumb */}
       <div className="flex items-center gap-4">
         <button
           onClick={onMenuToggle}
-          className="lg:hidden size-9 flex items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
+          className="lg:hidden size-9 flex items-center justify-center rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           aria-label="Abrir menú"
         >
           <Icon name="Bars3Icon" size={20} />
@@ -66,13 +74,15 @@ export default function AdminTopbar({ onMenuToggle }: AdminTopbarProps) {
 
         {/* Breadcrumb */}
         <nav className="flex items-center gap-1.5 text-sm">
-          <span className="text-slate-400">Admin</span>
+          <span className="text-slate-400 dark:text-slate-500">Admin</span>
           {breadcrumbs.map((crumb, i) => (
             <React.Fragment key={crumb.path}>
-              <Icon name="ChevronRightIcon" size={12} className="text-slate-300" />
+              <Icon name="ChevronRightIcon" size={12} className="text-slate-300 dark:text-slate-600" />
               <span
                 className={
-                  i === breadcrumbs.length - 1 ? 'text-slate-900 font-semibold' : 'text-slate-400'
+                  i === breadcrumbs.length - 1
+                    ? 'text-slate-900 dark:text-slate-100 font-semibold'
+                    : 'text-slate-400 dark:text-slate-500'
                 }
               >
                 {crumb.label}
@@ -82,14 +92,28 @@ export default function AdminTopbar({ onMenuToggle }: AdminTopbarProps) {
         </nav>
       </div>
 
-      {/* Right: user info */}
-      <div className="flex items-center gap-4">
+      {/* Right: theme toggle + user info */}
+      <div className="flex items-center gap-3">
+        {/* Dark mode toggle */}
+        <motion.button
+          onClick={onToggleDark}
+          animate={{ rotate: darkMode ? 180 : 0 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+          className="size-9 flex items-center justify-center rounded-lg text-slate-400 dark:text-slate-400 hover:text-amber-500 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          aria-label={darkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+          title={darkMode ? 'Modo claro' : 'Modo oscuro'}
+        >
+          <Icon name={darkMode ? 'SunIcon' : 'MoonIcon'} size={18} variant="outline" />
+        </motion.button>
+
+        <div className="h-6 w-px bg-slate-200 dark:bg-slate-700" />
+
         <div className="hidden sm:flex items-center gap-3">
           <div className="text-right">
-            <p className="text-xs font-semibold text-slate-700">
+            <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">
               {user?.user_metadata?.name || user?.email?.split('@')[0] || 'Admin'}
             </p>
-            <p className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">
+            <p className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-bold">
               Administrador
             </p>
           </div>
@@ -98,11 +122,11 @@ export default function AdminTopbar({ onMenuToggle }: AdminTopbarProps) {
           </div>
         </div>
 
-        <div className="h-6 w-px bg-slate-200" />
+        <div className="h-6 w-px bg-slate-200 dark:bg-slate-700" />
 
         <button
-          onClick={() => signOut()}
-          className="size-9 flex items-center justify-center rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+          onClick={handleLogout}
+          className="size-9 flex items-center justify-center rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
           aria-label="Cerrar sesión"
           title="Cerrar sesión"
         >
