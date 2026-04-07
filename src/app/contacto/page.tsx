@@ -6,9 +6,30 @@ import { useForm } from 'react-hook-form';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Icon from '@/components/ui/AppIcon';
-import AuthField from '@/features/auth/components/AuthField';
-import AuthStatusMessage from '@/features/auth/components/AuthStatusMessage';
-import type { AuthStatus } from '@/features/auth/types';
+/* ─── Inline UI primitives (features/auth eliminated) ────────── */
+type AuthFieldProps = {
+  label: string; type: string; placeholder: string;
+  registration: ReturnType<ReturnType<typeof useForm>['register']>;
+  error?: { message?: string }; className?: string;
+};
+function AuthField({ label, type, placeholder, registration, error, className }: AuthFieldProps) {
+  return (
+    <label className={className ?? 'block'}>
+      <span className="mb-2 block text-[11px] font-black uppercase tracking-[0.24em] text-[#5A5A5A]">{label}</span>
+      <input type={type} placeholder={placeholder} {...registration}
+        className={`h-14 w-full border px-4 text-[15px] text-[#1C1C1C] outline-none transition ${error ? 'border-[#C33D2F] bg-[#FFF7F5] focus:border-[#C33D2F]' : 'border-[#DDD9D3] bg-[#FCFBF9] focus:border-[#1C1C1C] focus:bg-white'}`}
+      />
+      {error?.message && <span className="mt-2 block text-sm text-[#C33D2F]">{error.message}</span>}
+    </label>
+  );
+}
+type AuthStatus = 'idle' | 'loading' | 'success' | 'error';
+function AuthStatusMessage({ status, message }: { status: AuthStatus; message: string | null }) {
+  if (!message || status === 'idle') return null;
+  const cls = status === 'success' ? 'border-[#D8E4FF] bg-[#EFF6FF] text-[#2563EB]' : 'border-[#F1C8C2] bg-[#FFF7F5] text-[#C33D2F]';
+  return <div className={`border px-4 py-3 text-sm leading-relaxed ${cls}`}>{message}</div>;
+}
+/* ─────────────────────────────────────────────────────────────── */
 
 type ContactFormValues = {
   fullName: string;

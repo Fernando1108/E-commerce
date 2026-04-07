@@ -17,7 +17,7 @@ const fadeUp = {
 
 const TICKER_ITEMS = [
   'Nueva Colección 2026',
-  'Envío Gratis +€50',
+  'Envío Gratis +$50',
   'Tecnología Premium',
   'Curación Editorial',
   'Workspace Definitivo',
@@ -207,7 +207,7 @@ export default function HeroSection() {
                 </div>
                 <div>
                   <p className="text-[9px] font-black uppercase tracking-widest text-[#8A8A8A]">Envío Gratis</p>
-                  <p className="text-[12px] font-black uppercase tracking-widest text-[#1C1C1C]">Pedidos +€50</p>
+                  <p className="text-[12px] font-black uppercase tracking-widest text-[#1C1C1C]">Pedidos +$50</p>
                 </div>
               </div>
             </motion.div>

@@ -1,51 +1,43 @@
-import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
-import { AUTH_COOKIE_NAME, AUTH_COOKIE_VALUE } from '@/features/auth/constants';
+import { createServerClient } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
 
-const PROTECTED_PATHS = ['/checkout', '/profile'];
-const AUTH_PATHS = ['/auth/login', '/auth/register', '/auth/forgot-password'];
+const protectedRoutes = ['/account', '/admin', '/checkout', '/profile']
 
-function isProtectedPath(pathname: string) {
-  return PROTECTED_PATHS.some(
-    (path) => pathname === path || pathname.startsWith(`${path}/`)
-  );
-}
+export async function middleware(request: NextRequest) {
+  let supabaseResponse = NextResponse.next({ request })
 
-function isAuthPath(pathname: string) {
-  return AUTH_PATHS.some(
-    (path) => pathname === path || pathname.startsWith(`${path}/`)
-  );
-}
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return request.cookies.getAll() },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+          supabaseResponse = NextResponse.next({ request })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options))
+        },
+      },
+    }
+  )
 
-export function middleware(request: NextRequest) {
-  const { pathname, search } = request.nextUrl;
-  const isAuthenticated =
-    request.cookies.get(AUTH_COOKIE_NAME)?.value === AUTH_COOKIE_VALUE;
+  const { data: { user } } = await supabase.auth.getUser()
 
-  if (isAuthPath(pathname) && isAuthenticated) {
-    return NextResponse.redirect(new URL('/homepage', request.url));
+  const isProtected = protectedRoutes.some(route =>
+    request.nextUrl.pathname.startsWith(route)
+  )
+
+  if (isProtected && !user) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/auth/login'
+    url.searchParams.set('redirect', request.nextUrl.pathname)
+    return NextResponse.redirect(url)
   }
 
-  if (!isProtectedPath(pathname)) {
-    return NextResponse.next();
-  }
-
-  if (isAuthenticated) {
-    return NextResponse.next();
-  }
-
-  const loginUrl = new URL('/auth/login', request.url);
-  loginUrl.searchParams.set('redirect', `${pathname}${search}`);
-
-  return NextResponse.redirect(loginUrl);
+  return supabaseResponse
 }
 
 export const config = {
-  matcher: [
-    '/checkout/:path*',
-    '/profile/:path*',
-    '/auth/login',
-    '/auth/register',
-    '/auth/forgot-password',
-  ],
-};
+  matcher: ['/account/:path*', '/admin/:path*', '/checkout/:path*', '/profile/:path*'],
+}

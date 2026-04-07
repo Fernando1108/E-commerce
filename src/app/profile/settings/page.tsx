@@ -3,136 +3,119 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
+import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import AuthField from '@/features/auth/components/AuthField';
-import AuthStatusMessage from '@/features/auth/components/AuthStatusMessage';
-import { accountService } from '@/features/account/services/account.service';
-import type { UpdateProfileInput, UserProfile } from '@/features/account/types';
-import type { AuthStatus } from '@/features/auth/types';
+import { useAuth } from '@/hooks/useAuth';
+import { createClient } from '@/lib/supabase/client';
+
+/* ─── Inline UI primitives ──────────────────────────────────────── */
+type AuthFieldProps = {
+  label: string;
+  type: string;
+  placeholder: string;
+  registration: ReturnType<ReturnType<typeof useForm>['register']>;
+  error?: { message?: string };
+};
+
+function AuthField({ label, type, placeholder, registration, error }: AuthFieldProps) {
+  return (
+    <label className="block">
+      <span className="mb-2 block text-[11px] font-black uppercase tracking-[0.24em] text-[#5A5A5A]">
+        {label}
+      </span>
+      <input
+        type={type}
+        placeholder={placeholder}
+        {...registration}
+        className={`h-14 w-full border px-4 text-[15px] text-[#1C1C1C] outline-none transition ${
+          error
+            ? 'border-[#C33D2F] bg-[#FFF7F5] focus:border-[#C33D2F]'
+            : 'border-[#DDD9D3] bg-[#FCFBF9] focus:border-[#1C1C1C] focus:bg-white'
+        }`}
+      />
+      {error?.message && <span className="mt-2 block text-sm text-[#C33D2F]">{error.message}</span>}
+    </label>
+  );
+}
+
+type StatusState = 'idle' | 'loading' | 'success' | 'error';
+
+function StatusMessage({ status, message }: { status: StatusState; message: string | null }) {
+  if (!message || status === 'idle') return null;
+  const cls =
+    status === 'success'
+      ? 'border-[#D8E4FF] bg-[#EFF6FF] text-[#2563EB]'
+      : 'border-[#F1C8C2] bg-[#FFF7F5] text-[#C33D2F]';
+  return <div className={`border px-4 py-3 text-sm leading-relaxed ${cls}`}>{message}</div>;
+}
+/* ─────────────────────────────────────────────────────────────────── */
+
+type SettingsFormValues = {
+  name: string;
+  newPassword: string;
+  confirmPassword: string;
+};
 
 export default function ProfileSettingsPage() {
-  const [initialProfile, setInitialProfile] = useState<UserProfile | null>(null);
-  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
-  const [status, setStatus] = useState<AuthStatus>('idle');
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const [status, setStatus] = useState<StatusState>('idle');
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
-  const {
-    register,
-    handleSubmit,
-    watch,
-    reset,
-    setValue,
-    formState: { errors },
-  } = useForm<UpdateProfileInput>({
-    defaultValues: {
-      name: '',
-      email: '',
-      address: '',
-      avatar: '',
-    },
-  });
+  const { register, handleSubmit, watch, reset, formState: { errors } } =
+    useForm<SettingsFormValues>({
+      defaultValues: { name: '', newPassword: '', confirmPassword: '' },
+    });
 
-  const avatarPreview = watch('avatar');
+  const newPasswordValue = watch('newPassword');
 
   useEffect(() => {
-    const loadProfile = async () => {
-      setIsLoadingProfile(true);
-      setFeedbackMessage(null);
+    if (!loading && !user) {
+      router.push('/auth/login?redirect=/profile/settings');
+    }
+    if (user) {
+      const name =
+        user.user_metadata?.name ??
+        user.user_metadata?.full_name ??
+        user.email?.split('@')[0] ?? '';
+      reset({ name, newPassword: '', confirmPassword: '' });
+      setAvatarPreview(user.user_metadata?.avatar_url ?? null);
+    }
+  }, [loading, user, router, reset]);
 
-      try {
-        const profile = await accountService.getProfile();
-        setInitialProfile(profile);
-        reset({
-          name: profile.name,
-          email: profile.email,
-          address: profile.address,
-          avatar: profile.avatar,
-        });
-      } catch (error) {
-        setStatus('error');
-        setFeedbackMessage(
-          error instanceof Error ? error.message : 'No fue posible cargar la configuración del perfil.'
-        );
-      } finally {
-        setIsLoadingProfile(false);
-      }
-    };
-
-    void loadProfile();
-  }, [reset]);
-
-  const onSubmit = handleSubmit(async (values) => {
+  const onSubmit = handleSubmit(async ({ name, newPassword }) => {
     setStatus('loading');
     setFeedbackMessage(null);
 
-    try {
-      const updatedProfile = await accountService.updateProfile(values);
-      setInitialProfile(updatedProfile);
-      reset({
-        name: updatedProfile.name,
-        email: updatedProfile.email,
-        address: updatedProfile.address,
-        avatar: updatedProfile.avatar,
-      });
-      setStatus('success');
-      setFeedbackMessage('Los cambios del perfil se guardaron correctamente.');
-    } catch (error) {
-      setStatus('error');
-      setFeedbackMessage(
-        error instanceof Error ? error.message : 'No fue posible guardar los cambios.'
-      );
-    }
-  });
+    const supabase = createClient();
+    const updates: Record<string, unknown> = {};
 
-  const handleCancel = () => {
-    if (!initialProfile) {
-      return;
+    if (name.trim()) {
+      updates.data = { name: name.trim() };
+    }
+    if (newPassword) {
+      updates.password = newPassword;
     }
 
-    reset({
-      name: initialProfile.name,
-      email: initialProfile.email,
-      address: initialProfile.address,
-      avatar: initialProfile.avatar,
-    });
-    setStatus('idle');
-    setFeedbackMessage(null);
-  };
-
-  const avatarRegistration = register('avatar', {
-    required: 'La URL del avatar es obligatoria.',
-    pattern: {
-      value: /^(https?:\/\/|\/|data:image\/).+/,
-      message: 'Ingresa una URL valida, una ruta interna o una imagen cargada.',
-    },
-  });
-
-  const handleAvatarFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-
-    if (!file) {
-      return;
-    }
-
-    try {
-      const dataUrl = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(String(reader.result ?? ''));
-        reader.onerror = () => reject(new Error('No fue posible leer la imagen seleccionada.'));
-        reader.readAsDataURL(file);
-      });
-
-      setValue('avatar', dataUrl, { shouldDirty: true, shouldValidate: true });
+    if (Object.keys(updates).length === 0) {
       setStatus('idle');
-      setFeedbackMessage(null);
-    } catch (error) {
-      setStatus('error');
-      setFeedbackMessage(
-        error instanceof Error ? error.message : 'No fue posible cargar el avatar.'
-      );
+      return;
     }
-  };
+
+    const { error } = await supabase.auth.updateUser(updates as Parameters<typeof supabase.auth.updateUser>[0]);
+
+    if (error) {
+      setStatus('error');
+      setFeedbackMessage(error.message);
+      return;
+    }
+
+    setStatus('success');
+    setFeedbackMessage('Los cambios se guardaron correctamente.');
+    reset({ name: name.trim(), newPassword: '', confirmPassword: '' });
+  });
 
   return (
     <main className="min-h-screen bg-[#FAF9F7]">
@@ -151,11 +134,12 @@ export default function ProfileSettingsPage() {
 
         <div className="relative mx-auto max-w-[1440px] px-6 py-14 lg:px-12 lg:py-20">
           <div className="grid items-start gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+            {/* Left */}
             <div className="max-w-xl pt-4 lg:pt-10">
               <div className="inline-flex items-center gap-3 border border-[#DDD9D3] bg-white/70 px-5 py-2.5 backdrop-blur-sm">
                 <span className="size-1.5 rounded-full bg-[#2563EB]" />
                 <span className="text-[11px] font-black uppercase tracking-[0.28em] text-[#2563EB]">
-                  Configuracion de perfil
+                  Configuración de perfil
                 </span>
               </div>
 
@@ -167,10 +151,7 @@ export default function ProfileSettingsPage() {
                 <br />
                 <span
                   className="inline-block"
-                  style={{
-                    WebkitTextStroke: '1px rgba(28,28,28,0.22)',
-                    color: 'transparent',
-                  }}
+                  style={{ WebkitTextStroke: '1px rgba(28,28,28,0.22)', color: 'transparent' }}
                 >
                   identidad
                 </span>
@@ -179,19 +160,19 @@ export default function ProfileSettingsPage() {
               </h1>
 
               <p className="mt-6 text-base leading-relaxed text-[#5A5A5A] lg:text-lg">
-                Esta vista permite actualizar los datos base del perfil dentro del entorno mock de NovaStore. El objetivo es dejar lista la estructura para una integración real posterior.
+                Actualiza tu nombre o contraseña. Los cambios se aplican directamente en Supabase Auth.
               </p>
 
               <div className="mt-10 border border-[#DDD9D3] bg-white/85 p-6">
                 <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#8A8A8A]">
-                  Preview de avatar
+                  Avatar actual
                 </p>
                 <div className="mt-5 flex justify-center">
                   <div className="flex size-32 items-center justify-center overflow-hidden rounded-full border border-[#DDD9D3] bg-[#EFEDE9]">
                     {avatarPreview ? (
                       <img
                         src={avatarPreview}
-                        alt="Preview del avatar"
+                        alt="Avatar"
                         className="h-full w-full object-cover"
                       />
                     ) : (
@@ -202,6 +183,7 @@ export default function ProfileSettingsPage() {
               </div>
             </div>
 
+            {/* Right */}
             <div className="relative">
               <div className="absolute -inset-px bg-gradient-to-br from-[#DDD9D3]/70 via-transparent to-transparent pointer-events-none" />
               <div className="relative border border-[#DDD9D3] bg-white/90 p-6 shadow-[0_24px_80px_rgba(28,28,28,0.08)] backdrop-blur-xl sm:p-8 lg:p-10">
@@ -215,11 +197,11 @@ export default function ProfileSettingsPage() {
                     </h2>
                   </div>
                   <span className="inline-flex items-center border border-[#D8E4FF] bg-[#EFF6FF] px-3 py-2 text-[10px] font-black uppercase tracking-[0.22em] text-[#2563EB]">
-                    Mock activo
+                    Supabase Auth
                   </span>
                 </div>
 
-                {isLoadingProfile ? (
+                {loading ? (
                   <p className="mt-8 text-base leading-relaxed text-[#8A8A8A]">
                     Cargando configuración...
                   </p>
@@ -227,69 +209,42 @@ export default function ProfileSettingsPage() {
                   <form className="mt-8 space-y-5" onSubmit={onSubmit}>
                     <div className="grid gap-5">
                       <AuthField
-                        label="Name"
+                        label="Nombre"
                         type="text"
-                        placeholder="Ingresa tu nombre"
+                        placeholder="Tu nombre"
                         registration={register('name', {
-                          required: 'El nombre es obligatorio.',
-                          minLength: {
-                            value: 3,
-                            message: 'Ingresa un nombre mas completo.',
-                          },
+                          minLength: { value: 2, message: 'Mínimo 2 caracteres.' },
                         })}
                         error={errors.name}
                       />
 
+                      <div className="border border-[#E6E1DA] bg-[#F8F7F5] px-4 py-3 text-sm text-[#5A5A5A]">
+                        <span className="font-black text-[10px] uppercase tracking-widest text-[#8A8A8A] block mb-1">Email</span>
+                        {user?.email ?? '—'}
+                        <span className="block mt-1 text-[11px] text-[#8A8A8A]">El email no puede cambiarse aquí.</span>
+                      </div>
+
                       <AuthField
-                        label="Email"
-                        type="email"
-                        placeholder="correo@novastore.com"
-                        registration={register('email', {
-                          required: 'El email es obligatorio.',
-                          pattern: {
-                            value: /\S+@\S+\.\S+/,
-                            message: 'Ingresa un email valido.',
-                          },
+                        label="Nueva contraseña (opcional)"
+                        type="password"
+                        placeholder="Dejar en blanco para no cambiar"
+                        registration={register('newPassword', {
+                          minLength: { value: 6, message: 'Mínimo 6 caracteres.' },
                         })}
-                        error={errors.email}
+                        error={errors.newPassword}
                       />
 
-                      <AuthField
-                        label="Address"
-                        type="text"
-                        placeholder="Ingresa tu direccion"
-                        registration={register('address', {
-                          required: 'La direccion es obligatoria.',
-                          minLength: {
-                            value: 8,
-                            message: 'Ingresa una direccion mas completa.',
-                          },
-                        })}
-                        error={errors.address}
-                      />
-
-                      <AuthField
-                        label="Avatar"
-                        type="url"
-                        placeholder="https://ejemplo.com/avatar.png"
-                        registration={avatarRegistration}
-                        error={errors.avatar}
-                      />
-
-                      <label className="block">
-                        <span className="mb-2 block text-[11px] font-black uppercase tracking-[0.24em] text-[#5A5A5A]">
-                          Cargar nuevo avatar
-                        </span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleAvatarFileChange}
-                          className="w-full border border-[#DDD9D3] bg-[#FCFBF9] px-4 py-4 text-[13px] text-[#1C1C1C] outline-none transition file:mr-4 file:border-0 file:bg-[#1C1C1C] file:px-4 file:py-2 file:text-[11px] file:font-black file:uppercase file:tracking-[0.24em] file:text-white hover:file:bg-[#2563EB] focus:border-[#1C1C1C] focus:bg-white"
+                      {newPasswordValue && (
+                        <AuthField
+                          label="Confirmar nueva contraseña"
+                          type="password"
+                          placeholder="Repite la nueva contraseña"
+                          registration={register('confirmPassword', {
+                            validate: (v) => !newPasswordValue || v === newPasswordValue || 'Las contraseñas no coinciden.',
+                          })}
+                          error={errors.confirmPassword}
                         />
-                        <span className="mt-2 block text-sm leading-relaxed text-[#8A8A8A]">
-                          Puedes pegar una URL o cargar otra imagen desde tu equipo y cambiarla cuando quieras.
-                        </span>
-                      </label>
+                      )}
                     </div>
 
                     <div className="flex items-center justify-between gap-4 border-t border-[#E6E1DA] pt-6">
@@ -299,23 +254,16 @@ export default function ProfileSettingsPage() {
                       >
                         Volver al perfil
                       </Link>
-                      <button
-                        type="button"
-                        onClick={handleCancel}
-                        className="text-[11px] font-black uppercase tracking-[0.24em] text-[#1C1C1C] transition hover:text-[#2563EB]"
-                      >
-                        Cancelar
-                      </button>
                     </div>
 
-                    <AuthStatusMessage status={status} message={feedbackMessage} />
+                    <StatusMessage status={status} message={feedbackMessage} />
 
                     <button
                       type="submit"
                       disabled={status === 'loading'}
                       className="inline-flex h-14 w-full items-center justify-center bg-[#1C1C1C] px-6 text-[11px] font-black uppercase tracking-[0.28em] text-white transition hover:bg-[#2563EB] disabled:cursor-not-allowed disabled:bg-[#8A8A8A]"
                     >
-                      {status === 'loading' ? 'Guardando cambios...' : 'Guardar cambios'}
+                      {status === 'loading' ? 'Guardando...' : 'Guardar cambios'}
                     </button>
                   </form>
                 )}

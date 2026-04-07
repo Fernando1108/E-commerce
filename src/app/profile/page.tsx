@@ -1,36 +1,32 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { accountService } from '@/features/account/services/account.service';
-import type { UserProfile } from '@/features/account/types';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function ProfilePage() {
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { user, loading } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
-    const loadProfile = async () => {
-      setIsLoading(true);
-      setErrorMessage(null);
+    if (!loading && !user) {
+      router.push('/auth/login?redirect=/profile');
+    }
+  }, [loading, user, router]);
 
-      try {
-        const data = await accountService.getProfile();
-        setProfile(data);
-      } catch (error) {
-        setErrorMessage(
-          error instanceof Error ? error.message : 'No fue posible cargar el perfil.'
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const displayName =
+    user?.user_metadata?.name ??
+    user?.user_metadata?.full_name ??
+    user?.email?.split('@')[0] ??
+    'Usuario';
 
-    void loadProfile();
-  }, []);
+  const avatarUrl =
+    user?.user_metadata?.avatar_url ??
+    user?.user_metadata?.picture ??
+    null;
 
   return (
     <main className="min-h-screen bg-[#FAF9F7]">
@@ -56,26 +52,26 @@ export default function ProfilePage() {
               Mi perfil
             </h1>
 
-            {isLoading && (
+            {loading && (
               <p className="mt-8 text-center text-base leading-relaxed text-[#8A8A8A]">
                 Cargando perfil...
               </p>
             )}
 
-            {!isLoading && errorMessage && (
-              <div className="mt-8 border border-[#F1C8C2] bg-[#FFF7F5] px-5 py-4 text-center text-sm text-[#C33D2F]">
-                {errorMessage}
-              </div>
-            )}
-
-            {!isLoading && !errorMessage && profile && (
+            {!loading && user && (
               <div className="mt-10 flex flex-col items-center">
                 <div className="flex size-28 items-center justify-center overflow-hidden rounded-full border border-[#DDD9D3] bg-[#EFEDE9]">
-                  <img
-                    src={profile.avatar}
-                    alt={`Avatar de ${profile.name}`}
-                    className="h-full w-full object-cover"
-                  />
+                  {avatarUrl ? (
+                    <img
+                      src={avatarUrl}
+                      alt={`Avatar de ${displayName}`}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-3xl font-display font-900 text-[#8A8A8A]">
+                      {displayName.charAt(0).toUpperCase()}
+                    </span>
+                  )}
                 </div>
 
                 <div className="mt-8 w-full space-y-4">
@@ -83,21 +79,29 @@ export default function ProfilePage() {
                     <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[#8A8A8A]">
                       Nombre
                     </p>
-                    <p className="mt-2 text-xl font-display font-900 text-[#1C1C1C]">{profile.name}</p>
+                    <p className="mt-2 text-xl font-display font-900 text-[#1C1C1C]">{displayName}</p>
                   </div>
 
                   <div className="border border-[#E6E1DA] bg-[#FCFBF9] px-5 py-4 text-center">
                     <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[#8A8A8A]">
                       Email
                     </p>
-                    <p className="mt-2 text-base text-[#1C1C1C]">{profile.email}</p>
+                    <p className="mt-2 text-base text-[#1C1C1C]">{user.email}</p>
                   </div>
 
                   <div className="border border-[#E6E1DA] bg-[#FCFBF9] px-5 py-4 text-center">
                     <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[#8A8A8A]">
-                      Direccion
+                      Miembro desde
                     </p>
-                    <p className="mt-2 text-base text-[#1C1C1C]">{profile.address}</p>
+                    <p className="mt-2 text-base text-[#1C1C1C]">
+                      {user.created_at
+                        ? new Date(user.created_at).toLocaleDateString('es-ES', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                          })
+                        : '—'}
+                    </p>
                   </div>
                 </div>
 

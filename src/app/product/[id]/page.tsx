@@ -158,7 +158,7 @@ function ProductGallery({ images }: { images: { src: string; alt: string }[] }) 
 /* ─── Trust Signals ──────────────────────────────────────────── */
 function TrustSignals() {
   const signals = [
-    { icon: 'TruckIcon', title: 'Envío gratuito', desc: 'En pedidos superiores a €50' },
+    { icon: 'TruckIcon', title: 'Envío gratuito', desc: 'En pedidos superiores a $50' },
     { icon: 'ArrowPathIcon', title: 'Devolución 30 días', desc: 'Sin preguntas, sin complicaciones' },
     { icon: 'ShieldCheckIcon', title: 'Garantía 3 años', desc: 'Cobertura total NovaStore' },
     { icon: 'LockClosedIcon', title: 'Pago 100% seguro', desc: 'Encriptación SSL 256-bit' },

@@ -18,7 +18,7 @@ export default function Welcome({ name }: WelcomeProps) {
           </Text>
           <Section style={{ textAlign: 'center' as const, margin: '32px 0' }}>
             <Button
-              href="${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:4028'}/products"
+              href={`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:4028'}/products`}
               style={{ backgroundColor: '#6C63FF', color: '#ffffff', padding: '12px 32px', borderRadius: '8px', fontWeight: 'bold', textDecoration: 'none' }}
             >
               Ver productos

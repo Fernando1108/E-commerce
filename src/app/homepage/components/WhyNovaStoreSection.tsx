@@ -10,7 +10,7 @@ const advantages = [
     icon: 'TruckIcon' as const,
     label: 'Envíos Seguros',
     headline: 'Entrega garantizada',
-    description: 'Envío gratuito en pedidos superiores a €50. Seguimiento en tiempo real y entrega en 24–48h.',
+    description: 'Envío gratuito en pedidos superiores a $50. Seguimiento en tiempo real y entrega en 24–48h.',
     stat: '24h',
     statLabel: 'Entrega express',
   },

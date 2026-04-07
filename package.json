@@ -49,7 +49,6 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@dhiwise/component-tagger": "^1.0.15",
     "@heroicons/react": "^2.2.0",
     "@paypal/react-paypal-js": "^9.1.0",
     "@react-email/components": "^1.0.11",
@@ -62,7 +61,6 @@
     "react": "19.0.3",
     "react-dom": "19.0.3",
     "react-hook-form": "^7.72.1",
-    "recharts": "^2.15.2",
     "resend": "^6.10.0",
     "zustand": "^5.0.12"
   },
