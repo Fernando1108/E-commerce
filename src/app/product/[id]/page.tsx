@@ -1,169 +1,32 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { motion, AnimatePresence, useInView, useScroll, useMotionValueEvent } from 'framer-motion';
-import AppImage from '@/components/ui/AppImage';
+import { motion } from 'framer-motion';
 import Icon from '@/components/ui/AppIcon';
 import { getProductById, getProductImages, getProducts } from '@/lib/supabase/services';
-import { formatPrice } from '@/lib/utils';
 import { useCart } from '@/hooks/useCart';
-import type { Product, ProductImage } from '@/types';
+import { useAuth } from '@/hooks/useAuth';
+import type { Product } from '@/types';
+import ProductGallery from './components/ProductGallery';
+import ProductInfo from './components/ProductInfo';
+import ProductVariants from './components/ProductVariants';
+import ProductActions from './components/ProductActions';
+import ProductTabs from './components/ProductTabs';
+import RelatedProducts from './components/RelatedProducts';
 
-/* ─── Star Rating ────────────────────────────────────────────── */
-function StarRating({ rating, size = 14 }: { rating: number; size?: number }) {
-  return (
-    <div className="flex items-center gap-0.5">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <svg
-          key={i}
-          width={size}
-          height={size}
-          viewBox="0 0 20 20"
-          fill={i < rating ? '#C8922A' : 'none'}
-          stroke={i < rating ? '#C8922A' : '#DDD9D3'}
-          strokeWidth="1.5"
-        >
-          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-        </svg>
-      ))}
-    </div>
-  );
-}
-
-/* ─── Premium Gallery ────────────────────────────────────────── */
-function ProductGallery({ images }: { images: { src: string; alt: string }[] }) {
-  const [active, setActive] = useState(0);
-  const [zoomed, setZoomed] = useState(false);
-  const [direction, setDirection] = useState(0);
-
-  const navigate = (dir: number) => {
-    setDirection(dir);
-    setActive((a) => (a + dir + images.length) % images.length);
-  };
-
-  if (images.length === 0) {
-    return (
-      <div className="bg-[#F4F2EF] flex items-center justify-center" style={{ aspectRatio: '4 / 5' }}>
-        <Icon name="PhotoIcon" size={48} variant="outline" className="text-[#8A8A8A]" />
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col gap-5">
-      {/* Main image */}
-      <div
-        className="relative overflow-hidden bg-[#F4F2EF] cursor-zoom-in group"
-        style={{ aspectRatio: '4 / 5' }}
-        onClick={() => setZoomed(!zoomed)}
-      >
-        <AnimatePresence mode="wait" custom={direction}>
-          <motion.div
-            key={active}
-            custom={direction}
-            initial={{ opacity: 0, x: direction * 40, scale: 1.03 }}
-            animate={{ opacity: 1, x: 0, scale: zoomed ? 1.3 : 1 }}
-            exit={{ opacity: 0, x: direction * -30, scale: 0.98 }}
-            transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute inset-0"
-          >
-            <AppImage
-              src={images[active].src}
-              alt={images[active].alt}
-              fill
-              className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 55vw"
-            />
-          </motion.div>
-        </AnimatePresence>
-
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="absolute bottom-5 right-5 flex items-center gap-1.5 bg-white/85 backdrop-blur-md px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-[#6B6B6B]"
-        >
-          <Icon name="MagnifyingGlassPlusIcon" size={11} variant="outline" />
-          {zoomed ? 'Reducir' : 'Ampliar'}
-        </motion.div>
-
-        <div className="absolute top-5 left-5 bg-black/40 backdrop-blur-sm px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-white">
-          {active + 1} / {images.length}
-        </div>
-
-        {images.length > 1 && (
-          <>
-            <button
-              onClick={(e) => { e.stopPropagation(); navigate(-1); }}
-              className="absolute left-4 top-1/2 -translate-y-1/2 size-11 bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-white hover:shadow-nova-md transition-all duration-200 opacity-0 group-hover:opacity-100"
-              aria-label="Imagen anterior"
-            >
-              <Icon name="ChevronLeftIcon" size={18} variant="outline" />
-            </button>
-            <button
-              onClick={(e) => { e.stopPropagation(); navigate(1); }}
-              className="absolute right-4 top-1/2 -translate-y-1/2 size-11 bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-white hover:shadow-nova-md transition-all duration-200 opacity-0 group-hover:opacity-100"
-              aria-label="Imagen siguiente"
-            >
-              <Icon name="ChevronRightIcon" size={18} variant="outline" />
-            </button>
-          </>
-        )}
-
-        {/* Dot indicators */}
-        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2">
-          {images.map((_, i) => (
-            <button
-              key={i}
-              onClick={(e) => { e.stopPropagation(); setDirection(i > active ? 1 : -1); setActive(i); }}
-              className={`transition-all duration-400 ${active === i ? 'w-6 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/50 hover:bg-white/80'}`}
-              aria-label={`Ir a imagen ${i + 1}`}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Thumbnails row */}
-      {images.length > 1 && (
-        <div className="grid grid-cols-4 gap-2.5">
-          {images.map((img, i) => (
-            <motion.button
-              key={i}
-              onClick={() => { setDirection(i > active ? 1 : -1); setActive(i); }}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              className={`relative overflow-hidden border-2 transition-all duration-300 ${
-                active === i
-                  ? 'border-[#1C1C1C] shadow-nova-sm'
-                  : 'border-[#DDD9D3] hover:border-[#8A8A8A]'
-              }`}
-              style={{ aspectRatio: '1/1' }}
-            >
-              <AppImage src={img.src} alt={img.alt} fill className="object-cover" sizes="120px" />
-              {active !== i && (
-                <div className="absolute inset-0 bg-white/30 hover:bg-transparent transition-colors duration-200" />
-              )}
-            </motion.button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ─── Trust Signals ──────────────────────────────────────────── */
 function TrustSignals() {
   const signals = [
     { icon: 'TruckIcon', title: 'Envío gratuito', desc: 'En pedidos superiores a $50' },
-    { icon: 'ArrowPathIcon', title: 'Devolución 30 días', desc: 'Sin preguntas, sin complicaciones' },
+    {
+      icon: 'ArrowPathIcon',
+      title: 'Devolución 30 días',
+      desc: 'Sin preguntas, sin complicaciones',
+    },
     { icon: 'ShieldCheckIcon', title: 'Garantía 3 años', desc: 'Cobertura total NovaStore' },
     { icon: 'LockClosedIcon', title: 'Pago 100% seguro', desc: 'Encriptación SSL 256-bit' },
   ];
-
   return (
     <div className="grid grid-cols-2 gap-2.5 mt-2">
       {signals.map((s, i) => (
@@ -171,7 +34,7 @@ function TrustSignals() {
           key={i}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 + i * 0.07, duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ delay: 0.7 + i * 0.07, duration: 0.45 }}
           className="group flex items-start gap-3 p-4 bg-[#F8F7F5] border border-[#DDD9D3] hover:border-[#1C1C1C] hover:bg-white transition-all duration-300"
         >
           <div className="size-8 bg-[#EFF6FF] flex items-center justify-center shrink-0 group-hover:bg-[#2563EB] transition-colors duration-300">
@@ -183,7 +46,9 @@ function TrustSignals() {
             />
           </div>
           <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-[#1C1C1C] leading-tight">{s.title}</p>
+            <p className="text-[10px] font-black uppercase tracking-widest text-[#1C1C1C] leading-tight">
+              {s.title}
+            </p>
             <p className="text-[10px] text-[#6B6B6B] mt-0.5 leading-snug">{s.desc}</p>
           </div>
         </motion.div>
@@ -192,126 +57,27 @@ function TrustSignals() {
   );
 }
 
-/* ─── Related Product Card ───────────────────────────────────── */
-function RelatedProductCard({ product, index }: { product: Product; index: number }) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: '-40px' });
-  const rating = Math.round(product.avg_rating ?? 0);
-  const reviewCount = product.review_count ?? 0;
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 32 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.65, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
-      className="group relative bg-white border border-[#E8E5E0] overflow-hidden hover:border-[#0F0F0F] hover:shadow-nova-xl transition-all duration-500"
-    >
-      <Link href={`/product/${product.id}`} className="block">
-        <div className="relative overflow-hidden bg-[#F4F2EF]" style={{ aspectRatio: '4/5' }}>
-          <AppImage
-            src={product.image_url || '/assets/images/no_image.png'}
-            alt={product.name}
-            fill
-            className="object-cover transition-transform duration-700 group-hover:scale-[1.07]"
-            sizes="(max-width: 640px) 50vw, 25vw"
-          />
-          {product.badge && (
-            <div className="absolute top-3 left-3 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest bg-[#2563EB] text-white z-10">
-              {product.badge}
-            </div>
-          )}
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/12 transition-colors duration-400" />
-          <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] z-10">
-            <button className="w-full py-3 bg-[#1C1C1C] text-white text-[9px] font-black uppercase tracking-widest hover:bg-[#2563EB] transition-colors flex items-center justify-center gap-1.5">
-              <Icon name="ShoppingBagIcon" size={12} variant="outline" />
-              Añadir al carrito
-            </button>
-          </div>
-          <div className="absolute top-3 right-3 z-10">
-            <span className="font-display font-900 italic text-white/10 group-hover:text-white/20 transition-colors duration-500 text-3xl leading-none">
-              0{index + 1}
-            </span>
-          </div>
-        </div>
-        <div className="p-5 space-y-2.5">
-          <div className="flex items-center gap-1.5">
-            <StarRating rating={rating} size={11} />
-            <span className="text-[10px] text-[#8A8A8A]">({reviewCount})</span>
-          </div>
-          <h3 className="font-700 text-[#1C1C1C] text-[14px] leading-tight group-hover:text-[#2563EB] transition-colors duration-300 line-clamp-2">
-            {product.name}
-          </h3>
-          <div className="flex items-center gap-2 pt-1 border-t border-[#EFEDE9]">
-            <span className="text-xl font-900 text-[#1C1C1C] font-display tracking-tightest">
-              {formatPrice(product.price)}
-            </span>
-            {product.original_price && (
-              <span className="text-[12px] text-[#8A8A8A] line-through">
-                {formatPrice(product.original_price)}
-              </span>
-            )}
-          </div>
-        </div>
-      </Link>
-      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2563EB] scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
-    </motion.div>
-  );
-}
-
-/* ─── Loading Skeleton ───────────────────────────────────────── */
-function ProductDetailSkeleton() {
-  return (
-    <div className="min-h-screen bg-[#F8F7F5] pt-[88px]">
-      <div className="max-w-[1440px] mx-auto px-6 lg:px-12 py-12 lg:py-20">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_460px] gap-12 lg:gap-20 animate-pulse">
-          <div className="bg-[#EFEDE9] aspect-[4/5]" />
-          <div className="space-y-6">
-            <div className="h-4 bg-[#EFEDE9] rounded w-24" />
-            <div className="h-10 bg-[#EFEDE9] rounded w-3/4" />
-            <div className="h-4 bg-[#EFEDE9] rounded w-1/2" />
-            <div className="h-12 bg-[#EFEDE9] rounded w-40" />
-            <div className="h-14 bg-[#EFEDE9] rounded w-full" />
-            <div className="h-14 bg-[#EFEDE9] rounded w-full" />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ─── Main Page ──────────────────────────────────────────────── */
 export default function ProductDetailPage() {
   const params = useParams();
   const productId = params.id as string;
+  const { user } = useAuth();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [galleryImages, setGalleryImages] = useState<{ src: string; alt: string }[]>([]);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
-  const [activeTab, setActiveTab] = useState<'descripcion' | 'especificaciones' | 'resenas'>('descripcion');
   const [isWishlisted, setIsWishlisted] = useState(false);
-
-  const { scrollY } = useScroll();
-  const [scrolled, setScrolled] = useState(false);
-  useMotionValueEvent(scrollY, 'change', (v) => setScrolled(v > 80));
 
   const { addItem } = useCart();
 
   useEffect(() => {
     if (!productId) return;
     setLoading(true);
-    setNotFound(false);
-
-    Promise.all([
-      getProductById(productId),
-      getProductImages(productId),
-    ])
+    Promise.all([getProductById(productId), getProductImages(productId)])
       .then(([prod, images]) => {
         if (!prod) {
           setNotFound(true);
@@ -319,24 +85,18 @@ export default function ProductDetailPage() {
           return;
         }
         setProduct(prod);
-
-        // Build gallery: main image + additional images
-        const gallery: { src: string; alt: string }[] = [];
-        if (prod.image_url) {
-          gallery.push({ src: prod.image_url, alt: prod.name });
-        }
-        images.forEach((img) => {
-          gallery.push({ src: img.url, alt: img.alt || prod.name });
-        });
-        setGalleryImages(gallery.length > 0 ? gallery : [{ src: '/assets/images/no_image.png', alt: prod.name }]);
-
-        // Fetch related products
+        const gallery: { src: string; alt: string }[] = prod.image_url
+          ? [{ src: prod.image_url, alt: prod.name }]
+          : [];
+        images.forEach((img) => gallery.push({ src: img.url, alt: img.alt || prod.name }));
+        setGalleryImages(
+          gallery.length > 0 ? gallery : [{ src: '/assets/images/no_image.png', alt: prod.name }]
+        );
         getProducts({ categoryId: prod.category_id, limit: 4 })
-          .then((related) => {
-            setRelatedProducts(related.filter((r) => r.id !== prod.id).slice(0, 4));
-          })
+          .then((related) =>
+            setRelatedProducts(related.filter((r) => r.id !== prod.id).slice(0, 4))
+          )
           .catch(() => {});
-
         setLoading(false);
       })
       .catch(() => {
@@ -352,19 +112,54 @@ export default function ProductDetailPage() {
     setTimeout(() => setAddedToCart(false), 2400);
   };
 
-  if (loading) return <ProductDetailSkeleton />;
+  // Wishlist: persist to localStorage
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem('novastore-wishlist') || '[]') as string[];
+    setIsWishlisted(saved.includes(productId));
+  }, [productId]);
 
-  if (notFound || !product) {
+  const handleToggleWishlist = () => {
+    const saved = JSON.parse(localStorage.getItem('novastore-wishlist') || '[]') as string[];
+    const updated = isWishlisted ? saved.filter((id) => id !== productId) : [...saved, productId];
+    localStorage.setItem('novastore-wishlist', JSON.stringify(updated));
+    setIsWishlisted(!isWishlisted);
+  };
+
+  if (loading)
+    return (
+      <div className="min-h-screen bg-[#F8F7F5] pt-[88px]">
+        <div className="max-w-[1440px] mx-auto px-6 lg:px-12 py-12 lg:py-20">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_460px] gap-12 lg:gap-20 animate-pulse">
+            <div className="bg-[#EFEDE9] aspect-[4/5]" />
+            <div className="space-y-6">
+              <div className="h-4 bg-[#EFEDE9] rounded w-24" />
+              <div className="h-10 bg-[#EFEDE9] rounded w-3/4" />
+              <div className="h-12 bg-[#EFEDE9] rounded w-40" />
+              <div className="h-14 bg-[#EFEDE9] rounded w-full" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+
+  if (notFound || !product)
     return (
       <div className="min-h-screen bg-[#F8F7F5] pt-[88px] flex flex-col items-center justify-center">
         <div className="text-center space-y-6">
           <div className="size-20 bg-[#EFEDE9] rounded-full flex items-center justify-center mx-auto">
-            <Icon name="ExclamationTriangleIcon" size={36} variant="outline" className="text-[#8A8A8A]" />
+            <Icon
+              name="ExclamationTriangleIcon"
+              size={36}
+              variant="outline"
+              className="text-[#8A8A8A]"
+            />
           </div>
           <h1 className="font-display font-900 italic text-3xl text-[#1C1C1C] tracking-editorial">
             Producto no encontrado
           </h1>
-          <p className="text-[#5A5A5A] text-sm">El producto que buscas no existe o ha sido eliminado.</p>
+          <p className="text-[#5A5A5A] text-sm">
+            El producto que buscas no existe o ha sido eliminado.
+          </p>
           <Link
             href="/products"
             className="inline-flex items-center gap-2 px-8 py-4 bg-[#1C1C1C] text-white text-[10px] font-black uppercase tracking-widest hover:bg-[#2563EB] transition-colors"
@@ -375,35 +170,37 @@ export default function ProductDetailPage() {
         </div>
       </div>
     );
-  }
 
   const rating = Math.round(product.avg_rating ?? 0);
   const reviewCount = product.review_count ?? 0;
   const discount = product.original_price
     ? `-${Math.round(((product.original_price - product.price) / product.original_price) * 100)}%`
     : null;
-  const specsEntries = Object.entries(product.specs || {});
-  const highlights = product.highlights || [];
 
   return (
     <div className="min-h-screen bg-[#F8F7F5]">
-
-      {/* ── Breadcrumb ── */}
+      {/* Breadcrumb */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.5 }}
         className="pt-[88px] pb-5 bg-white border-b border-[#DDD9D3]"
       >
         <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
           <nav className="flex items-center gap-2 text-[10px] font-700 text-[#8A8A8A] uppercase tracking-widest">
-            <Link href="/homepage" className="hover:text-[#1C1C1C] transition-colors">Inicio</Link>
+            <Link href="/homepage" className="hover:text-[#1C1C1C] transition-colors">
+              Inicio
+            </Link>
             <Icon name="ChevronRightIcon" size={9} variant="outline" />
-            <Link href="/products" className="hover:text-[#1C1C1C] transition-colors">Tienda</Link>
+            <Link href="/products" className="hover:text-[#1C1C1C] transition-colors">
+              Tienda
+            </Link>
             <Icon name="ChevronRightIcon" size={9} variant="outline" />
             {product.category?.name && (
               <>
-                <Link href="/products" className="hover:text-[#1C1C1C] transition-colors">{product.category.name}</Link>
+                <Link href="/products" className="hover:text-[#1C1C1C] transition-colors">
+                  {product.category.name}
+                </Link>
                 <Icon name="ChevronRightIcon" size={9} variant="outline" />
               </>
             )}
@@ -412,12 +209,10 @@ export default function ProductDetailPage() {
         </div>
       </motion.div>
 
-      {/* ── Main Product Section ── */}
+      {/* Main Product Section */}
       <section className="py-12 lg:py-20">
         <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_460px] xl:grid-cols-[1fr_500px] gap-12 lg:gap-20 items-start">
-
-            {/* Left: Gallery */}
             <motion.div
               initial={{ opacity: 0, x: -28 }}
               animate={{ opacity: 1, x: 0 }}
@@ -425,219 +220,33 @@ export default function ProductDetailPage() {
             >
               <ProductGallery images={galleryImages} />
             </motion.div>
-
-            {/* Right: Purchase Panel (sticky) */}
             <motion.div
               initial={{ opacity: 0, x: 28 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.75, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
               className="lg:sticky lg:top-[96px] space-y-7"
             >
-              {/* Badge + Stock row */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  {product.badge && (
-                    <span className="px-3 py-1.5 bg-[#0F0F0F] text-white text-[9px] font-black uppercase tracking-widest">
-                      {product.badge}
-                    </span>
-                  )}
-                  {product.stock > 0 && (
-                    <span className="flex items-center gap-1.5 text-[10px] text-[#22C55E] font-black uppercase tracking-widest">
-                      <span className="relative flex size-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22C55E] opacity-60" />
-                        <span className="relative inline-flex rounded-full size-2 bg-[#22C55E]" />
-                      </span>
-                      En stock
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* Title block */}
-              <div className="space-y-3 pb-6 border-b border-[#E8E5E0]">
-                <h1
-                  className="font-display font-900 italic text-[#0F0F0F] uppercase leading-[0.88] tracking-[-0.04em]"
-                  style={{ fontSize: 'clamp(2rem, 3.8vw, 3.2rem)' }}
-                >
-                  {product.name}
-                </h1>
-                {product.description && (
-                  <p className="text-[#5A5A5A] text-[15px] leading-relaxed max-w-sm">{product.description}</p>
-                )}
-
-                {/* Rating row */}
-                <div className="flex items-center gap-4 pt-1">
-                  <div className="flex items-center gap-2">
-                    <StarRating rating={rating} size={15} />
-                    <span className="text-[13px] font-700 text-[#1C1C1C]">{product.avg_rating?.toFixed(1) || '0.0'}</span>
-                  </div>
-                  <button className="text-[11px] text-[#2563EB] hover:underline font-600">
-                    {reviewCount} valoraciones
-                  </button>
-                  <span className="text-[11px] text-[#8A8A8A]">·</span>
-                  <span className="text-[11px] text-[#5A5A5A] font-500">{product.stock} unidades restantes</span>
-                </div>
-              </div>
-
-              {/* Price block */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.96 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.35, duration: 0.5 }}
-                className="flex items-baseline gap-4"
-              >
-                <span
-                  className="font-display font-900 italic text-[#0F0F0F] tracking-tightest"
-                  style={{ fontSize: 'clamp(2.4rem, 4.5vw, 3.4rem)' }}
-                >
-                  {formatPrice(product.price)}
-                </span>
-                {product.original_price && (
-                  <span className="text-xl text-[#8A8A8A] line-through font-400">
-                    {formatPrice(product.original_price)}
-                  </span>
-                )}
-                {discount && (
-                  <span className="px-2.5 py-1 bg-[#EFF6FF] text-[#2563EB] text-[10px] font-black uppercase tracking-widest">
-                    {discount}
-                  </span>
-                )}
-              </motion.div>
-
-              {/* Variants */}
-              {product.variants && product.variants.length > 0 && (
-                <div className="space-y-3.5">
-                  <div className="flex items-center justify-between">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-[#0F0F0F]">Variante</p>
-                    <p className="text-[12px] text-[#5A5A5A] font-500">
-                      {product.variants.find((v) => v.id === selectedVariant)?.name || 'Seleccionar'}
-                    </p>
-                  </div>
-                  <div className="flex gap-2 flex-wrap">
-                    {product.variants.map((variant) => (
-                      <motion.button
-                        key={variant.id}
-                        onClick={() => variant.stock > 0 && setSelectedVariant(variant.id)}
-                        disabled={variant.stock <= 0}
-                        whileHover={variant.stock > 0 ? { scale: 1.02 } : {}}
-                        whileTap={variant.stock > 0 ? { scale: 0.97 } : {}}
-                        className={`px-4 py-2.5 text-[10px] font-black uppercase tracking-widest border-2 transition-all duration-200 ${
-                          variant.stock <= 0
-                            ? 'border-[#DDD9D3] text-[#C4C4C4] cursor-not-allowed line-through'
-                            : selectedVariant === variant.id
-                            ? 'border-[#1C1C1C] bg-[#1C1C1C] text-white shadow-nova-sm'
-                            : 'border-[#DDD9D3] text-[#5A5A5A] hover:border-[#1C1C1C] hover:text-[#1C1C1C]'
-                        }`}
-                      >
-                        {variant.name}
-                      </motion.button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Quantity + CTA block */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-[#0F0F0F]">Cantidad</p>
-                  <p className="text-[11px] text-[#8A8A8A]">Máx. {product.stock} unidades</p>
-                </div>
-
-                <div className="flex gap-3">
-                  {/* Qty selector */}
-                  <div className="flex items-center border-2 border-[#E8E5E0] hover:border-[#0F0F0F] transition-colors duration-200">
-                    <button
-                      onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                      className="size-12 flex items-center justify-center text-[#5A5A5A] hover:text-[#1C1C1C] hover:bg-[#EFEDE9] transition-colors"
-                      aria-label="Reducir cantidad"
-                    >
-                      <Icon name="MinusIcon" size={14} variant="outline" />
-                    </button>
-                    <span className="w-10 text-center text-[15px] font-700 text-[#0F0F0F]">{quantity}</span>
-                    <button
-                      onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
-                      className="size-12 flex items-center justify-center text-[#5A5A5A] hover:text-[#1C1C1C] hover:bg-[#EFEDE9] transition-colors"
-                      aria-label="Aumentar cantidad"
-                    >
-                      <Icon name="PlusIcon" size={14} variant="outline" />
-                    </button>
-                  </div>
-
-                  {/* Add to cart */}
-                  <motion.button
-                    onClick={handleAddToCart}
-                    whileTap={{ scale: 0.97 }}
-                    className={`flex-1 py-3.5 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2.5 transition-all duration-400 ${
-                      addedToCart
-                        ? 'bg-[#22C55E] text-white'
-                        : 'bg-[#1C1C1C] text-white hover:bg-[#2563EB]'
-                    }`}
-                  >
-                    <AnimatePresence mode="wait">
-                      {addedToCart ? (
-                        <motion.span
-                          key="added"
-                          initial={{ opacity: 0, y: 8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -8 }}
-                          className="flex items-center gap-2"
-                        >
-                          <Icon name="CheckIcon" size={15} variant="outline" />
-                          ¡Añadido al carrito!
-                        </motion.span>
-                      ) : (
-                        <motion.span
-                          key="add"
-                          initial={{ opacity: 0, y: 8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -8 }}
-                          className="flex items-center gap-2"
-                        >
-                          <Icon name="ShoppingBagIcon" size={15} variant="outline" />
-                          Añadir al carrito
-                        </motion.span>
-                      )}
-                    </AnimatePresence>
-                  </motion.button>
-                </div>
-
-                {/* Buy now */}
-                <motion.button
-                  whileHover={{ scale: 1.005 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full py-4 border-2 border-[#1C1C1C] text-[#1C1C1C] text-[10px] font-black uppercase tracking-widest hover:bg-[#1C1C1C] hover:text-white transition-all duration-300 flex items-center justify-center gap-2.5"
-                >
-                  <Icon name="BoltIcon" size={14} variant="outline" />
-                  Comprar ahora — Entrega en 24h
-                </motion.button>
-              </div>
-
-              {/* Wishlist + Share row */}
-              <div className="flex items-center gap-4 pt-1">
-                <motion.button
-                  onClick={() => setIsWishlisted(!isWishlisted)}
-                  whileTap={{ scale: 0.9 }}
-                  className="flex items-center gap-1.5 text-[10px] font-700 uppercase tracking-widest text-[#5A5A5A] hover:text-[#1C1C1C] transition-colors"
-                >
-                  <Icon
-                    name="HeartIcon"
-                    size={14}
-                    variant={isWishlisted ? 'solid' : 'outline'}
-                    className={isWishlisted ? 'text-red-500' : ''}
-                  />
-                  {isWishlisted ? 'Guardado' : 'Guardar'}
-                </motion.button>
-                <span className="text-[#DDD9D3]">|</span>
-                <button className="flex items-center gap-1.5 text-[10px] font-700 uppercase tracking-widest text-[#5A5A5A] hover:text-[#1C1C1C] transition-colors">
-                  <Icon name="ShareIcon" size={14} variant="outline" />
-                  Compartir
-                </button>
-              </div>
-
-              {/* Trust Signals */}
+              <ProductInfo
+                product={product}
+                rating={rating}
+                reviewCount={reviewCount}
+                discount={discount}
+              />
+              <ProductVariants
+                variants={product.variants || []}
+                selectedVariant={selectedVariant}
+                onSelect={setSelectedVariant}
+              />
+              <ProductActions
+                stock={product.stock}
+                quantity={quantity}
+                addedToCart={addedToCart}
+                isWishlisted={isWishlisted}
+                onQuantityChange={setQuantity}
+                onAddToCart={handleAddToCart}
+                onToggleWishlist={handleToggleWishlist}
+              />
               <TrustSignals />
-
-              {/* Urgency strip */}
               {product.stock <= 10 && product.stock > 0 && (
                 <motion.div
                   initial={{ opacity: 0 }}
@@ -645,23 +254,29 @@ export default function ProductDetailPage() {
                   transition={{ delay: 1.0 }}
                   className="flex items-center gap-3 p-4 bg-[#FFF7ED] border border-[#FED7AA]"
                 >
-                  <Icon name="FireIcon" size={17} variant="solid" className="text-[#EA580C] shrink-0" />
+                  <Icon
+                    name="FireIcon"
+                    size={17}
+                    variant="solid"
+                    className="text-[#EA580C] shrink-0"
+                  />
                   <p className="text-[11px] text-[#9A3412] font-600 leading-snug">
-                    <span className="font-black">¡Solo quedan {product.stock} unidades!</span> — Alta demanda en las últimas 24h.
+                    <span className="font-black">¡Solo quedan {product.stock} unidades!</span> —
+                    Alta demanda en las últimas 24h.
                   </p>
                 </motion.div>
               )}
-
-              {/* Payment methods */}
               <div className="pt-1 border-t border-[#DDD9D3]">
-                <p className="text-[9px] font-black uppercase tracking-widest text-[#8A8A8A] mb-3">Métodos de pago aceptados</p>
+                <p className="text-[9px] font-black uppercase tracking-widest text-[#8A8A8A] mb-3">
+                  Métodos de pago aceptados
+                </p>
                 <div className="flex items-center gap-2 flex-wrap">
-                  {['Visa', 'Mastercard', 'PayPal', 'Bizum', 'Apple Pay'].map((method) => (
+                  {['Visa', 'Mastercard', 'PayPal', 'Bizum', 'Apple Pay'].map((m) => (
                     <span
-                      key={method}
+                      key={m}
                       className="px-2.5 py-1.5 border border-[#DDD9D3] text-[9px] font-black uppercase tracking-widest text-[#5A5A5A] bg-white"
                     >
-                      {method}
+                      {m}
                     </span>
                   ))}
                 </div>
@@ -671,187 +286,14 @@ export default function ProductDetailPage() {
         </div>
       </section>
 
-      {/* ── Tabs: Description / Specs / Reviews ── */}
-      <section className="py-16 lg:py-24 bg-white border-t border-[#DDD9D3]">
-        <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
-          {/* Tab bar */}
-          <div className="flex gap-0 border-b border-[#DDD9D3] mb-12 overflow-x-auto">
-            {(['descripcion', ...(specsEntries.length > 0 ? ['especificaciones'] as const : []), 'resenas'] as const).map((tab) => {
-              const labels: Record<string, string> = {
-                descripcion: 'Descripción',
-                especificaciones: 'Especificaciones',
-                resenas: `Valoraciones (${reviewCount})`,
-              };
-              return (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab as typeof activeTab)}
-                  className={`relative px-7 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-colors duration-200 ${
-                    activeTab === tab ? 'text-[#1C1C1C]' : 'text-[#8A8A8A] hover:text-[#5A5A5A]'
-                  }`}
-                >
-                  {labels[tab]}
-                  {activeTab === tab && (
-                    <motion.div
-                      layoutId="tab-indicator"
-                      className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#1C1C1C]"
-                    />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-
-          <AnimatePresence mode="wait">
-            {activeTab === 'descripcion' && (
-              <motion.div
-                key="desc"
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-                className="grid grid-cols-1 lg:grid-cols-2 gap-14"
-              >
-                <div>
-                  <p className="label-eyebrow text-[#8A8A8A] mb-5">Descripción del producto</p>
-                  <p className="text-[#5A5A5A] text-[15px] leading-[1.75] mb-8">{product.description}</p>
-                  {galleryImages.length > 1 && (
-                    <div className="relative overflow-hidden" style={{ aspectRatio: '16/9' }}>
-                      <AppImage
-                        src={galleryImages[1].src}
-                        alt={galleryImages[1].alt}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 1024px) 100vw, 50vw"
-                      />
-                    </div>
-                  )}
-                </div>
-                {highlights.length > 0 && (
-                  <div>
-                    <p className="label-eyebrow text-[#8A8A8A] mb-6">Características principales</p>
-                    <ul className="space-y-4">
-                      {highlights.map((h, i) => (
-                        <motion.li
-                          key={i}
-                          initial={{ opacity: 0, x: -14 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: i * 0.07, duration: 0.4 }}
-                          className="flex items-start gap-3.5 pb-4 border-b border-[#EFEDE9] last:border-0"
-                        >
-                          <div className="size-5 bg-[#EFF6FF] flex items-center justify-center shrink-0 mt-0.5">
-                            <Icon name="CheckIcon" size={10} variant="outline" className="text-[#2563EB]" />
-                          </div>
-                          <span className="text-[14px] text-[#1C1C1C] font-500 leading-relaxed">{h}</span>
-                        </motion.li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </motion.div>
-            )}
-
-            {activeTab === 'especificaciones' && specsEntries.length > 0 && (
-              <motion.div
-                key="specs"
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-                className="max-w-2xl"
-              >
-                <p className="label-eyebrow text-[#8A8A8A] mb-6">Especificaciones técnicas</p>
-                <div className="divide-y divide-[#DDD9D3] border border-[#DDD9D3]">
-                  {specsEntries.map(([label, value], i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: i * 0.04 }}
-                      className={`flex items-start gap-4 px-6 py-4 ${i % 2 === 0 ? 'bg-white' : 'bg-[#F8F7F5]'}`}
-                    >
-                      <span className="text-[11px] font-black uppercase tracking-widest text-[#8A8A8A] w-44 shrink-0 pt-0.5">
-                        {label}
-                      </span>
-                      <span className="text-[14px] text-[#1C1C1C] font-500">{value}</span>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-
-            {activeTab === 'resenas' && (
-              <motion.div
-                key="reviews"
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-                className="text-center py-16"
-              >
-                <div className="space-y-5">
-                  <div className="p-8 bg-[#EFEDE9] border border-[#DDD9D3] inline-block">
-                    <p className="font-display font-900 italic text-[#1C1C1C] text-7xl tracking-tightest leading-none mb-3">
-                      {product.avg_rating?.toFixed(1) || '0.0'}
-                    </p>
-                    <StarRating rating={rating} size={20} />
-                    <p className="text-[11px] text-[#5A5A5A] mt-3">{reviewCount} valoraciones</p>
-                  </div>
-                  <p className="text-[#8A8A8A] text-sm">Las valoraciones estarán disponibles próximamente.</p>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </section>
-
-      {/* ── Related Products ── */}
-      {relatedProducts.length > 0 && (
-        <section className="py-20 lg:py-32 bg-[#EFEDE9]">
-          <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
-            <div className="flex items-end justify-between mb-14">
-              <div>
-                <p className="label-eyebrow text-[#8A8A8A] mb-4">Completa tu setup</p>
-                <h2
-                  className="font-display font-900 italic text-[#1C1C1C] uppercase leading-[0.88] tracking-[-0.04em]"
-                  style={{ fontSize: 'clamp(2rem, 3.8vw, 3.2rem)' }}
-                >
-                  Productos
-                  <br />
-                  <span className="text-[#2563EB]">Relacionados</span>
-                </h2>
-              </div>
-              <Link
-                href="/products"
-                className="hidden md:inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#5A5A5A] hover:text-[#1C1C1C] transition-colors group border-b border-transparent hover:border-[#1C1C1C] pb-0.5"
-              >
-                Ver catálogo completo
-                <Icon
-                  name="ArrowRightIcon"
-                  size={13}
-                  variant="outline"
-                  className="group-hover:translate-x-1 transition-transform"
-                />
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
-              {relatedProducts.map((p, i) => (
-                <RelatedProductCard key={p.id} product={p} index={i} />
-              ))}
-            </div>
-
-            <div className="mt-10 flex justify-center md:hidden">
-              <Link
-                href="/products"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-[#1C1C1C] text-white text-[10px] font-black uppercase tracking-widest hover:bg-[#2563EB] transition-colors"
-              >
-                Ver catálogo completo
-              </Link>
-            </div>
-          </div>
-        </section>
-      )}
+      <ProductTabs
+        product={product}
+        galleryImages={galleryImages}
+        rating={rating}
+        reviewCount={reviewCount}
+        user={user}
+      />
+      <RelatedProducts products={relatedProducts} />
     </div>
   );
 }

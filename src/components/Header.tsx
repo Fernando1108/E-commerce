@@ -7,6 +7,7 @@ import AppLogo from '@/components/ui/AppLogo';
 import Icon from '@/components/ui/AppIcon';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
+import SearchModal from '@/components/SearchModal';
 
 const navLinks = [
   { label: 'Tienda', href: '/products' },
@@ -18,8 +19,20 @@ const navLinks = [
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [wishlistCount, setWishlistCount] = useState(0);
   const { itemCount } = useCart();
   const { user, signOut } = useAuth();
+
+  useEffect(() => {
+    const update = () => {
+      const ids = JSON.parse(localStorage.getItem('novastore-wishlist') || '[]') as string[];
+      setWishlistCount(ids.length);
+    };
+    update();
+    window.addEventListener('storage', update);
+    return () => window.removeEventListener('storage', update);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40);
@@ -33,11 +46,14 @@ export default function Header() {
     } else {
       document.body.style.overflow = '';
     }
-    return () => { document.body.style.overflow = ''; };
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [mobileOpen]);
 
   return (
     <>
+      <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
@@ -70,6 +86,7 @@ export default function Header() {
             {/* Search */}
             <button
               aria-label="Buscar productos"
+              onClick={() => setSearchOpen(true)}
               className="hidden sm:flex size-9 items-center justify-center text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
             >
               <Icon name="MagnifyingGlassIcon" size={20} variant="outline" />
@@ -79,7 +96,7 @@ export default function Header() {
             {user ? (
               <div className="hidden sm:flex items-center gap-2">
                 <Link
-                  href="/account"
+                  href="/profile"
                   aria-label="Mi cuenta"
                   className="flex size-9 items-center justify-center text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
                 >
@@ -102,6 +119,20 @@ export default function Header() {
               </Link>
             )}
 
+            {/* Wishlist */}
+            <Link
+              aria-label="Lista de deseos"
+              href="/wishlist"
+              className="relative hidden sm:flex size-9 items-center justify-center text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
+            >
+              <Icon name="HeartIcon" size={20} variant="outline" />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 size-4 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center leading-none">
+                  {wishlistCount > 99 ? '99+' : wishlistCount}
+                </span>
+              )}
+            </Link>
+
             {/* Cart */}
             <Link
               aria-label="Ver carrito"
@@ -118,7 +149,7 @@ export default function Header() {
 
             {/* Support CTA */}
             <Link
-              href="/homepage"
+              href="/contacto"
               className="hidden md:inline-flex items-center gap-2 px-5 py-2.5 border border-[#DDD9D3] text-[#1C1C1C] text-[10px] font-bold uppercase tracking-widest hover:bg-[#1C1C1C] hover:text-white hover:border-[#1C1C1C] transition-all duration-300 ml-2"
             >
               Soporte
@@ -147,9 +178,15 @@ export default function Header() {
           >
             {/* Mobile header */}
             <div className="flex items-center justify-between px-6 h-[72px] border-b border-[#DDD9D3]">
-              <Link href="/homepage" className="flex items-center gap-2.5" onClick={() => setMobileOpen(false)}>
+              <Link
+                href="/homepage"
+                className="flex items-center gap-2.5"
+                onClick={() => setMobileOpen(false)}
+              >
                 <AppLogo size={32} />
-                <span className="font-display font-800 text-xl tracking-tightest text-[#1C1C1C]">NovaStore</span>
+                <span className="font-display font-800 text-xl tracking-tightest text-[#1C1C1C]">
+                  NovaStore
+                </span>
               </Link>
               <button
                 aria-label="Cerrar menú"
@@ -186,7 +223,7 @@ export default function Header() {
                 {user ? (
                   <div className="flex items-center gap-3">
                     <Link
-                      href="/account"
+                      href="/profile"
                       onClick={() => setMobileOpen(false)}
                       className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
                     >
@@ -194,7 +231,10 @@ export default function Header() {
                       Mi Cuenta
                     </Link>
                     <button
-                      onClick={() => { signOut(); setMobileOpen(false); }}
+                      onClick={() => {
+                        signOut();
+                        setMobileOpen(false);
+                      }}
                       className="text-[11px] font-bold uppercase tracking-widest text-[#8A8A8A] hover:text-red-500 transition-colors"
                     >
                       Cerrar sesión

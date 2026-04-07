@@ -6,49 +6,10 @@ import { useForm } from 'react-hook-form';
 import { createClient } from '@/lib/supabase/client';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-
-/* ─── Inline UI primitives ──────────────────────────────────────── */
-type AuthFieldProps = {
-  label: string;
-  type: string;
-  placeholder: string;
-  registration: ReturnType<ReturnType<typeof useForm>['register']>;
-  error?: { message?: string };
-  className?: string;
-};
-
-function AuthField({ label, type, placeholder, registration, error, className }: AuthFieldProps) {
-  return (
-    <label className={className ?? 'block'}>
-      <span className="mb-2 block text-[11px] font-black uppercase tracking-[0.24em] text-[#5A5A5A]">
-        {label}
-      </span>
-      <input
-        type={type}
-        placeholder={placeholder}
-        {...registration}
-        className={`h-14 w-full border px-4 text-[15px] text-[#1C1C1C] outline-none transition ${
-          error
-            ? 'border-[#C33D2F] bg-[#FFF7F5] focus:border-[#C33D2F]'
-            : 'border-[#DDD9D3] bg-[#FCFBF9] focus:border-[#1C1C1C] focus:bg-white'
-        }`}
-      />
-      {error?.message && <span className="mt-2 block text-sm text-[#C33D2F]">{error.message}</span>}
-    </label>
-  );
-}
+import AuthField from '@/components/ui/AuthField';
+import StatusMessage from '@/components/ui/StatusMessage';
 
 type StatusState = 'idle' | 'loading' | 'success' | 'error';
-
-function StatusMessage({ status, message }: { status: StatusState; message: string | null }) {
-  if (!message || status === 'idle') return null;
-  const cls =
-    status === 'success'
-      ? 'border-[#D8E4FF] bg-[#EFF6FF] text-[#2563EB]'
-      : 'border-[#F1C8C2] bg-[#FFF7F5] text-[#C33D2F]';
-  return <div className={`border px-4 py-3 text-sm leading-relaxed ${cls}`}>{message}</div>;
-}
-/* ─────────────────────────────────────────────────────────────────── */
 
 type RegisterFormValues = {
   fullName: string;
@@ -61,10 +22,14 @@ export default function RegisterPage() {
   const [status, setStatus] = useState<StatusState>('idle');
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
 
-  const { register, handleSubmit, watch, formState: { errors } } =
-    useForm<RegisterFormValues>({
-      defaultValues: { fullName: '', email: '', password: '', confirmPassword: '' },
-    });
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<RegisterFormValues>({
+    defaultValues: { fullName: '', email: '', password: '', confirmPassword: '' },
+  });
 
   const passwordValue = watch('password');
 
@@ -110,7 +75,8 @@ export default function RegisterPage() {
         <div
           className="absolute inset-0 pointer-events-none opacity-[0.025]"
           style={{
-            backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(28,28,28,0.8) 1px, transparent 0)',
+            backgroundImage:
+              'radial-gradient(circle at 1px 1px, rgba(28,28,28,0.8) 1px, transparent 0)',
             backgroundSize: '40px 40px',
           }}
         />
@@ -145,7 +111,8 @@ export default function RegisterPage() {
               </h1>
 
               <p className="mt-6 max-w-xl text-base lg:text-lg leading-relaxed text-[#5A5A5A]">
-                Registra tus datos para acelerar futuros pedidos con autenticación real vía Supabase.
+                Registra tus datos para acelerar futuros pedidos con autenticación real vía
+                Supabase.
               </p>
 
               <div className="mt-10 grid gap-4 sm:grid-cols-3">
@@ -154,8 +121,13 @@ export default function RegisterPage() {
                   { label: 'Validación clara', value: '02' },
                   { label: 'Auth real', value: '03' },
                 ].map((f) => (
-                  <div key={f.label} className="border border-[#DDD9D3] bg-white/75 px-5 py-5 backdrop-blur-sm">
-                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#8A8A8A]">{f.label}</p>
+                  <div
+                    key={f.label}
+                    className="border border-[#DDD9D3] bg-white/75 px-5 py-5 backdrop-blur-sm"
+                  >
+                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#8A8A8A]">
+                      {f.label}
+                    </p>
                     <p className="mt-3 text-2xl font-display font-900 text-[#1C1C1C]">{f.value}</p>
                   </div>
                 ))}
@@ -245,7 +217,12 @@ export default function RegisterPage() {
                       </Link>
                     </div>
 
-                    <StatusMessage status={status} message={feedbackMessage} />
+                    {feedbackMessage && status !== 'idle' && (
+                      <StatusMessage
+                        message={feedbackMessage}
+                        type={status === 'success' ? 'success' : 'error'}
+                      />
+                    )}
 
                     <button
                       type="submit"

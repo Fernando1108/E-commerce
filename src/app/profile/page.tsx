@@ -23,10 +23,7 @@ export default function ProfilePage() {
     user?.email?.split('@')[0] ??
     'Usuario';
 
-  const avatarUrl =
-    user?.user_metadata?.avatar_url ??
-    user?.user_metadata?.picture ??
-    null;
+  const avatarUrl = user?.user_metadata?.avatar_url ?? user?.user_metadata?.picture ?? null;
 
   return (
     <main className="min-h-screen bg-[#FAF9F7]">
@@ -36,7 +33,8 @@ export default function ProfilePage() {
         <div
           className="absolute inset-0 pointer-events-none opacity-[0.025]"
           style={{
-            backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(28,28,28,0.8) 1px, transparent 0)',
+            backgroundImage:
+              'radial-gradient(circle at 1px 1px, rgba(28,28,28,0.8) 1px, transparent 0)',
             backgroundSize: '40px 40px',
           }}
         />
@@ -79,7 +77,9 @@ export default function ProfilePage() {
                     <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[#8A8A8A]">
                       Nombre
                     </p>
-                    <p className="mt-2 text-xl font-display font-900 text-[#1C1C1C]">{displayName}</p>
+                    <p className="mt-2 text-xl font-display font-900 text-[#1C1C1C]">
+                      {displayName}
+                    </p>
                   </div>
 
                   <div className="border border-[#E6E1DA] bg-[#FCFBF9] px-5 py-4 text-center">
@@ -105,12 +105,20 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                <Link
-                  href="/profile/settings"
-                  className="mt-8 inline-flex h-14 items-center justify-center bg-[#1C1C1C] px-8 text-[11px] font-black uppercase tracking-[0.28em] text-white transition hover:bg-[#2563EB]"
-                >
-                  Editar perfil
-                </Link>
+                <div className="mt-8 flex flex-col sm:flex-row gap-3">
+                  <Link
+                    href="/profile/settings"
+                    className="inline-flex h-14 items-center justify-center bg-[#1C1C1C] px-8 text-[11px] font-black uppercase tracking-[0.28em] text-white transition hover:bg-[#2563EB]"
+                  >
+                    Editar perfil
+                  </Link>
+                  <Link
+                    href="/profile/orders"
+                    className="inline-flex h-14 items-center justify-center border border-[#DDD9D3] px-8 text-[11px] font-black uppercase tracking-[0.28em] text-[#1C1C1C] transition hover:bg-[#1C1C1C] hover:text-white hover:border-[#1C1C1C]"
+                  >
+                    Mis pedidos
+                  </Link>
+                </div>
               </div>
             )}
           </div>
