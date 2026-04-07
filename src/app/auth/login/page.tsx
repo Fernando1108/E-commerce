@@ -21,6 +21,13 @@ function LoginContent() {
   const [status, setStatus] = useState<StatusState>('idle');
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
 
+  // Active-session detection
+  const [activeSession, setActiveSession] = useState<{
+    email: string;
+    name: string | null;
+  } | null>(null);
+  const [sessionChecked, setSessionChecked] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -30,6 +37,23 @@ function LoginContent() {
   } = useForm<LoginFormValues>({ defaultValues: { email: '', password: '' } });
 
   const emailValue = watch('email');
+
+  // ── Check for existing session on mount ─────────────────────────────────────
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setActiveSession({
+          email: session.user.email ?? '',
+          name:
+            session.user.user_metadata?.name ??
+            session.user.user_metadata?.full_name ??
+            null,
+        });
+      }
+      setSessionChecked(true);
+    });
+  }, []);
 
   // Restore remembered email
   useEffect(() => {
@@ -79,6 +103,14 @@ function LoginContent() {
     });
   };
 
+  // ── Sign out from existing session and stay on login ────────────────────────
+  const handleSignOutAndStay = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    setActiveSession(null);
+  };
+
+  // ── Render ───────────────────────────────────────────────────────────────────
   return (
     <main className="min-h-screen bg-[#FAF9F7]">
       <Header />
@@ -150,102 +182,150 @@ function LoginContent() {
             <div className="relative">
               <div className="absolute -inset-px bg-gradient-to-br from-[#DDD9D3]/70 via-transparent to-transparent pointer-events-none" />
               <div className="relative border border-[#DDD9D3] bg-white/90 backdrop-blur-xl p-6 sm:p-8 lg:p-10 shadow-[0_24px_80px_rgba(28,28,28,0.08)]">
-                <div className="flex items-start justify-between gap-4 border-b border-[#E6E1DA] pb-6">
+
+                {/* ── Active session banner ── */}
+                {sessionChecked && activeSession ? (
                   <div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#8A8A8A]">
-                      Formulario de acceso
-                    </p>
-                    <h2 className="mt-3 text-3xl font-display font-900 uppercase italic text-[#1C1C1C]">
-                      Inicia sesión
-                    </h2>
+                    <div className="flex items-start justify-between gap-4 border-b border-[#E6E1DA] pb-6">
+                      <div>
+                        <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#8A8A8A]">
+                          Sesión activa
+                        </p>
+                        <h2 className="mt-3 text-3xl font-display font-900 uppercase italic text-[#1C1C1C]">
+                          Ya estás dentro
+                        </h2>
+                      </div>
+                      <span className="inline-flex items-center border border-emerald-200 bg-emerald-50 px-3 py-2 text-[10px] font-black uppercase tracking-[0.22em] text-emerald-700">
+                        Activo
+                      </span>
+                    </div>
+
+                    <div className="mt-8 space-y-4">
+                      <div className="border border-[#E6E1DA] bg-[#FCFBF9] px-5 py-4">
+                        <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[#8A8A8A]">
+                          Ya tienes sesión activa como
+                        </p>
+                        <p className="mt-2 text-[15px] font-600 text-[#1C1C1C] break-all">
+                          {activeSession.email}
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={() => router.push(redirectTarget)}
+                        className="inline-flex h-14 w-full items-center justify-center bg-[#1C1C1C] px-6 text-[11px] font-black uppercase tracking-[0.28em] text-white transition hover:bg-[#2563EB]"
+                      >
+                        Continuar{activeSession.name ? ` como ${activeSession.name}` : ''}
+                      </button>
+
+                      <button
+                        onClick={handleSignOutAndStay}
+                        className="inline-flex h-12 w-full items-center justify-center border border-[#DDD9D3] px-6 text-[11px] font-black uppercase tracking-[0.24em] text-[#5A5A5A] transition hover:border-[#1C1C1C] hover:text-[#1C1C1C]"
+                      >
+                        Cerrar sesión e ingresar con otra cuenta
+                      </button>
+                    </div>
                   </div>
-                  <span className="inline-flex items-center border border-[#D8E4FF] bg-[#EFF6FF] px-3 py-2 text-[10px] font-black uppercase tracking-[0.22em] text-[#2563EB]">
-                    Seguro
-                  </span>
-                </div>
-
-                <div className="mt-8">
-                  <form className="space-y-5" onSubmit={onSubmit}>
-                    <div className="grid gap-5">
-                      <AuthField
-                        label="Email"
-                        type="email"
-                        placeholder="tu@email.com"
-                        registration={register('email', {
-                          required: 'El email es obligatorio.',
-                          pattern: { value: /\S+@\S+\.\S+/, message: 'Ingresa un email válido.' },
-                        })}
-                        error={errors.email}
-                      />
-                      <AuthField
-                        label="Contraseña"
-                        type="password"
-                        placeholder="Tu contraseña"
-                        registration={register('password', {
-                          required: 'La contraseña es obligatoria.',
-                          minLength: { value: 6, message: 'Mínimo 6 caracteres.' },
-                        })}
-                        error={errors.password}
-                      />
+                ) : (
+                  /* ── Normal login form ── */
+                  <div>
+                    <div className="flex items-start justify-between gap-4 border-b border-[#E6E1DA] pb-6">
+                      <div>
+                        <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#8A8A8A]">
+                          Formulario de acceso
+                        </p>
+                        <h2 className="mt-3 text-3xl font-display font-900 uppercase italic text-[#1C1C1C]">
+                          Inicia sesión
+                        </h2>
+                      </div>
+                      <span className="inline-flex items-center border border-[#D8E4FF] bg-[#EFF6FF] px-3 py-2 text-[10px] font-black uppercase tracking-[0.22em] text-[#2563EB]">
+                        Seguro
+                      </span>
                     </div>
 
-                    <div className="flex items-center justify-between gap-4 border-t border-[#E6E1DA] pt-6">
-                      <Link
-                        href="/auth/register"
-                        className="text-[11px] font-black uppercase tracking-[0.24em] text-[#1C1C1C] transition hover:text-[#2563EB]"
-                      >
-                        Registrarse
-                      </Link>
-                      <Link
-                        href="/auth/forgot-password"
-                        className="text-[11px] font-black uppercase tracking-[0.24em] text-[#8A8A8A] transition hover:text-[#1C1C1C]"
-                      >
-                        Olvidé contraseña
-                      </Link>
+                    <div className="mt-8">
+                      <form className="space-y-5" onSubmit={onSubmit}>
+                        <div className="grid gap-5">
+                          <AuthField
+                            label="Email"
+                            type="email"
+                            placeholder="tu@email.com"
+                            registration={register('email', {
+                              required: 'El email es obligatorio.',
+                              pattern: { value: /\S+@\S+\.\S+/, message: 'Ingresa un email válido.' },
+                            })}
+                            error={errors.email}
+                          />
+                          <AuthField
+                            label="Contraseña"
+                            type="password"
+                            placeholder="Tu contraseña"
+                            registration={register('password', {
+                              required: 'La contraseña es obligatoria.',
+                              minLength: { value: 6, message: 'Mínimo 6 caracteres.' },
+                            })}
+                            error={errors.password}
+                          />
+                        </div>
+
+                        <div className="flex items-center justify-between gap-4 border-t border-[#E6E1DA] pt-6">
+                          <Link
+                            href="/auth/register"
+                            className="text-[11px] font-black uppercase tracking-[0.24em] text-[#1C1C1C] transition hover:text-[#2563EB]"
+                          >
+                            Registrarse
+                          </Link>
+                          <Link
+                            href="/auth/forgot-password"
+                            className="text-[11px] font-black uppercase tracking-[0.24em] text-[#8A8A8A] transition hover:text-[#1C1C1C]"
+                          >
+                            Olvidé contraseña
+                          </Link>
+                        </div>
+
+                        {feedbackMessage && status !== 'idle' && (
+                          <StatusMessage
+                            message={feedbackMessage}
+                            type={status === 'success' ? 'success' : 'error'}
+                          />
+                        )}
+
+                        <button
+                          type="submit"
+                          disabled={status === 'loading'}
+                          className="inline-flex h-14 w-full items-center justify-center bg-[#1C1C1C] px-6 text-[11px] font-black uppercase tracking-[0.28em] text-white transition hover:bg-[#2563EB] disabled:cursor-not-allowed disabled:bg-[#8A8A8A]"
+                        >
+                          {status === 'loading' ? 'Cargando...' : 'Continuar'}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={handleGoogle}
+                          className="inline-flex h-14 w-full items-center justify-center gap-3 border border-[#DDD9D3] bg-white px-6 text-[11px] font-black uppercase tracking-[0.28em] text-[#1C1C1C] transition hover:border-[#1C1C1C] hover:bg-[#F8F7F5]"
+                        >
+                          <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+                            <path
+                              fill="#EA4335"
+                              d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
+                            />
+                            <path
+                              fill="#4285F4"
+                              d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
+                            />
+                            <path
+                              fill="#FBBC05"
+                              d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
+                            />
+                            <path
+                              fill="#34A853"
+                              d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+                            />
+                          </svg>
+                          Continuar con Google
+                        </button>
+                      </form>
                     </div>
-
-                    {feedbackMessage && status !== 'idle' && (
-                      <StatusMessage
-                        message={feedbackMessage}
-                        type={status === 'success' ? 'success' : 'error'}
-                      />
-                    )}
-
-                    <button
-                      type="submit"
-                      disabled={status === 'loading'}
-                      className="inline-flex h-14 w-full items-center justify-center bg-[#1C1C1C] px-6 text-[11px] font-black uppercase tracking-[0.28em] text-white transition hover:bg-[#2563EB] disabled:cursor-not-allowed disabled:bg-[#8A8A8A]"
-                    >
-                      {status === 'loading' ? 'Cargando...' : 'Continuar'}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={handleGoogle}
-                      className="inline-flex h-14 w-full items-center justify-center gap-3 border border-[#DDD9D3] bg-white px-6 text-[11px] font-black uppercase tracking-[0.28em] text-[#1C1C1C] transition hover:border-[#1C1C1C] hover:bg-[#F8F7F5]"
-                    >
-                      <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
-                        <path
-                          fill="#EA4335"
-                          d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
-                        />
-                        <path
-                          fill="#4285F4"
-                          d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
-                        />
-                        <path
-                          fill="#FBBC05"
-                          d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
-                        />
-                        <path
-                          fill="#34A853"
-                          d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
-                        />
-                      </svg>
-                      Continuar con Google
-                    </button>
-                  </form>
-                </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

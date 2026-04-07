@@ -6,9 +6,12 @@ import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useAuth } from '@/hooks/useAuth';
+import { useProfile } from '@/hooks/useProfile';
+import Icon from '@/components/ui/AppIcon';
 
 export default function ProfilePage() {
   const { user, loading } = useAuth();
+  const { isAdmin } = useProfile();
   const router = useRouter();
 
   useEffect(() => {
@@ -119,6 +122,41 @@ export default function ProfilePage() {
                     Mis pedidos
                   </Link>
                 </div>
+
+                {/* ── Admin Dashboard Card ── */}
+                {isAdmin && (
+                  <div className="mt-6 relative overflow-hidden border border-[#1C1C1C] bg-[#1C1C1C] p-6">
+                    {/* Decorative glow */}
+                    <div className="absolute top-0 right-0 h-[160px] w-[160px] rounded-full bg-[#2563EB] opacity-10 blur-[60px] pointer-events-none" />
+
+                    <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <div className="flex items-start gap-4">
+                        <div className="flex size-11 flex-shrink-0 items-center justify-center bg-[#2563EB]">
+                          <Icon name="Squares2X2Icon" size={20} variant="solid" className="text-white" />
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-black uppercase tracking-[0.26em] text-white/50">
+                            Acceso privilegiado
+                          </p>
+                          <h3 className="mt-1 text-lg font-display font-900 uppercase italic text-white leading-tight">
+                            Panel de Administración
+                          </h3>
+                          <p className="mt-1.5 text-[13px] text-white/55 leading-snug">
+                            Gestiona productos, pedidos, inventario y más.
+                          </p>
+                        </div>
+                      </div>
+
+                      <Link
+                        href="/admin"
+                        className="inline-flex flex-shrink-0 items-center gap-2 bg-[#2563EB] px-5 py-3 text-[11px] font-black uppercase tracking-[0.24em] text-white transition hover:bg-[#1D4ED8]"
+                      >
+                        <Icon name="ArrowRightIcon" size={13} variant="outline" />
+                        Ir al Dashboard
+                      </Link>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
