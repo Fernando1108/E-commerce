@@ -37,7 +37,7 @@ export default function NewsletterSection() {
   };
 
   return (
-    <section ref={ref} className="relative overflow-hidden bg-[#1C1C1C] py-24 lg:py-36">
+    <section ref={ref} className="relative overflow-hidden bg-[#1C1C1C] py-14 lg:py-20">
       <div
         className="absolute inset-0 pointer-events-none opacity-[0.025]"
         style={{

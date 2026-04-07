@@ -12,7 +12,7 @@ export default function PromoBannerSection() {
   const inView = useInView(ref, { once: true, margin: '-80px' });
 
   return (
-    <section ref={ref} className="py-20 lg:py-32 bg-[#EFEDE9]">
+    <section ref={ref} className="py-14 lg:py-20 bg-[#EFEDE9]">
       <div className="max-w-[1440px] mx-auto px-6 lg:px-12 space-y-3">
         {/* Primary promo: full-width dark editorial */}
         <motion.div

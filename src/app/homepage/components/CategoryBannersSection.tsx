@@ -167,7 +167,7 @@ function SectionHeader() {
       initial={{ opacity: 0, y: 24 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-      className="flex items-end justify-between mb-14"
+      className="flex items-end justify-between mb-10"
     >
       <div>
         <div className="flex items-center gap-3 mb-5">
@@ -232,7 +232,7 @@ export default function CategoryBannersSection() {
   );
 
   return (
-    <section className="py-24 lg:py-36 bg-[#F8F7F5]">
+    <section className="py-14 lg:py-20 bg-[#F8F7F5]">
       <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
         <SectionHeader />
 

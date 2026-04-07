@@ -63,7 +63,7 @@ export default function TestimonialsSection() {
   const current = testimonials[active];
 
   return (
-    <section ref={ref} className="py-16 lg:py-24 bg-[#252525] overflow-hidden">
+    <section ref={ref} className="py-12 lg:py-16 bg-[#252525] overflow-hidden">
       <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-20 items-center">
           {/* Left: Header */}

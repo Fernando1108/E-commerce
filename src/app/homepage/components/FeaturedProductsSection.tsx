@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
 import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
 import { getFeaturedProducts } from '@/lib/supabase/services';
@@ -41,12 +40,14 @@ function ProductCard({
   onAddToCart,
   onToggleWishlist,
   isWishlisted,
+  carousel = false,
 }: {
   product: Product;
   index: number;
   onAddToCart: (product: Product) => void;
   onToggleWishlist: (id: string) => void;
   isWishlisted: boolean;
+  carousel?: boolean;
 }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-60px' });
@@ -59,9 +60,12 @@ function ProductCard({
       ref={ref}
       initial={{ opacity: 0, y: 36 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.7, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.7, delay: (index % 4) * 0.1, ease: [0.16, 1, 0.3, 1] }}
       whileHover={{ y: -4, transition: { type: 'spring', stiffness: 300, damping: 24 } }}
-      className="group relative bg-white border border-[#DDD9D3] overflow-hidden transition-[border-color,box-shadow] duration-500 hover:border-[#1C1C1C] hover:shadow-nova-xl"
+      className={`group relative bg-white border border-[#DDD9D3] overflow-hidden transition-[border-color,box-shadow] duration-500 hover:border-[#1C1C1C] hover:shadow-nova-xl ${
+        carousel ? 'flex-shrink-0 w-full sm:w-1/2 lg:w-1/4 scroll-snap-align-start' : ''
+      }`}
+      style={carousel ? { scrollSnapAlign: 'start' } : {}}
     >
       {/* Image area */}
       <div className="relative overflow-hidden bg-[#EFEDE9]" style={{ aspectRatio: '4/5' }}>
@@ -79,7 +83,7 @@ function ProductCard({
           <motion.div
             initial={{ scale: 0 }}
             animate={inView ? { scale: 1 } : {}}
-            transition={{ type: 'spring', stiffness: 420, damping: 18, delay: index * 0.1 + 0.25 }}
+            transition={{ type: 'spring', stiffness: 420, damping: 18, delay: (index % 4) * 0.1 + 0.25 }}
             className="absolute top-4 left-4 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest z-10"
             style={{ backgroundColor: badge.bg, color: badge.color }}
           >
@@ -191,6 +195,10 @@ function SkeletonCard() {
 export default function FeaturedProductsSection() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
   const { addItem } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
 
@@ -210,7 +218,7 @@ export default function FeaturedProductsSection() {
   );
 
   useEffect(() => {
-    getFeaturedProducts(4)
+    getFeaturedProducts(8)
       .then((data) => {
         setProducts(data);
         setLoading(false);
@@ -218,11 +226,40 @@ export default function FeaturedProductsSection() {
       .catch(() => setLoading(false));
   }, []);
 
+  // Update arrow visibility on scroll
+  const updateArrows = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
+  }, []);
+
+  useEffect(() => {
+    if (products.length <= 4) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    updateArrows();
+    el.addEventListener('scroll', updateArrows, { passive: true });
+    window.addEventListener('resize', updateArrows, { passive: true });
+    return () => {
+      el.removeEventListener('scroll', updateArrows);
+      window.removeEventListener('resize', updateArrows);
+    };
+  }, [products, updateArrows]);
+
+  const scrollPage = (dir: 1 | -1) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * el.clientWidth, behavior: 'smooth' });
+  };
+
+  const useCarousel = products.length > 4;
+
   return (
-    <section className="py-20 lg:py-32 bg-[#F2F0EC]">
+    <section className="py-14 lg:py-20 bg-[#F2F0EC]">
       <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
         {/* Header */}
-        <div className="flex items-end justify-between mb-14">
+        <div className="flex items-end justify-between mb-10">
           <div>
             <p className="label-eyebrow text-[#8A8A8A] mb-4">Selección editorial</p>
             <h2
@@ -247,17 +284,42 @@ export default function FeaturedProductsSection() {
                 className="group-hover:translate-x-1 transition-transform"
               />
             </Link>
-            <span className="text-[11px] text-[#8A8A8A] font-500">
-              {products.length} productos seleccionados
-            </span>
+            {!loading && (
+              <span className="text-[11px] text-[#8A8A8A] font-500">
+                {products.length} productos seleccionados
+              </span>
+            )}
           </div>
         </div>
 
-        {/* Products grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
-          {loading
-            ? Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
-            : products.map((product, i) => (
+        {loading ? (
+          /* Skeleton grid */
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+            {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
+          </div>
+        ) : useCarousel ? (
+          /* ── Carousel mode ── */
+          <div className="relative">
+            {/* Left arrow */}
+            <motion.button
+              onClick={() => scrollPage(-1)}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              aria-label="Anterior"
+              className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-5 z-10 size-12 rounded-full bg-white border border-[#DDD9D3] shadow-nova-md flex items-center justify-center text-[#1C1C1C] hover:bg-[#1C1C1C] hover:text-white hover:border-[#1C1C1C] transition-colors duration-200 ${
+                canScrollLeft ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+              } transition-opacity duration-200`}
+            >
+              <Icon name="ChevronLeftIcon" size={20} variant="outline" />
+            </motion.button>
+
+            {/* Scroll container */}
+            <div
+              ref={scrollRef}
+              className="flex gap-3 lg:gap-4 overflow-x-hidden"
+              style={{ scrollSnapType: 'x mandatory' }}
+            >
+              {products.map((product, i) => (
                 <ProductCard
                   key={product.id}
                   product={product}
@@ -265,9 +327,56 @@ export default function FeaturedProductsSection() {
                   onAddToCart={handleAddToCart}
                   onToggleWishlist={handleToggleWishlist}
                   isWishlisted={isInWishlist(product.id)}
+                  carousel
                 />
               ))}
-        </div>
+            </div>
+
+            {/* Right arrow */}
+            <motion.button
+              onClick={() => scrollPage(1)}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              aria-label="Siguiente"
+              className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-5 z-10 size-12 rounded-full bg-white border border-[#DDD9D3] shadow-nova-md flex items-center justify-center text-[#1C1C1C] hover:bg-[#1C1C1C] hover:text-white hover:border-[#1C1C1C] transition-colors duration-200 ${
+                canScrollRight ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+              } transition-opacity duration-200`}
+            >
+              <Icon name="ChevronRightIcon" size={20} variant="outline" />
+            </motion.button>
+
+            {/* Dot indicators */}
+            <div className="flex justify-center gap-1.5 mt-6">
+              {Array.from({ length: Math.ceil(products.length / 4) }).map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => {
+                    const el = scrollRef.current;
+                    if (!el) return;
+                    el.scrollTo({ left: i * el.clientWidth, behavior: 'smooth' });
+                  }}
+                  className="h-1 rounded-full transition-all duration-300 bg-[#1C1C1C]/20 hover:bg-[#1C1C1C]/40"
+                  style={{ width: i === 0 ? '24px' : '8px' }}
+                  aria-label={`Página ${i + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+        ) : (
+          /* ── Regular grid (≤ 4 products) ── */
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+            {products.map((product, i) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                index={i}
+                onAddToCart={handleAddToCart}
+                onToggleWishlist={handleToggleWishlist}
+                isWishlisted={isInWishlist(product.id)}
+              />
+            ))}
+          </div>
+        )}
 
         {/* Mobile CTA */}
         <div className="mt-10 flex justify-center md:hidden">

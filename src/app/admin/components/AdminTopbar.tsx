@@ -3,6 +3,7 @@
 import React from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 import Icon from '@/components/ui/AppIcon';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -55,7 +56,8 @@ export default function AdminTopbar({ onMenuToggle, darkMode, onToggleDark }: Ad
 
   const handleLogout = async () => {
     await signOut();
-    router.push('/admin/login');
+    toast.success('Sesión cerrada');
+    router.push('/auth/login');
   };
 
   const breadcrumbs = getBreadcrumbs();

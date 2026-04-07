@@ -53,7 +53,7 @@ export default function HeroSection() {
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-[#2563EB] opacity-[0.04] blur-[100px] pointer-events-none" />
       {/* Main content */}
       <div className="flex-1 flex items-center pt-[72px]">
-        <div className="max-w-[1440px] mx-auto px-6 lg:px-12 w-full grid lg:grid-cols-2 gap-0 lg:gap-16 items-center py-16 lg:py-20">
+        <div className="max-w-[1440px] mx-auto px-6 lg:px-12 w-full grid lg:grid-cols-2 gap-0 lg:gap-16 items-center py-12 lg:py-14">
           {/* LEFT: Content */}
           <motion.div style={{ y: contentY }} className="space-y-10 relative z-10 lg:pr-8">
             {/* Eyebrow pill */}

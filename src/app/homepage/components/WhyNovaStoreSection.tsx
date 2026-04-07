@@ -58,10 +58,10 @@ export default function WhyNovaStoreSection() {
   const inView = useInView(sectionRef, { once: true, margin: '-80px' });
 
   return (
-    <section ref={sectionRef} className="py-20 lg:py-32 bg-[#2C2C2C] overflow-hidden">
+    <section ref={sectionRef} className="py-14 lg:py-20 bg-[#2C2C2C] overflow-hidden">
       <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
         {/* Header — split layout */}
-        <div className="grid lg:grid-cols-12 gap-10 mb-16 lg:mb-20">
+        <div className="grid lg:grid-cols-12 gap-10 mb-10 lg:mb-14">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
