@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/admin'
 
-// GET - Listar productos con filtros
+// GET - Listar productos con filtros (público)
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const limit = Number(searchParams.get('limit')) || 20
@@ -21,12 +22,10 @@ export async function GET(request: Request) {
   return NextResponse.json(data)
 }
 
-// POST - Crear producto (requiere auth)
+// POST - Crear producto (requiere admin)
 export async function POST(request: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
+  const { error: authError, supabase } = await requireAdmin()
+  if (authError) return authError
 
   const body = await request.json()
   const { data, error } = await supabase.from('products').insert({

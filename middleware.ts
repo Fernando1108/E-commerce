@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 const protectedRoutes = ['/account', '/checkout', '/profile']
 const adminRoutes = ['/admin']
+const authRoutes = ['/auth/login', '/auth/register']
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
@@ -33,6 +34,10 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith(route)
   )
 
+  const isAuthRoute = authRoutes.some(route =>
+    request.nextUrl.pathname === route
+  )
+
   // Si no hay usuario y la ruta requiere auth, redirigir a login
   if ((isProtected || isAdmin) && !user) {
     const url = request.nextUrl.clone()
@@ -41,15 +46,25 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // Si es ruta admin, verificar rol
-  if (isAdmin && user) {
+  // Si hay usuario, verificar rol para rutas admin y auth
+  if (user) {
     const { data: profile } = await supabase
       .from('profiles')
       .select('role')
       .eq('id', user.id)
       .single()
 
-    if (!profile || profile.role !== 'admin') {
+    const userIsAdmin = profile?.role === 'admin'
+
+    // Si es admin y va a /auth/login, redirigir a /admin
+    if (isAuthRoute && userIsAdmin) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/admin'
+      return NextResponse.redirect(url)
+    }
+
+    // Si NO es admin y va a /admin/*, redirigir a /homepage
+    if (isAdmin && !userIsAdmin) {
       const url = request.nextUrl.clone()
       url.pathname = '/homepage'
       return NextResponse.redirect(url)
@@ -60,5 +75,12 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/account/:path*', '/admin/:path*', '/checkout/:path*', '/profile/:path*'],
+  matcher: [
+    '/account/:path*',
+    '/admin/:path*',
+    '/checkout/:path*',
+    '/profile/:path*',
+    '/auth/login',
+    '/auth/register',
+  ],
 }

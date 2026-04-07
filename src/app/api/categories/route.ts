@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/admin'
 
 export async function GET() {
   const supabase = await createClient()
@@ -8,12 +9,11 @@ export async function GET() {
   return NextResponse.json(data)
 }
 
-// POST - Crear categoría
+// POST - Crear categoría (requiere admin)
 export async function POST(request: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { error: authError, supabase } = await requireAdmin()
+  if (authError) return authError
 
-  if (!user) return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
 
   const body = await request.json()
   const { data, error } = await supabase.from('categories').insert({
