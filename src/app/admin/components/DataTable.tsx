@@ -80,8 +80,8 @@ export default function DataTable<T extends { id?: string }>({
       <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
         <div className="p-4 space-y-4">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-4 animate-pulse">
-              <div className="h-4 w-full bg-slate-100 dark:bg-slate-700 rounded" />
+            <div key={i} className="flex items-center gap-4">
+              <div className="skeleton-shimmer h-4 w-full bg-slate-100 dark:bg-slate-700 rounded" />
             </div>
           ))}
         </div>

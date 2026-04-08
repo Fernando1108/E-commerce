@@ -21,6 +21,7 @@ export default function AdminProveedores() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const [form, setForm] = useState({
     name: '',
     contact_name: '',
@@ -116,7 +117,6 @@ export default function AdminProveedores() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('¿Eliminar proveedor?')) return;
     try {
       const res = await fetch(`/api/admin/suppliers/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Error al eliminar proveedor');
@@ -212,7 +212,7 @@ export default function AdminProveedores() {
               <Icon name="PencilSquareIcon" size={16} />
             </button>
             <button
-              onClick={() => handleDelete(item.id)}
+              onClick={() => setDeleteId(item.id)}
               className="size-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
             >
               <Icon name="TrashIcon" size={16} />
@@ -356,6 +356,30 @@ export default function AdminProveedores() {
             />
           </label>
         </form>
+      </AdminModal>
+
+      <AdminModal
+        open={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        title="Eliminar proveedor"
+      >
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
+          ¿Estás seguro de que deseas eliminar este proveedor? Esta acción no se puede deshacer.
+        </p>
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={() => setDeleteId(null)}
+            className="px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 rounded-lg border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={() => { handleDelete(deleteId!); setDeleteId(null); }}
+            className="px-4 py-2 text-sm font-semibold rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors"
+          >
+            Eliminar
+          </button>
+        </div>
       </AdminModal>
     </div>
   );

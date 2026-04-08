@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import DataTable, { Column } from '../components/DataTable';
 import AdminModal from '../components/AdminModal';
 import Icon from '@/components/ui/AppIcon';
+import AppImage from '@/components/ui/AppImage';
 import { toast } from 'sonner';
 
 interface StockItem {
@@ -59,8 +60,8 @@ export default function AdminInventario() {
     fetch(`/api/admin/inventory?view=${view}`)
       .then((r) => r.json())
       .then((d) => {
-        if (view === 'stock') setStockData(d);
-        else setMovements(d);
+        if (view === 'stock') setStockData(Array.isArray(d) ? d : []);
+        else setMovements(Array.isArray(d.data) ? d.data : Array.isArray(d) ? d : []);
         setLoading(false);
       })
       .catch(() => {
@@ -101,7 +102,7 @@ export default function AdminInventario() {
         <div className="flex items-center gap-3">
           <div className="size-9 rounded-lg bg-slate-100 overflow-hidden">
             {item.image_url ? (
-              <img src={item.image_url} alt="" className="size-full object-cover" />
+              <AppImage src={item.image_url} alt={item.name} width={36} height={36} className="size-full object-cover" />
             ) : (
               <div className="size-full flex items-center justify-center text-slate-300">
                 <Icon name="PhotoIcon" size={14} />

@@ -38,12 +38,14 @@ const statusLabels: Record<string, string> = {
 export default function AdminFacturacion() {
   const [invoices, setInvoices] = useState<InvoiceRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
-    fetch('/api/admin/invoices')
+    fetch('/api/admin/invoices?limit=100')
       .then((r) => r.json())
       .then((d) => {
-        setInvoices(Array.isArray(d) ? d : []);
+        setInvoices(Array.isArray(d.data) ? d.data : Array.isArray(d) ? d : []);
+        setTotal(d.pagination?.total ?? (Array.isArray(d) ? d.length : 0));
         setLoading(false);
       })
       .catch(() => {
@@ -125,7 +127,7 @@ export default function AdminFacturacion() {
             Facturación
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            {invoices.length} facturas
+            {total} facturas
           </p>
         </div>
         <Link
