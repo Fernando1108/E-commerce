@@ -390,6 +390,15 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 - [x] Shake periódico en botón "Añadir al carrito" cuando stock < 5
 - [x] Cursor personalizado en galería de producto (desktop)
 - [x] Panel Admin — Categorías con editar/eliminar (modal)
+- [x] Header reestructurado: nav links (Tienda, Categorías, Novedades, Ofertas, Soporte), search inline con debounce, dropdown usuario con Dashboard/Perfil/Pedidos/Cerrar sesión, badge Admin para admin/employee
+- [x] Dots de navegación solo iluminan el link activo (no todos a la vez)
+- [x] SessionManager con detección de sesión activa en login
+- [x] Dashboard link en dropdown de perfil para admin/employee
+- [x] Dark mode toggle en dashboard admin
+- [x] Logout funcional en AdminTopbar → redirige a /auth/login
+- [x] CategoryBannersSection reorganizado (Electrónica full-width)
+- [x] Carousel de productos destacados con animación spring
+- [x] Footer crédito "Desarrollado por Kodexa Solutions" con link
 
 **Backend (Anderson):**
 - [x] GET/POST `/api/products` + Zod + verificación admin
@@ -426,21 +435,15 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 ### 🚧 Pendiente
 
 **Diego (Frontend):**
-- [x] Implementar `onClick` en botones de card: "Añadir al carrito" y "Favoritos" en FeaturedProducts, ProductGrid, RelatedProducts
-- [x] Agregar links con filtro de categoría en CategoryBannersSection
-- [ ] Completar links de navegación en Header (Categorías con filtro real)
-- [x] Resolver doble-submit en modales admin (inventario, proveedores, empleados)
-- [x] Enviar `phone` y `subject` al API contacto (actualmente solo se envían name, email, message)
-- [x] Corregir selector de producto vacío en modal inventario (tab movimientos)
-- [x] Eliminar `statusColors`/`statusLabels` duplicados en admin/page.tsx → usar `constants/index.ts`
-- [x] Extraer `formatCurrency` a `lib/utils.ts` (duplicado en admin/page.tsx)
-- [x] Eliminar `data-v-4914bf38=""` residual en NewsletterSection.tsx
-- [x] Cambiar `<a href="/privacidad">` a `<Link>` en NewsletterSection
-- [x] Agregar editar/eliminar categorías en admin
-- [x] Extraer StarRating a componente reutilizable en `components/ui/`
-- [x] Agregar links reales de redes sociales en Footer
-- [x] Botón "Cargar más productos" funcional en catálogo
-- [x] Confirmar WhatsApp real en contacto
+- [ ] Links reales de redes sociales en Footer
+- [ ] Botón "Cargar más productos" funcional en catálogo
+- [ ] Quitar badge "ADMIN" visible del header (dejarlo solo en dropdown)
+- [ ] Fix letras invisibles en dark mode admin
+- [ ] Logo dashboard en sidebar (`public/logo/logo-dashboard.png`)
+- [ ] Crear/editar producto como modal (no página separada)
+- [ ] Rediseño página de perfil (card, animaciones, menos blanco)
+- [ ] Rediseño editar perfil (verificar contraseña actual, cambio de email con confirmación)
+- [ ] Hero grande en página del carrito (full-width con imagen de fondo)
 
 **Anderson (Backend):**
 - [ ] Agregar paginación en admin endpoints (customers, suppliers, employees, purchases)
