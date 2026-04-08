@@ -410,6 +410,18 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 - [x] Validación Zod en endpoints públicos
 - [x] Interfaces TypeScript (Review, Invoice, Employee, Supplier, etc.)
 - [x] Esquemas Zod centralizados en `lib/validations/`
+- [x] 🔴 Corregir `variant_id: ''` → `null` en capture-order
+- [x] 🔴 Comparar `serverTotal` vs monto capturado por PayPal en `capture-order`
+- [x] 🔴 Agregar error handling en `getAccessToken()` (`lib/paypal/api.ts`)
+- [x] 🔴 Sanitizar HTML en email de contacto (prevenir XSS)
+- [x] 🔴 Eliminar `ignoreBuildErrors: true` en `next.config.mjs` (producción)
+- [x] Agregar Zod en PayPal create/capture order
+- [x] Agregar Zod en admin endpoints (inventory, suppliers, employees, purchases)
+- [x] Mover email hardcodeado a variable de entorno (`contact/route.ts`)
+- [x] Consolidar `lib/admin.ts` y `lib/auth/verify-admin.ts` en un solo módulo
+- [x] Agregar `phone` y `subject` al `contactSchema` y procesarlos en el API
+- [x] Agregar field filtering en PUT de suppliers (evitar inyección de columnas)
+- [x] Remover imports no usados (`startOfWeek`/`startOfMonth` en reports)
 
 ### 🚧 Pendiente
 
@@ -431,23 +443,10 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 - [x] Confirmar WhatsApp real en contacto
 
 **Anderson (Backend):**
-- [ ] 🔴 Corregir `variant_id: ''` → `null` en capture-order
-- [ ] 🔴 Comparar `serverTotal` vs monto capturado por PayPal en `capture-order`
-- [ ] 🔴 Agregar error handling en `getAccessToken()` (`lib/paypal/api.ts`)
-- [ ] 🔴 Sanitizar HTML en email de contacto (prevenir XSS)
-- [ ] 🔴 Eliminar `ignoreBuildErrors: true` en `next.config.mjs` (producción)
-- [ ] Agregar Zod en PayPal create/capture order
-- [ ] Agregar Zod en admin endpoints (inventory, suppliers, employees, purchases, admin orders)
-- [ ] Mover email hardcodeado a variable de entorno (`contact/route.ts`)
-- [ ] Consolidar `lib/admin.ts` y `lib/auth/verify-admin.ts` en un solo módulo
-- [ ] Unificar enums de estado de pedido (Zod vs admin inline)
-- [ ] Agregar `phone` y `subject` al `contactSchema` y procesarlos en el API
-- [ ] Agregar field filtering en PUT de suppliers (evitar inyección de columnas)
-- [ ] Remover imports no usados (`startOfWeek`/`startOfMonth` en reports)
-- [ ] Crear endpoint `/api/orders/[id]/receipt` para descarga PDF
 - [ ] Agregar paginación en admin endpoints (customers, suppliers, employees, purchases)
 - [ ] Rate limiting en endpoints críticos (welcome, contact, newsletter)
 - [ ] Logging estructurado (reemplazar console.error)
+- [ ] Unificar enums de estado de pedido (Zod vs admin inline)
 
 ---
 
