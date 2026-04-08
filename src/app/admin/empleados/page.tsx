@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect, useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import DataTable, { Column } from '../components/DataTable';
 import AdminModal from '../components/AdminModal';
 import Icon from '@/components/ui/AppIcon';
@@ -20,6 +20,33 @@ const statusLabels: Record<string, string> = {
   terminated: 'Terminado',
 };
 
+const roleColors: Record<string, string> = {
+  admin: 'bg-red-100 text-red-700',
+  manager: 'bg-blue-100 text-blue-700',
+  editor: 'bg-emerald-100 text-emerald-700',
+  viewer: 'bg-slate-100 text-slate-600',
+};
+const roleLabels: Record<string, string> = {
+  admin: 'Admin',
+  manager: 'Manager',
+  editor: 'Editor',
+  viewer: 'Viewer',
+};
+
+const ROLES = [
+  { value: 'admin', label: 'Admin — Acceso total a todos los módulos' },
+  { value: 'manager', label: 'Manager — Productos, pedidos, inventario, categorías y clientes' },
+  { value: 'editor', label: 'Editor — Acceso a productos y categorías' },
+  { value: 'viewer', label: 'Viewer — Solo lectura en todos los módulos' },
+];
+
+interface CustomerSuggestion {
+  id: string;
+  name: string | null;
+  phone: string | null;
+  email?: string | null;
+}
+
 export default function AdminEmpleados() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,7 +62,40 @@ export default function AdminEmpleados() {
     hire_date: '',
     salary: '',
     status: 'active',
+    role: 'viewer',
   });
+
+  // Autocomplete state
+  const [allCustomers, setAllCustomers] = useState<CustomerSuggestion[]>([]);
+  const [suggestions, setSuggestions] = useState<CustomerSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [customersLoaded, setCustomersLoaded] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Preload customers when create modal opens
+  const loadCustomers = async () => {
+    if (customersLoaded) return;
+    try {
+      const res = await fetch('/api/admin/customers');
+      const data = await res.json();
+      setAllCustomers(Array.isArray(data) ? data : []);
+      setCustomersLoaded(true);
+    } catch {
+      // silently fail — manual entry still works
+    }
+  };
 
   const fetchEmployees = async () => {
     setLoading(true);
@@ -65,8 +125,12 @@ export default function AdminEmpleados() {
       hire_date: new Date().toISOString().split('T')[0],
       salary: '',
       status: 'active',
+      role: 'viewer',
     });
+    setSuggestions([]);
+    setShowSuggestions(false);
     setModalOpen(true);
+    loadCustomers();
   };
 
   const openEdit = (e: Employee) => {
@@ -80,8 +144,41 @@ export default function AdminEmpleados() {
       hire_date: e.hire_date || '',
       salary: String(e.salary || ''),
       status: e.status,
+      role: (e as Employee & { role?: string }).role || 'viewer',
     });
+    setSuggestions([]);
+    setShowSuggestions(false);
     setModalOpen(true);
+  };
+
+  const handleNameChange = (value: string) => {
+    setForm((f) => ({ ...f, name: value }));
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    if (value.trim().length < 3) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    debounceRef.current = setTimeout(() => {
+      const lower = value.toLowerCase();
+      const filtered = allCustomers.filter((c) => (c.name || '').toLowerCase().includes(lower));
+      setSuggestions(filtered);
+      setShowSuggestions(true);
+    }, 300);
+  };
+
+  const handleSelectSuggestion = (customer: CustomerSuggestion) => {
+    setForm((f) => ({
+      ...f,
+      name: customer.name || '',
+      email: customer.email || f.email,
+      phone: customer.phone || f.phone,
+    }));
+    setSuggestions([]);
+    setShowSuggestions(false);
   };
 
   const handleSubmit = async (ev: React.FormEvent) => {
@@ -153,6 +250,20 @@ export default function AdminEmpleados() {
           {formatPrice(item.salary)}
         </span>
       ),
+    },
+    {
+      key: 'role',
+      label: 'Rol',
+      render: (item) => {
+        const role = (item as Employee & { role?: string }).role || 'viewer';
+        return (
+          <span
+            className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold ${roleColors[role] || 'bg-slate-100 text-slate-600'}`}
+          >
+            {roleLabels[role] || role}
+          </span>
+        );
+      },
     },
     {
       key: 'status',
@@ -236,17 +347,85 @@ export default function AdminEmpleados() {
         }
       >
         <form className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Nombre con autocompletado (solo al crear) */}
           <label className="block sm:col-span-2">
             <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
               Nombre *
             </span>
-            <input
-              value={form.name}
-              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-              className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-800 dark:text-white"
-              required
-            />
+            <div ref={dropdownRef} className="relative mt-1.5">
+              <input
+                value={form.name}
+                onChange={(e) => {
+                  if (!editing) {
+                    handleNameChange(e.target.value);
+                  } else {
+                    setForm((f) => ({ ...f, name: e.target.value }));
+                  }
+                }}
+                onFocus={() => {
+                  if (!editing && suggestions.length > 0) setShowSuggestions(true);
+                }}
+                className="w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
+                placeholder={editing ? '' : 'Escribe 3+ caracteres para buscar…'}
+                required
+                autoComplete="off"
+              />
+
+              <AnimatePresence>
+                {!editing && showSuggestions && (
+                  <motion.ul
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute z-50 top-full left-0 right-0 mt-1 max-h-52 overflow-y-auto rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 shadow-lg shadow-slate-900/10"
+                  >
+                    {suggestions.length === 0 ? (
+                      <li className="px-4 py-3 text-sm text-slate-400 dark:text-slate-500 text-center">
+                        No se encontraron usuarios
+                      </li>
+                    ) : (
+                      suggestions.map((c) => (
+                        <li key={c.id}>
+                          <button
+                            type="button"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              handleSelectSuggestion(c);
+                            }}
+                            className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors"
+                          >
+                            <div className="size-7 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                              {(c.name || '?').charAt(0).toUpperCase()}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">
+                                {c.name || 'Sin nombre'}
+                              </p>
+                              <p className="text-xs text-slate-400 dark:text-slate-400 truncate">
+                                {c.email || c.phone || '—'}
+                              </p>
+                            </div>
+                            <Icon
+                              name="ArrowDownLeftIcon"
+                              size={12}
+                              className="ml-auto flex-shrink-0 text-slate-300 dark:text-slate-500"
+                            />
+                          </button>
+                        </li>
+                      ))
+                    )}
+                  </motion.ul>
+                )}
+              </AnimatePresence>
+            </div>
+            {!editing && (
+              <p className="mt-1 text-[11px] text-slate-400 dark:text-slate-500">
+                Busca un usuario registrado o escribe el nombre manualmente
+              </p>
+            )}
           </label>
+
           <label className="block">
             <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
               Cargo
@@ -323,6 +502,23 @@ export default function AdminEmpleados() {
               <option value="active">Activo</option>
               <option value="inactive">Inactivo</option>
               <option value="terminated">Terminado</option>
+            </select>
+          </label>
+          <label className="block">
+            <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+              Rol *
+            </span>
+            <select
+              value={form.role}
+              onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
+              required
+              className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-800 dark:text-white"
+            >
+              {ROLES.map((r) => (
+                <option key={r.value} value={r.value}>
+                  {r.label}
+                </option>
+              ))}
             </select>
           </label>
         </form>
