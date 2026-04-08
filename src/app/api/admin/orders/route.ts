@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/admin';
+import { requireAdmin } from '@/lib/auth/verify-admin';
 
 // GET - All orders (admin only) with optional filters
 export async function GET(request: Request) {

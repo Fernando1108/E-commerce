@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/admin';
+import { requireAdmin } from '@/lib/auth/verify-admin';
 
 // GET - Order detail with items and profile
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {

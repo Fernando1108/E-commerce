@@ -23,12 +23,16 @@ export async function POST(request: Request) {
   try {
     await resend.emails.send({
       from: 'NovaStore <onboarding@resend.dev>',
-      to: 'kodexasolutions@gmail.com',
-      subject: `Contacto NovaStore: ${sanitizeHtml(parsed.data.name)}`,
+      to: process.env.CONTACT_EMAIL || 'kodexasolutions@gmail.com',
+      subject: parsed.data.subject
+        ? `Contacto NovaStore: ${sanitizeHtml(parsed.data.subject)}`
+        : `Contacto NovaStore: ${sanitizeHtml(parsed.data.name)}`,
       html: `
         <h2>Nuevo mensaje de contacto</h2>
+        ${parsed.data.subject ? `<p><strong>Asunto:</strong> ${sanitizeHtml(parsed.data.subject)}</p>` : ''}
         <p><strong>Nombre:</strong> ${sanitizeHtml(parsed.data.name)}</p>
         <p><strong>Email:</strong> ${sanitizeHtml(parsed.data.email)}</p>
+        ${parsed.data.phone ? `<p><strong>Teléfono:</strong> ${sanitizeHtml(parsed.data.phone)}</p>` : ''}
         <p><strong>Mensaje:</strong></p>
         <p>${sanitizeHtml(parsed.data.message)}</p>
       `,
