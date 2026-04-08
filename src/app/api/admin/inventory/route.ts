@@ -1,5 +1,13 @@
 import { NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/admin';
+import { requireAdmin } from '@/lib/auth/verify-admin';
+import { z } from 'zod';
+
+const inventoryMovementSchema = z.object({
+  product_id: z.string().uuid(),
+  type: z.enum(['in', 'out', 'adjustment']),
+  quantity: z.number().int(),
+  reason: z.string().max(500).nullable().optional(),
+});
 
 // GET - Inventory movements + products with stock info
 export async function GET(request: Request) {
@@ -36,18 +44,12 @@ export async function POST(request: Request) {
   if (error) return error;
 
   const body = await request.json();
-  const { product_id, type, quantity, reason } = body;
-
-  if (!product_id || !type || !quantity) {
-    return NextResponse.json(
-      { error: 'product_id, type y quantity son obligatorios' },
-      { status: 400 }
-    );
+  const parsed = inventoryMovementSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
   }
 
-  if (!['in', 'out', 'adjustment'].includes(type)) {
-    return NextResponse.json({ error: 'type debe ser: in, out, adjustment' }, { status: 400 });
-  }
+  const { product_id, type, quantity, reason } = parsed.data;
 
   // Insert movement
   const { data, error: dbError } = await supabase
@@ -55,7 +57,7 @@ export async function POST(request: Request) {
     .insert({
       product_id,
       type,
-      quantity: Number(quantity),
+      quantity,
       reason: reason || null,
       created_by: user!.id,
     })

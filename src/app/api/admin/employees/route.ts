@@ -1,5 +1,17 @@
 import { NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/admin';
+import { requireAdmin } from '@/lib/auth/verify-admin';
+import { z } from 'zod';
+
+const employeeSchema = z.object({
+  name: z.string().min(1).max(200),
+  position: z.string().max(200).nullable().optional(),
+  department: z.string().max(200).nullable().optional(),
+  phone: z.string().max(50).nullable().optional(),
+  email: z.string().email().nullable().optional(),
+  hire_date: z.string().nullable().optional(),
+  salary: z.number().min(0).nullable().optional(),
+  status: z.enum(['active', 'inactive', 'terminated']).optional().default('active'),
+});
 
 export async function GET() {
   const { error, supabase } = await requireAdmin();
@@ -19,21 +31,14 @@ export async function POST(request: Request) {
   if (error) return error;
 
   const body = await request.json();
-  if (!body.name) return NextResponse.json({ error: 'El nombre es obligatorio' }, { status: 400 });
+  const parsed = employeeSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
+  }
 
   const { data, error: dbError } = await supabase
     .from('employees')
-    .insert({
-      name: body.name,
-      position: body.position || null,
-      department: body.department || null,
-      phone: body.phone || null,
-      email: body.email || null,
-      hire_date: body.hire_date || new Date().toISOString().split('T')[0],
-      salary: body.salary ? Number(body.salary) : 0,
-      status: body.status || 'active',
-      user_id: body.user_id || null,
-    })
+    .insert(parsed.data)
     .select()
     .single();
 

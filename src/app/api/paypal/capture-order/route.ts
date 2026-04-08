@@ -2,6 +2,22 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { sendOrderConfirmation } from '@/lib/email';
 import { getAccessToken, PAYPAL_API } from '@/lib/paypal/api';
+import { z } from 'zod';
+
+const captureSchema = z.object({
+  orderID: z.string().min(1, 'orderID requerido'),
+  cartItems: z.array(z.object({
+    product_id: z.string().uuid(),
+    variant_id: z.string().nullable().optional(),
+    quantity: z.number().int().positive(),
+    product: z.object({
+      name: z.string().optional(),
+      price: z.number().optional(),
+      image_url: z.string().nullable().optional(),
+    }).optional(),
+  })).min(1),
+  total: z.number().positive(),
+});
 
 export async function POST(request: Request) {
   try {
@@ -14,7 +30,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
     }
 
-    const { orderID, cartItems, total } = await request.json();
+    const body = await request.json();
+    const parsed = captureSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
+    }
+
+    const { orderID, cartItems, total } = parsed.data;
 
     const accessToken = await getAccessToken();
 
@@ -30,21 +52,34 @@ export async function POST(request: Request) {
 
     if (captureData.status === 'COMPLETED') {
       // Recalcular total server-side
-      const productIds = cartItems.map((item: any) => item.product_id);
+      const productIds = cartItems.map((item) => item.product_id);
       const { data: products } = await supabase
         .from('products')
         .select('id, price')
         .in('id', productIds);
 
       const priceMap = new Map(products?.map((p: any) => [p.id, p.price]) || []);
-      const serverTotal = cartItems.reduce((sum: number, item: any) => {
+      const serverTotal = cartItems.reduce((sum: number, item) => {
         const realPrice = priceMap.get(item.product_id) || 0;
         return sum + realPrice * item.quantity;
       }, 0);
 
-      const orderItems = cartItems.map((item: any) => ({
+      // Verificar que el monto capturado coincide con el total calculado
+      const capturedAmount = parseFloat(
+        captureData.purchase_units?.[0]?.payments?.captures?.[0]?.amount?.value || '0'
+      )
+      
+      if (Math.abs(capturedAmount - serverTotal) > 0.01) {
+        console.error(`Monto mismatch: capturado=${capturedAmount}, calculado=${serverTotal}`)
+        return NextResponse.json(
+          { error: 'El monto capturado no coincide con el total del pedido' },
+          { status: 400 }
+        )
+      }
+
+      const orderItems = cartItems.map((item) => ({
         product_id: item.product_id,
-        variant_id: item.variant_id || '',
+        variant_id: item.variant_id || null,
         quantity: item.quantity,
         price: priceMap.get(item.product_id) || 0,
       }));
@@ -69,7 +104,7 @@ export async function POST(request: Request) {
           customerName: user.user_metadata?.name || 'Cliente',
           orderId: orderId,
           total: serverTotal,
-          items: cartItems.map((item: any) => ({
+          items: cartItems.map((item) => ({
             name: item.product?.name || 'Producto',
             quantity: item.quantity,
             price: priceMap.get(item.product_id) || 0,

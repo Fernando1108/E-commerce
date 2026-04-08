@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/admin';
+import { requireAdmin } from '@/lib/auth/verify-admin';
 import { subDays, format, startOfDay } from 'date-fns';
 
 export async function GET() {

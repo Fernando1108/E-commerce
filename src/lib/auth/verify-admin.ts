@@ -48,3 +48,7 @@ export async function verifyAuth() {
 
   return { error: null, user, supabase };
 }
+
+/** Alias for verifyAdmin — backwards-compatible with @/lib/admin */
+export const requireAdmin = verifyAdmin;
+

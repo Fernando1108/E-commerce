@@ -31,6 +31,8 @@ export const contactSchema = z.object({
   name: z.string().min(1).max(100),
   email: z.string().email(),
   message: z.string().min(10).max(2000),
+  phone: z.string().max(50).nullable().optional(),
+  subject: z.string().max(200).nullable().optional(),
 });
 
 export const newsletterSchema = z.object({
