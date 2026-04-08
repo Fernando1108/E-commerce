@@ -101,6 +101,12 @@ export default function ContactoPage() {
         }),
       });
 
+      if (res.status === 429) {
+        toast.error('Demasiados intentos. Espera un momento antes de intentar de nuevo.');
+        setStatus('idle');
+        return;
+      }
+
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error || 'Error al enviar el mensaje');

@@ -7,7 +7,15 @@ import Icon from '@/components/ui/AppIcon';
 import { toast } from 'sonner';
 import { statusColors, statusLabels } from '@/constants';
 import { formatPrice } from '@/lib/utils';
-const allStatuses = ['pending', 'processing', 'shipped', 'delivered', 'completed', 'cancelled'];
+const allStatuses = [
+  'pending',
+  'processing',
+  'paid',
+  'shipped',
+  'delivered',
+  'completed',
+  'cancelled',
+];
 
 interface OrderDetail {
   id: string;

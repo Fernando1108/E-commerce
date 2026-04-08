@@ -9,6 +9,8 @@ import { toast } from 'sonner';
 import { formatPrice } from '@/lib/utils';
 import type { Employee } from '@/types';
 
+const LIMIT = 20;
+
 const statusColors: Record<string, string> = {
   active: 'bg-emerald-100 text-emerald-700',
   inactive: 'bg-slate-100 text-slate-500',
@@ -53,6 +55,9 @@ export default function AdminEmpleados() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Employee | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
   const [form, setForm] = useState({
     name: '',
     position: '',
@@ -84,25 +89,27 @@ export default function AdminEmpleados() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Preload customers when create modal opens
+  // Preload customers when create modal opens (load all for autocomplete — separate use case)
   const loadCustomers = async () => {
     if (customersLoaded) return;
     try {
-      const res = await fetch('/api/admin/customers');
-      const data = await res.json();
-      setAllCustomers(Array.isArray(data) ? data : []);
+      const res = await fetch('/api/admin/customers?limit=100');
+      const d = await res.json();
+      setAllCustomers(Array.isArray(d.data) ? d.data : []);
       setCustomersLoaded(true);
     } catch {
       // silently fail — manual entry still works
     }
   };
 
-  const fetchEmployees = async () => {
+  const fetchEmployees = async (p: number = page) => {
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/employees');
-      const data = await res.json();
-      setEmployees(Array.isArray(data) ? data : []);
+      const res = await fetch(`/api/admin/employees?page=${p}&limit=${LIMIT}`);
+      const d = await res.json();
+      setEmployees(Array.isArray(d.data) ? d.data : []);
+      setTotalPages(d.pagination?.totalPages ?? 1);
+      setTotal(d.pagination?.total ?? 0);
     } catch {
       toast.error('Error al cargar empleados');
     } finally {
@@ -111,8 +118,9 @@ export default function AdminEmpleados() {
   };
 
   useEffect(() => {
-    fetchEmployees();
-  }, []);
+    fetchEmployees(page);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   const openCreate = () => {
     setEditing(null);
@@ -195,7 +203,7 @@ export default function AdminEmpleados() {
         throw new Error(editing ? 'Error al actualizar empleado' : 'Error al crear empleado');
       toast.success(editing ? 'Empleado actualizado' : 'Empleado creado');
       setModalOpen(false);
-      fetchEmployees();
+      fetchEmployees(page);
     } catch (error: unknown) {
       toast.error(error instanceof Error ? error.message : 'Error al guardar empleado');
     } finally {
@@ -209,7 +217,7 @@ export default function AdminEmpleados() {
       const res = await fetch(`/api/admin/employees/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Error al eliminar empleado');
       toast.success('Empleado eliminado');
-      fetchEmployees();
+      fetchEmployees(page);
     } catch (error: unknown) {
       toast.error(error instanceof Error ? error.message : 'Error al eliminar empleado');
     }
@@ -285,9 +293,7 @@ export default function AdminEmpleados() {
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
             Empleados
           </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            {employees.length} empleados
-          </p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{total} empleados</p>
         </div>
         <motion.button
           whileTap={{ scale: 0.97 }}
@@ -303,7 +309,7 @@ export default function AdminEmpleados() {
         columns={columns}
         data={employees}
         loading={loading}
-        pageSize={10}
+        pageSize={LIMIT}
         emptyMessage="No hay empleados"
         actions={(item) => (
           <>
@@ -322,6 +328,30 @@ export default function AdminEmpleados() {
           </>
         )}
       />
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between pt-2">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            <Icon name="ChevronLeftIcon" size={14} />
+            Anterior
+          </button>
+          <span className="text-sm text-slate-500 dark:text-slate-400">
+            Página {page} de {totalPages}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            Siguiente
+            <Icon name="ChevronRightIcon" size={14} />
+          </button>
+        </div>
+      )}
 
       <AdminModal
         open={modalOpen}

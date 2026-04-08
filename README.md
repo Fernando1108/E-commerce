@@ -430,6 +430,9 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 - [x] Toast con undo al eliminar ítem del carrito (CartItemCard)
 - [x] ARIA `role="menu"` / `role="menuitem"` en dropdown de usuario (Header)
 - [x] Checkbox "Recordar email" en login controla persistencia en localStorage
+- [x] Paginación server-side conectada en admin (clientes, proveedores, empleados, compras)
+- [x] Manejo de 429 (rate limiting) en contacto y newsletter con toast amigable
+- [x] Enums de estado de pedido unificados en constants/index.ts (7 estados: pending, processing, paid, shipped, delivered, completed, cancelled)
 
 **Backend (Anderson):**
 - [x] GET/POST `/api/products` + Zod + verificación admin
@@ -472,7 +475,7 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 
 **Diego (Frontend):**
 
-✅ Frontend completo — auditoría #3 cerrada
+✅ Frontend completo — integración backend cerrada
 
 **Anderson (Backend):**
 ✅ Todas las tareas de backend completadas.

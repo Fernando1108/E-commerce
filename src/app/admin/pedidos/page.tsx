@@ -12,6 +12,7 @@ const statusFilters = [
   'all',
   'pending',
   'processing',
+  'paid',
   'shipped',
   'delivered',
   'completed',

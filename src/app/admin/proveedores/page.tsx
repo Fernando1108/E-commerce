@@ -9,6 +9,8 @@ import Icon from '@/components/ui/AppIcon';
 import { toast } from 'sonner';
 import type { Supplier } from '@/types';
 
+const LIMIT = 20;
+
 export default function AdminProveedores() {
   const router = useRouter();
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -16,6 +18,9 @@ export default function AdminProveedores() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Supplier | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
   const [form, setForm] = useState({
     name: '',
     contact_name: '',
@@ -28,12 +33,14 @@ export default function AdminProveedores() {
     status: 'active',
   });
 
-  const fetchSuppliers = async () => {
+  const fetchSuppliers = async (p: number = page) => {
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/suppliers');
-      const data = await res.json();
-      setSuppliers(Array.isArray(data) ? data : []);
+      const res = await fetch(`/api/admin/suppliers?page=${p}&limit=${LIMIT}`);
+      const d = await res.json();
+      setSuppliers(Array.isArray(d.data) ? d.data : []);
+      setTotalPages(d.pagination?.totalPages ?? 1);
+      setTotal(d.pagination?.total ?? 0);
     } catch {
       toast.error('Error al cargar proveedores');
     } finally {
@@ -42,8 +49,9 @@ export default function AdminProveedores() {
   };
 
   useEffect(() => {
-    fetchSuppliers();
-  }, []);
+    fetchSuppliers(page);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   const openCreate = () => {
     setEditing(null);
@@ -99,7 +107,7 @@ export default function AdminProveedores() {
         toast.success('Proveedor creado');
       }
       setModalOpen(false);
-      fetchSuppliers();
+      fetchSuppliers(page);
     } catch (error: unknown) {
       toast.error(error instanceof Error ? error.message : 'Error al guardar proveedor');
     } finally {
@@ -113,7 +121,7 @@ export default function AdminProveedores() {
       const res = await fetch(`/api/admin/suppliers/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Error al eliminar proveedor');
       toast.success('Proveedor eliminado');
-      fetchSuppliers();
+      fetchSuppliers(page);
     } catch (error: unknown) {
       toast.error(error instanceof Error ? error.message : 'Error al eliminar proveedor');
     }
@@ -167,9 +175,7 @@ export default function AdminProveedores() {
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
             Proveedores
           </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            {suppliers.length} proveedores
-          </p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{total} proveedores</p>
         </div>
         <div className="flex gap-2">
           <motion.button
@@ -195,7 +201,7 @@ export default function AdminProveedores() {
         columns={columns}
         data={suppliers}
         loading={loading}
-        pageSize={10}
+        pageSize={LIMIT}
         emptyMessage="No hay proveedores"
         actions={(item) => (
           <>
@@ -214,6 +220,30 @@ export default function AdminProveedores() {
           </>
         )}
       />
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between pt-2">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            <Icon name="ChevronLeftIcon" size={14} />
+            Anterior
+          </button>
+          <span className="text-sm text-slate-500 dark:text-slate-400">
+            Página {page} de {totalPages}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            Siguiente
+            <Icon name="ChevronRightIcon" size={14} />
+          </button>
+        </div>
+      )}
 
       <AdminModal
         open={modalOpen}

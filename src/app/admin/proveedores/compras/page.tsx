@@ -7,6 +7,8 @@ import Icon from '@/components/ui/AppIcon';
 import { toast } from 'sonner';
 import { formatPrice } from '@/lib/utils';
 
+const LIMIT = 20;
+
 interface PurchaseRow {
   id: string;
   supplier_id: string;
@@ -32,19 +34,25 @@ export default function AdminCompras() {
   const router = useRouter();
   const [purchases, setPurchases] = useState<PurchaseRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
-    fetch('/api/admin/purchases')
+    setLoading(true);
+    fetch(`/api/admin/purchases?page=${page}&limit=${LIMIT}`)
       .then((r) => r.json())
       .then((d) => {
-        setPurchases(Array.isArray(d) ? d : []);
+        setPurchases(Array.isArray(d.data) ? d.data : []);
+        setTotalPages(d.pagination?.totalPages ?? 1);
+        setTotal(d.pagination?.total ?? 0);
         setLoading(false);
       })
       .catch(() => {
         toast.error('Error al cargar órdenes de compra');
         setLoading(false);
       });
-  }, []);
+  }, [page]);
 
   const columns: Column<PurchaseRow>[] = [
     {
@@ -116,17 +124,42 @@ export default function AdminCompras() {
             Órdenes de compra
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            {purchases.length} compras registradas
+            {total} compras registradas
           </p>
         </div>
       </div>
+
       <DataTable
         columns={columns}
         data={purchases}
         loading={loading}
-        pageSize={15}
+        pageSize={LIMIT}
         emptyMessage="No hay compras registradas"
       />
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between pt-2">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            <Icon name="ChevronLeftIcon" size={14} />
+            Anterior
+          </button>
+          <span className="text-sm text-slate-500 dark:text-slate-400">
+            Página {page} de {totalPages}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            Siguiente
+            <Icon name="ChevronRightIcon" size={14} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

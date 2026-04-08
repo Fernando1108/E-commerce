@@ -24,6 +24,11 @@ export default function NewsletterSection() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
+      if (res.status === 429) {
+        toast.error('Demasiados intentos. Intenta en unos minutos.');
+        return;
+      }
+
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error || 'Error al suscribirse');
