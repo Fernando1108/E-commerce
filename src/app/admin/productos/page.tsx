@@ -43,6 +43,8 @@ function ProductFormModal({
   onSaved: () => void;
 }) {
   const [submitting, setSubmitting] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [imgError, setImgError] = useState(false);
 
   const {
     register,
@@ -98,6 +100,25 @@ function ProductFormModal({
       }
     }
   }, [open, editProduct, reset]);
+
+  // Image preview with 500ms debounce
+  const imageUrlValue = watch('image_url');
+  useEffect(() => {
+    setImgError(false);
+    const t = setTimeout(() => {
+      const val = imageUrlValue?.trim() ?? '';
+      setPreviewUrl(val.startsWith('http') ? val : '');
+    }, 500);
+    return () => clearTimeout(t);
+  }, [imageUrlValue]);
+
+  // Reset preview when modal closes
+  useEffect(() => {
+    if (!open) {
+      setPreviewUrl('');
+      setImgError(false);
+    }
+  }, [open]);
 
   // Auto-slug from name (only on create)
   const nameValue = watch('name');
@@ -246,11 +267,35 @@ function ProductFormModal({
           <input type="number" {...register('stock', { min: 0 })} className={INPUT_CLS} />
         </label>
 
-        {/* Image URL */}
-        <label className="block sm:col-span-2">
+        {/* Image URL + Preview */}
+        <div className="sm:col-span-2">
           <span className={LABEL_CLS}>URL de imagen</span>
-          <input {...register('image_url')} className={INPUT_CLS} placeholder="https://..." />
-        </label>
+          <div className="mt-1.5 flex gap-3 items-start">
+            <input
+              {...register('image_url')}
+              className={INPUT_CLS + ' flex-1'}
+              placeholder="https://..."
+            />
+            <div className="flex-shrink-0 size-[60px] rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 overflow-hidden flex items-center justify-center">
+              {previewUrl && !imgError ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={previewUrl}
+                  alt="Preview"
+                  className="w-full h-full object-cover"
+                  onError={() => setImgError(true)}
+                />
+              ) : (
+                <Icon
+                  name="PhotoIcon"
+                  size={22}
+                  className="text-slate-300 dark:text-slate-500"
+                  variant="outline"
+                />
+              )}
+            </div>
+          </div>
+        </div>
 
         {/* Badge */}
         <label className="block">

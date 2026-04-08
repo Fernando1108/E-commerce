@@ -56,25 +56,10 @@ export default function ProfilePage() {
     <main className="min-h-screen bg-[#FAF9F7]">
       <Header />
 
-      {/* ── Banner ── */}
+      {/* ── Avatar ── */}
       <div className="pt-[72px]">
-        <div className="relative h-40 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 overflow-hidden">
-          {/* Subtle grid pattern */}
-          <div
-            className="absolute inset-0 opacity-[0.06]"
-            style={{
-              backgroundImage:
-                'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.8) 1px, transparent 0)',
-              backgroundSize: '32px 32px',
-            }}
-          />
-          <div className="absolute top-0 right-1/4 w-64 h-64 rounded-full bg-blue-500 blur-[100px] opacity-20" />
-          <div className="absolute bottom-0 left-1/3 w-48 h-48 rounded-full bg-indigo-500 blur-[80px] opacity-15" />
-        </div>
-
-        {/* ── Avatar centered on banner edge ── */}
         <div className="max-w-3xl mx-auto px-6">
-          <div className="flex flex-col items-center -mt-16">
+          <div className="flex flex-col items-center pt-12">
             <motion.div
               {...fadeUp(0)}
               className="size-32 rounded-full border-4 border-white shadow-xl bg-[#EFEDE9] flex items-center justify-center overflow-hidden"
