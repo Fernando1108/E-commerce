@@ -11,13 +11,16 @@ import { formatPrice } from '@/lib/utils';
 import { useCart } from '@/hooks/useCart';
 import { useWishlist } from '@/hooks/useWishlist';
 import { toast } from 'sonner';
+import type { Product } from '@/types';
 
 export default function WishlistPage() {
   const { items, loading, removeFromWishlist } = useWishlist();
   const { addItem } = useCart();
 
-  const handleAddToCart = (product: any) => {
-    addItem(product, 1, null);
+  const handleAddToCart = (
+    product: Pick<Product, 'id' | 'name' | 'price' | 'image_url' | 'stock'> & Partial<Product>
+  ) => {
+    addItem(product as Product, 1, null);
     toast.success(`${product.name} agregado al carrito`);
   };
 

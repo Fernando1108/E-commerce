@@ -1,3 +1,5 @@
+export const SHIPPING_THRESHOLD = 100;
+
 export const statusColors: Record<string, string> = {
   pending: 'bg-amber-100 text-amber-700 border-amber-200',
   processing: 'bg-blue-100 text-blue-700 border-blue-200',

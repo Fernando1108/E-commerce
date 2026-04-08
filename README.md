@@ -444,7 +444,8 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 ### 🚧 Pendiente
 
 **Diego (Frontend):**
-✅ Frontend completo
+
+✅ Frontend completo — auditoría cerrada
 
 **Anderson (Backend):**
 - [ ] Agregar paginación en admin endpoints (customers, suppliers, employees, purchases)

@@ -9,14 +9,7 @@ export default function NotFound() {
   return (
     <main className="min-h-screen bg-[#F8F7F5] flex flex-col items-center justify-center px-6">
       {/* Background decoration */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-[0.025]"
-        style={{
-          backgroundImage:
-            'radial-gradient(circle at 1px 1px, rgba(28,28,28,0.8) 1px, transparent 0)',
-          backgroundSize: '40px 40px',
-        }}
-      />
+      <div className="absolute inset-0 pointer-events-none opacity-[0.025] bg-dot-pattern" />
 
       <div className="relative text-center max-w-lg">
         {/* 404 big number */}

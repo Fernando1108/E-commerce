@@ -11,25 +11,18 @@ type CartHeaderProps = {
 export default function CartHeader({ itemCount }: CartHeaderProps) {
   return (
     <section className="relative h-36 lg:h-48 overflow-hidden flex items-end">
-      {/* ── Background ── */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-800" />
-
-      {/* Subtle dot grid */}
+      {/* ── Background image ── */}
       <div
-        className="absolute inset-0 opacity-[0.07]"
+        className="absolute inset-0"
         style={{
-          backgroundImage:
-            'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.9) 1px, transparent 0)',
-          backgroundSize: '28px 28px',
+          backgroundImage: "url('/logo/banner-cart.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
         }}
       />
 
-      {/* Glow blobs */}
-      <div className="absolute -top-20 right-1/4 w-80 h-80 rounded-full bg-blue-500 blur-[120px] opacity-15 pointer-events-none" />
-      <div className="absolute bottom-0 left-1/3 w-56 h-56 rounded-full bg-indigo-600 blur-[90px] opacity-10 pointer-events-none" />
-
-      {/* Semi-transparent overlay */}
-      <div className="absolute inset-0 bg-slate-900/30" />
+      {/* Dark overlay for text legibility */}
+      <div className="absolute inset-0 bg-black/50" />
 
       {/* ── Content ── */}
       <div className="relative w-full max-w-[1440px] mx-auto px-6 lg:px-14 pb-8 lg:pb-10">
@@ -39,7 +32,7 @@ export default function CartHeader({ itemCount }: CartHeaderProps) {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45 }}
-              className="text-[10px] font-black uppercase tracking-[0.28em] text-blue-400/80 mb-2"
+              className="text-[10px] font-black uppercase tracking-[0.28em] text-white/70 mb-2"
             >
               Tu Selección
             </motion.p>

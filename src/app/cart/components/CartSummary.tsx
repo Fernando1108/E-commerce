@@ -4,8 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import Icon from '@/components/ui/AppIcon';
 import { formatPrice } from '@/lib/utils';
-
-const SHIPPING_THRESHOLD = 100;
+import { SHIPPING_THRESHOLD } from '@/constants';
 
 type AppliedCoupon = {
   code: string;

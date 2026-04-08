@@ -15,8 +15,8 @@ import CartSummary from './components/CartSummary';
 import CouponInput from './components/CouponInput';
 import CartPayPalButton from './components/CartPayPalButton';
 import EmptyCart from './components/EmptyCart';
+import { SHIPPING_THRESHOLD } from '@/constants';
 
-const SHIPPING_THRESHOLD = 100;
 const SHIPPING_COST = 9.95;
 
 type AppliedCoupon = { code: string; label: string; discount: number; type: string };

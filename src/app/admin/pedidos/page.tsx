@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import DataTable, { Column } from '../components/DataTable';
@@ -30,20 +30,29 @@ interface OrderRow {
 export default function AdminPedidos() {
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [statusFilter, setStatusFilter] = useState('all');
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      setLoading(true);
+  const fetchOrders = useCallback(async () => {
+    setLoading(true);
+    setFetchError(false);
+    try {
       const params = new URLSearchParams();
       if (statusFilter !== 'all') params.set('status', statusFilter);
       const res = await fetch(`/api/admin/orders?${params}`);
+      if (!res.ok) throw new Error('Error de red');
       const data = await res.json();
       setOrders(data.data || []);
+    } catch {
+      setFetchError(true);
+    } finally {
       setLoading(false);
-    };
-    fetchOrders();
+    }
   }, [statusFilter]);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
 
   const columns: Column<OrderRow>[] = [
     {
@@ -123,6 +132,27 @@ export default function AdminPedidos() {
           </motion.button>
         ))}
       </div>
+
+      {fetchError && (
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-red-200 bg-red-50 py-10 text-center dark:border-red-800 dark:bg-red-950/30">
+          <Icon
+            name="ExclamationTriangleIcon"
+            size={24}
+            className="text-red-500"
+            variant="outline"
+          />
+          <p className="text-sm font-semibold text-red-700 dark:text-red-400">
+            Error al cargar pedidos. Intenta de nuevo.
+          </p>
+          <button
+            onClick={fetchOrders}
+            className="mt-1 inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white hover:bg-red-700 transition-colors"
+          >
+            <Icon name="ArrowPathIcon" size={13} variant="outline" />
+            Reintentar
+          </button>
+        </div>
+      )}
 
       <DataTable
         columns={columns}

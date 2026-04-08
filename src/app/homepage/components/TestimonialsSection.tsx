@@ -5,6 +5,7 @@ import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
+import StarRating from '@/components/ui/StarRating';
 
 const testimonials = [
   {
@@ -38,22 +39,6 @@ const testimonials = [
     avatar: 'https://i.pravatar.cc/200?u=carlos-fernandez-valencia',
   },
 ];
-
-function StarRating({ rating }: { rating: number }) {
-  return (
-    <div className="flex items-center gap-1">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <Icon
-          key={i}
-          name="StarIcon"
-          size={16}
-          variant="solid"
-          className={i < rating ? 'star-filled' : 'star-empty'}
-        />
-      ))}
-    </div>
-  );
-}
 
 export default function TestimonialsSection() {
   const [active, setActive] = useState(0);
@@ -149,7 +134,7 @@ export default function TestimonialsSection() {
                 </blockquote>
 
                 {/* Rating */}
-                <StarRating rating={current.rating} />
+                <StarRating rating={current.rating} size="sm" />
 
                 {/* Author */}
                 <div className="flex items-center gap-5 pt-4 border-t border-white/10">

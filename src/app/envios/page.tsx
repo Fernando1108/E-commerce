@@ -67,14 +67,7 @@ export default function EnviosPage() {
       <Header />
 
       <section className="relative overflow-hidden pt-[72px]">
-        <div
-          className="absolute inset-0 pointer-events-none opacity-[0.025]"
-          style={{
-            backgroundImage:
-              'radial-gradient(circle at 1px 1px, rgba(28,28,28,0.8) 1px, transparent 0)',
-            backgroundSize: '40px 40px',
-          }}
-        />
+        <div className="absolute inset-0 pointer-events-none opacity-[0.025] bg-dot-pattern" />
         <div className="absolute top-0 right-0 h-[420px] w-[420px] rounded-full bg-[#E8E5DF] blur-[120px] opacity-70 pointer-events-none" />
         <div className="absolute bottom-0 left-0 h-[320px] w-[320px] rounded-full bg-[#2563EB] blur-[120px] opacity-[0.05] pointer-events-none" />
 

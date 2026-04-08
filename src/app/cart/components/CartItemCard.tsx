@@ -127,7 +127,7 @@ export default function CartItemCard({
               </motion.span>
               <QtyButton
                 onClick={() => onUpdateQuantity(item.product_id, item.quantity + 1)}
-                disabled={item.quantity >= 10}
+                disabled={item.quantity >= (item.product?.stock ?? 10)}
                 ariaLabel="Aumentar cantidad"
               >
                 <Icon name="PlusIcon" size={11} variant="outline" />

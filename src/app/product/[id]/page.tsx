@@ -144,7 +144,7 @@ export default function ProductDetailPage() {
         <Header />
         <div className="min-h-screen bg-[#F8F7F5] pt-[88px]">
           <div className="max-w-[1440px] mx-auto px-6 lg:px-12 py-12 lg:py-20">
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_460px] gap-12 lg:gap-20 animate-pulse">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_460px] gap-12 lg:gap-20 skeleton-shimmer">
               <div className="bg-[#EFEDE9] aspect-[4/5]" />
               <div className="space-y-6">
                 <div className="h-4 bg-[#EFEDE9] rounded w-24" />

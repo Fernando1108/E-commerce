@@ -39,14 +39,7 @@ export default function HeroSection() {
       className="relative min-h-screen flex flex-col overflow-hidden bg-[#F8F7F5]"
     >
       {/* Subtle warm texture */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-[0.025]"
-        style={{
-          backgroundImage:
-            'radial-gradient(circle at 1px 1px, rgba(28,28,28,0.8) 1px, transparent 0)',
-          backgroundSize: '40px 40px',
-        }}
-      />
+      <div className="absolute inset-0 pointer-events-none opacity-[0.025] bg-dot-pattern" />
       {/* Soft warm glow — top right */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-[#E8E5DF] opacity-60 blur-[120px] pointer-events-none" />
       {/* Subtle blue accent — bottom left */}
@@ -158,7 +151,7 @@ export default function HeroSection() {
                 />
               </Link>
               <Link
-                href="/products"
+                href="/products?sort=newest"
                 className="inline-flex items-center gap-3 border border-[#DDD9D3] text-[#1C1C1C] text-[11px] font-black uppercase tracking-widest hover:border-[#1C1C1C] hover:bg-[#EFEDE9] transition-all duration-300"
                 style={{ padding: '1.125rem 2.25rem' }}
               >

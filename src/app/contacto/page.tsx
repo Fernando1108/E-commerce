@@ -22,7 +22,7 @@ type ContactFormValues = {
 
 const contactHighlights = [
   {
-    title: 'Atencion clara',
+    title: 'Atención clara',
     description:
       'El formulario centraliza consultas sobre pedidos, soporte, tiempos y procesos posteriores a la compra.',
   },
@@ -46,7 +46,7 @@ const supportTopics = [
     icon: 'ShoppingBagIcon',
   },
   {
-    title: 'Envios y devoluciones',
+    title: 'Envíos y devoluciones',
     description:
       'Dudas sobre tiempos, cobertura, cambios, validaciones logisticas o solicitudes posteriores a la entrega.',
     icon: 'TruckIcon',
@@ -112,10 +112,11 @@ export default function ContactoPage() {
       );
       toast.success('Mensaje enviado');
       reset();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Error al enviar el mensaje';
       setStatus('error');
-      setFeedbackMessage(error.message || 'Error al enviar el mensaje');
-      toast.error(error.message || 'Error al enviar el mensaje');
+      setFeedbackMessage(msg);
+      toast.error(msg);
     }
   });
 
@@ -124,14 +125,7 @@ export default function ContactoPage() {
       <Header />
 
       <section className="relative overflow-hidden pt-[72px]">
-        <div
-          className="absolute inset-0 pointer-events-none opacity-[0.025]"
-          style={{
-            backgroundImage:
-              'radial-gradient(circle at 1px 1px, rgba(28,28,28,0.8) 1px, transparent 0)',
-            backgroundSize: '40px 40px',
-          }}
-        />
+        <div className="absolute inset-0 pointer-events-none opacity-[0.025] bg-dot-pattern" />
         <div className="absolute top-0 right-0 h-[420px] w-[420px] rounded-full bg-[#E8E5DF] blur-[120px] opacity-70 pointer-events-none" />
         <div className="absolute bottom-0 left-0 h-[320px] w-[320px] rounded-full bg-[#2563EB] blur-[120px] opacity-[0.05] pointer-events-none" />
 
@@ -161,7 +155,7 @@ export default function ContactoPage() {
                   nosotros
                 </span>
                 <br />
-                sin friccion.
+                sin fricción.
               </h1>
 
               <p className="mt-6 max-w-xl text-base leading-relaxed text-[#5A5A5A] lg:text-lg">
@@ -239,7 +233,7 @@ export default function ContactoPage() {
                     />
 
                     <AuthField
-                      label="Telefono"
+                      label="Teléfono"
                       type="tel"
                       placeholder="+57 300 000 0000"
                       registration={register('phone', {

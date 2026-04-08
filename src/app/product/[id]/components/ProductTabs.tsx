@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
@@ -77,8 +78,8 @@ function ReviewsTab({
       setComment('');
       setSelectedStar(0);
       fetchReviews();
-    } catch (error: any) {
-      toast.error(error.message || 'Error al publicar reseña');
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'Error al publicar reseña');
     } finally {
       setSubmitting(false);
     }
@@ -93,8 +94,8 @@ function ReviewsTab({
       }
       toast.success('Reseña eliminada');
       fetchReviews();
-    } catch (error: any) {
-      toast.error(error.message || 'Error al eliminar reseña');
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'Error al eliminar reseña');
     }
   };
 
@@ -139,11 +140,12 @@ function ReviewsTab({
                         year: 'numeric',
                       })}
                     </span>
-                    {user && (user as any).id === review.user_id && (
+                    {user && user.id === review.user_id && (
                       <button
                         onClick={() => handleDelete(review.id)}
                         className="text-[#8A8A8A] hover:text-red-500 transition-colors"
                         title="Eliminar reseña"
+                        aria-label="Eliminar reseña"
                       >
                         <Icon name="TrashIcon" size={13} variant="outline" />
                       </button>
@@ -171,12 +173,12 @@ function ReviewsTab({
               className="text-[#8A8A8A] mx-auto mb-3"
             />
             <p className="text-[#5A5A5A] text-sm mb-4">Inicia sesión para dejar una reseña</p>
-            <a
+            <Link
               href="/auth/login"
               className="inline-flex items-center gap-2 px-6 py-3 bg-[#1C1C1C] text-white text-[10px] font-black uppercase tracking-widest hover:bg-[#2563EB] transition-colors"
             >
               Iniciar sesión
-            </a>
+            </Link>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -251,7 +253,7 @@ export default function ProductTabs({
   ];
 
   return (
-    <section className="py-16 lg:py-24 bg-white border-t border-[#DDD9D3]">
+    <section id="product-tabs" className="py-16 lg:py-24 bg-white border-t border-[#DDD9D3]">
       <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
         <div className="flex gap-0 border-b border-[#DDD9D3] mb-12 overflow-x-auto">
           {tabs.map((tab) => (

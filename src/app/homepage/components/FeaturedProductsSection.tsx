@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
 import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
+import StarRating from '@/components/ui/StarRating';
 import { getFeaturedProducts } from '@/lib/supabase/services';
 import { formatPrice } from '@/lib/utils';
 import { useCart } from '@/hooks/useCart';
@@ -17,22 +18,6 @@ const badgeConfig: Record<string, { label: string; color: string; bg: string }> 
   oferta: { label: 'Oferta', color: '#FFFFFF', bg: '#1C1C1C' },
   top: { label: 'Top Ventas', color: '#FFFFFF', bg: '#2C2C2C' },
 };
-
-function StarRating({ rating }: { rating: number }) {
-  return (
-    <div className="flex items-center gap-0.5">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <Icon
-          key={i}
-          name="StarIcon"
-          size={11}
-          variant="solid"
-          className={i < rating ? 'star-filled' : 'star-empty'}
-        />
-      ))}
-    </div>
-  );
-}
 
 function ProductCard({
   product,
@@ -137,7 +122,7 @@ function ProductCard({
       {/* Content */}
       <div className="p-6 space-y-4">
         <div className="flex items-center gap-2">
-          <StarRating rating={rating} />
+          <StarRating rating={rating} size="sm" />
           <span className="text-[11px] text-[#8A8A8A] font-500">({reviewCount})</span>
         </div>
 

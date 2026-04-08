@@ -43,14 +43,7 @@ export default function OrdersPage() {
       <Header />
 
       <section className="relative overflow-hidden px-6 pb-20 pt-[120px] lg:px-12">
-        <div
-          className="absolute inset-0 pointer-events-none opacity-[0.025]"
-          style={{
-            backgroundImage:
-              'radial-gradient(circle at 1px 1px, rgba(28,28,28,0.8) 1px, transparent 0)',
-            backgroundSize: '40px 40px',
-          }}
-        />
+        <div className="absolute inset-0 pointer-events-none opacity-[0.025] bg-dot-pattern" />
         <div className="absolute top-0 right-0 h-[360px] w-[360px] rounded-full bg-[#E8E5DF] blur-[120px] opacity-70 pointer-events-none" />
 
         <div className="relative mx-auto max-w-[1440px]">

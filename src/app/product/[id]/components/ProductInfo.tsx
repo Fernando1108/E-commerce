@@ -67,7 +67,12 @@ export default function ProductInfo({ product, rating, reviewCount, discount }: 
               {product.avg_rating?.toFixed(1) || '0.0'}
             </span>
           </div>
-          <button className="text-[11px] text-[#2563EB] hover:underline font-600">
+          <button
+            className="text-[11px] text-[#2563EB] hover:underline font-600"
+            onClick={() =>
+              document.getElementById('product-tabs')?.scrollIntoView({ behavior: 'smooth' })
+            }
+          >
             {reviewCount} valoraciones
           </button>
           <span className="text-[11px] text-[#8A8A8A]">·</span>

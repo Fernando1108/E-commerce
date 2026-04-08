@@ -20,28 +20,35 @@ const navLinks = [
   { label: 'Soporte', href: '/contacto' },
 ] as const;
 
+// ─── Shared active-link helper ────────────────────────────────────────────────
+function getIsActive(
+  pathname: string,
+  searchParams: { get(key: string): string | null },
+  href: string
+): boolean {
+  const [base, query] = href.split('?');
+  if (pathname !== base) return false;
+  if (!query) {
+    return (
+      !searchParams.get('view') &&
+      !searchParams.get('sort') &&
+      !searchParams.get('badge') &&
+      !searchParams.get('category')
+    );
+  }
+  const hrefParams = new URLSearchParams(query);
+  for (const [key, value] of hrefParams.entries()) {
+    if (searchParams.get(key) !== value) return false;
+  }
+  return true;
+}
+
 // ─── Desktop Nav (needs useSearchParams → must be Suspense-wrapped) ───────────
 function DesktopNavLinks({ onLinkClick }: { onLinkClick?: () => void }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const isActive = (href: string) => {
-    const [base, query] = href.split('?');
-    if (pathname !== base) return false;
-    if (!query) {
-      return (
-        !searchParams.get('view') &&
-        !searchParams.get('sort') &&
-        !searchParams.get('badge') &&
-        !searchParams.get('category')
-      );
-    }
-    const hrefParams = new URLSearchParams(query);
-    for (const [key, value] of hrefParams.entries()) {
-      if (searchParams.get(key) !== value) return false;
-    }
-    return true;
-  };
+  const isActive = (href: string) => getIsActive(pathname, searchParams, href);
 
   return (
     <>
@@ -77,23 +84,7 @@ function MobileNavLinkList({ onClose }: { onClose: () => void }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const isActive = (href: string) => {
-    const [base, query] = href.split('?');
-    if (pathname !== base) return false;
-    if (!query) {
-      return (
-        !searchParams.get('view') &&
-        !searchParams.get('sort') &&
-        !searchParams.get('badge') &&
-        !searchParams.get('category')
-      );
-    }
-    const hrefParams = new URLSearchParams(query);
-    for (const [key, value] of hrefParams.entries()) {
-      if (searchParams.get(key) !== value) return false;
-    }
-    return true;
-  };
+  const isActive = (href: string) => getIsActive(pathname, searchParams, href);
 
   return (
     <>

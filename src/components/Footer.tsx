@@ -9,17 +9,17 @@ import Icon from '@/components/ui/AppIcon';
 const footerColumns = [
   [
     { label: 'Tienda', href: '/products' },
-    { label: 'Categorias', href: '/products' },
-    { label: 'Novedades', href: '/products' },
+    { label: 'Categorías', href: '/products?view=categories' },
+    { label: 'Novedades', href: '/products?sort=newest' },
   ],
   [
     { label: 'Soporte', href: '/contacto' },
-    { label: 'Envios', href: '/envios' },
+    { label: 'Envíos', href: '/envios' },
     { label: 'Devoluciones', href: '/devoluciones' },
   ],
   [
     { label: 'Privacidad', href: '/privacidad' },
-    { label: 'Terminos', href: '/terminos' },
+    { label: 'Términos', href: '/terminos' },
     { label: 'Contacto', href: '/contacto' },
   ],
 ];
@@ -158,7 +158,7 @@ export default function Footer() {
               href="/terminos"
               className="text-[12px] font-500 text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
             >
-              Terminos
+              Términos
             </Link>
             <span className="mx-1 text-[#DDD9D3]">·</span>
             <a

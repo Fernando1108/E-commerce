@@ -4,6 +4,7 @@ import React, { useRef, useState } from 'react';
 import Link from 'next/link';
 import { motion, useInView } from 'framer-motion';
 import Icon from '@/components/ui/AppIcon';
+import AppImage from '@/components/ui/AppImage';
 import { toast } from 'sonner';
 
 export default function NewsletterSection() {
@@ -29,8 +30,8 @@ export default function NewsletterSection() {
       }
       toast.success('Te has suscrito exitosamente');
       setSubmitted(true);
-    } catch (error: any) {
-      toast.error(error.message || 'Error al suscribirse');
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'Error al suscribirse');
     } finally {
       setLoading(false);
     }
@@ -146,9 +147,11 @@ export default function NewsletterSection() {
                         key={n}
                         className="size-8 overflow-hidden rounded-full border-2 border-[#1C1C1C] bg-white/10"
                       >
-                        <img
+                        <AppImage
                           src={`https://i.pravatar.cc/32?img=${n + 10}`}
                           alt={`Suscriptor ${n}`}
+                          width={32}
+                          height={32}
                           className="h-full w-full object-cover grayscale"
                         />
                       </div>

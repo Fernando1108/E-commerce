@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import DataTable, { Column } from '../components/DataTable';
 import AdminModal from '../components/AdminModal';
 import Icon from '@/components/ui/AppIcon';
+import AppImage from '@/components/ui/AppImage';
 import { formatPrice } from '@/lib/utils';
 import type { Product, Category } from '@/types';
 
@@ -278,10 +279,11 @@ function ProductFormModal({
             />
             <div className="flex-shrink-0 size-[60px] rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 overflow-hidden flex items-center justify-center">
               {previewUrl && !imgError ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <AppImage
                   src={previewUrl}
                   alt="Preview"
+                  width={60}
+                  height={60}
                   className="w-full h-full object-cover"
                   onError={() => setImgError(true)}
                 />
@@ -396,7 +398,13 @@ export default function AdminProductos() {
       render: (item) => (
         <div className="size-10 rounded-lg bg-slate-100 overflow-hidden flex-shrink-0">
           {item.image_url ? (
-            <img src={item.image_url} alt={item.name} className="size-full object-cover" />
+            <AppImage
+              src={item.image_url}
+              alt={item.name}
+              width={40}
+              height={40}
+              className="size-full object-cover"
+            />
           ) : (
             <div className="size-full flex items-center justify-center text-slate-300">
               <Icon name="PhotoIcon" size={16} />

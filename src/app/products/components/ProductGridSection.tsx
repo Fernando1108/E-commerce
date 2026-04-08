@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
 import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
+import StarRating from '@/components/ui/StarRating';
 import ProductFiltersSection from './ProductFiltersSection';
 import { formatPrice } from '@/lib/utils';
 import { useCart } from '@/hooks/useCart';
@@ -19,22 +20,6 @@ const badgeConfig: Record<string, { label: string; textColor: string; bg: string
   oferta: { label: 'Oferta', textColor: '#FFFFFF', bg: '#1C1C1C' },
   top: { label: 'Top Ventas', textColor: '#FFFFFF', bg: '#2C2C2C' },
 };
-
-function StarRating({ rating }: { rating: number }) {
-  return (
-    <div className="flex items-center gap-0.5">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <Icon
-          key={i}
-          name="StarIcon"
-          size={11}
-          variant="solid"
-          className={i < rating ? 'star-filled' : 'star-empty'}
-        />
-      ))}
-    </div>
-  );
-}
 
 function ProductCard({
   product,
@@ -136,7 +121,7 @@ function ProductCard({
       {/* Content */}
       <div className="p-4 space-y-2.5">
         <div className="flex items-center gap-1.5">
-          <StarRating rating={rating} />
+          <StarRating rating={rating} size="sm" />
           <span className="text-[10px] text-[#8A8A8A] font-500">({reviewCount})</span>
         </div>
 
@@ -256,6 +241,7 @@ export default function ProductGridSection({
       });
       if (activeCategory !== 'all') params.set('category', activeCategory);
       if (searchQuery.trim()) params.set('search', searchQuery.trim());
+      if (activeSort && activeSort !== 'featured') params.set('sort', activeSort);
       const res = await fetch(`/api/products?${params}`);
       const data: Product[] = await res.json();
       setProducts((prev) => [...prev, ...data]);
