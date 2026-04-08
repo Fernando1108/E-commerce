@@ -228,7 +228,10 @@ export default function ProductGridSection({
         setHasMore(data.length === PAGE_SIZE);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => {
+        toast.error('Error al cargar productos');
+        setLoading(false);
+      });
   }, [activeCategory, searchQuery]);
 
   const handleLoadMore = async () => {
@@ -395,7 +398,7 @@ export default function ProductGridSection({
                       </>
                     ) : (
                       <>
-                        Cargar más productos
+                        Cargar más (+{PAGE_SIZE})
                         <Icon
                           name="ArrowDownIcon"
                           size={14}

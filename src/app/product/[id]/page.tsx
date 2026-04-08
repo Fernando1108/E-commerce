@@ -101,7 +101,9 @@ export default function ProductDetailPage() {
           .then((related) =>
             setRelatedProducts(related.filter((r) => r.id !== prod.id).slice(0, 4))
           )
-          .catch(() => {});
+          .catch(() => {
+            /* silencioso ok, productos relacionados son opcionales */
+          });
         setLoading(false);
       })
       .catch(() => {

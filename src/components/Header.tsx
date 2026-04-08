@@ -5,11 +5,13 @@ import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import AppLogo from '@/components/ui/AppLogo';
+import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
 import { useWishlist } from '@/hooks/useWishlist';
 import { useProfile } from '@/hooks/useProfile';
+import { toast } from 'sonner';
 
 // ─── Nav Links ────────────────────────────────────────────────────────────────
 const navLinks = [
@@ -172,7 +174,7 @@ function InlineSearch({ onClose }: { onClose: () => void }) {
           setResults(Array.isArray(data) ? data : (data.products ?? []));
         }
       } catch {
-        /* silent */
+        toast.error('Error en la búsqueda');
       } finally {
         setLoading(false);
       }
@@ -251,10 +253,11 @@ function InlineSearch({ onClose }: { onClose: () => void }) {
                       {/* Thumbnail */}
                       <div className="size-9 bg-[#EFEDE9] flex-shrink-0 overflow-hidden">
                         {item.image_url ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
+                          <AppImage
                             src={item.image_url}
                             alt={item.name}
+                            width={36}
+                            height={36}
                             className="w-full h-full object-cover"
                           />
                         ) : (
@@ -335,6 +338,7 @@ function UserDropdown({ user, isAdmin, onSignOut, onClose }: UserDropdownProps) 
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 6, scale: 0.97 }}
       transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
+      role="menu"
       className="absolute top-full right-0 mt-2 w-52 bg-white border border-[#DDD9D3] shadow-[0_8px_32px_rgba(0,0,0,0.1)] z-50 overflow-hidden"
     >
       {/* Email header */}
@@ -352,6 +356,7 @@ function UserDropdown({ user, isAdmin, onSignOut, onClose }: UserDropdownProps) 
             <Link
               href="/admin"
               onClick={onClose}
+              role="menuitem"
               className="flex items-center gap-3 px-4 py-2.5 text-[12px] font-700 text-[#2563EB] hover:bg-[#EFF6FF] transition-colors"
             >
               <div className="size-5 bg-[#2563EB] flex items-center justify-center flex-shrink-0">
@@ -366,6 +371,7 @@ function UserDropdown({ user, isAdmin, onSignOut, onClose }: UserDropdownProps) 
         <Link
           href="/profile"
           onClick={onClose}
+          role="menuitem"
           className="flex items-center gap-3 px-4 py-2.5 text-[12px] font-600 text-[#1C1C1C] hover:bg-[#F8F7F5] transition-colors"
         >
           <Icon
@@ -380,6 +386,7 @@ function UserDropdown({ user, isAdmin, onSignOut, onClose }: UserDropdownProps) 
         <Link
           href="/profile/orders"
           onClick={onClose}
+          role="menuitem"
           className="flex items-center gap-3 px-4 py-2.5 text-[12px] font-600 text-[#1C1C1C] hover:bg-[#F8F7F5] transition-colors"
         >
           <Icon
@@ -394,6 +401,7 @@ function UserDropdown({ user, isAdmin, onSignOut, onClose }: UserDropdownProps) 
         <div className="my-1 border-t border-[#DDD9D3]" />
 
         <button
+          role="menuitem"
           onClick={() => {
             onSignOut();
             onClose();

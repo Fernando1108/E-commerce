@@ -19,7 +19,7 @@ interface AppImageProps {
   fallbackSrc?: string;
   loading?: 'lazy' | 'eager';
   unoptimized?: boolean;
-  [key: string]: any;
+  onError?: () => void;
 }
 
 const AppImage = memo(function AppImage({

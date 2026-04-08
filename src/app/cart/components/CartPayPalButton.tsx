@@ -53,8 +53,7 @@ export default function CartPayPalButton({ items, grandTotal, onSuccess }: CartP
               onSuccess();
             }
           }}
-          onError={(err) => {
-            console.error('PayPal error:', err);
+          onError={() => {
             toast.error('Error procesando el pago. Por favor inténtalo de nuevo.');
           }}
         />

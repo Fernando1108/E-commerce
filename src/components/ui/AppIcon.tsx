@@ -7,14 +7,13 @@ import { QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 
 type IconVariant = 'outline' | 'solid';
 
-interface IconProps {
-  name: string; // Changed to string to accept dynamic values
+interface IconProps extends Omit<React.SVGProps<SVGSVGElement>, 'onClick' | 'width' | 'height'> {
+  name: string;
   variant?: IconVariant;
   size?: number;
   className?: string;
   onClick?: () => void;
   disabled?: boolean;
-  [key: string]: any;
 }
 
 function Icon({

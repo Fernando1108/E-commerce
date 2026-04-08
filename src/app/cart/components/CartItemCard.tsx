@@ -3,8 +3,10 @@
 import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
+import { useCart } from '@/hooks/useCart';
 import { formatPrice } from '@/lib/utils';
 import type { CartItem } from '@/types';
 
@@ -47,9 +49,11 @@ export default function CartItemCard({
   onRemove,
   onUpdateQuantity,
 }: CartItemCardProps) {
+  const { addItem } = useCart();
+  if (!item.product) return null;
   const p = item.product;
-  const itemPrice = p?.price ?? 0;
-  const itemOriginalPrice = p?.original_price ?? null;
+  const itemPrice = p.price ?? 0;
+  const itemOriginalPrice = p.original_price ?? null;
   const lineTotal = itemPrice * item.quantity;
 
   return (
@@ -99,7 +103,15 @@ export default function CartItemCard({
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              onClick={() => onRemove(item.product_id)}
+              onClick={() => {
+                onRemove(item.product_id);
+                toast('Producto eliminado', {
+                  action: {
+                    label: 'Deshacer',
+                    onClick: () => addItem(p, item.quantity),
+                  },
+                });
+              }}
               aria-label={`Eliminar ${p?.name}`}
               className="shrink-0 size-8 flex items-center justify-center text-[#8A8A8A] hover:text-red-500 hover:bg-red-50 rounded-sm transition-all duration-200"
             >

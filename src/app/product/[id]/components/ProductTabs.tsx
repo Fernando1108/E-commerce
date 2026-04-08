@@ -46,7 +46,7 @@ function ReviewsTab({
         setReviews(Array.isArray(data) ? data : []);
       }
     } catch {
-      /* silent */
+      toast.error('Error al cargar reseñas');
     } finally {
       setLoadingReviews(false);
     }

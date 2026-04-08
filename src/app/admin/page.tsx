@@ -29,7 +29,9 @@ export default function AdminDashboard() {
     fetch('/api/admin/stats')
       .then((res) => res.json())
       .then((data) => {
-        setStats(data);
+        if (data && typeof data === 'object' && 'totalSales' in data) {
+          setStats(data as AdminStats);
+        }
         setLoading(false);
       })
       .catch(() => setLoading(false));
