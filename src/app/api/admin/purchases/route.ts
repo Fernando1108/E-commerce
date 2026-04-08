@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/auth/verify-admin';
 import { z } from 'zod';
+import { getPagination, paginatedResponse } from '@/lib/pagination';
 
 const purchaseSchema = z.object({
   supplier_id: z.string().uuid(),
@@ -14,17 +15,23 @@ const purchaseSchema = z.object({
   })).optional(),
 });
 
-export async function GET() {
+export async function GET(request: Request) {
   const { error, supabase } = await requireAdmin();
   if (error) return error;
+
+  const { page, limit, offset } = getPagination(new URL(request.url).searchParams);
+
+  // Get count
+  const { count } = await supabase.from('purchases').select('*', { count: 'exact', head: true });
 
   const { data, error: dbError } = await supabase
     .from('purchases')
     .select('*, suppliers(name)')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1);
 
   if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 });
-  return NextResponse.json(data || []);
+  return NextResponse.json(paginatedResponse(data || [], count || 0, page, limit));
 }
 
 export async function POST(request: Request) {

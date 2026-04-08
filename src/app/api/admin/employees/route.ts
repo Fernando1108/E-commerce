@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/auth/verify-admin';
 import { z } from 'zod';
+import { getPagination, paginatedResponse } from '@/lib/pagination';
 
 const employeeSchema = z.object({
   name: z.string().min(1).max(200),
@@ -13,17 +14,30 @@ const employeeSchema = z.object({
   status: z.enum(['active', 'inactive', 'terminated']).optional().default('active'),
 });
 
-export async function GET() {
+export async function GET(request: Request) {
   const { error, supabase } = await requireAdmin();
   if (error) return error;
 
-  const { data, error: dbError } = await supabase
+  const { page, limit, offset, search } = getPagination(new URL(request.url).searchParams);
+
+  // Get count
+  const { count } = await supabase.from('employees').select('*', { count: 'exact', head: true });
+
+  // Get paginated employees with optional search
+  let query = supabase
     .from('employees')
     .select('*')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (search) {
+    query = query.ilike('name', `%${search}%`);
+  }
+
+  const { data, error: dbError } = await query;
 
   if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 });
-  return NextResponse.json(data || []);
+  return NextResponse.json(paginatedResponse(data || [], count || 0, page, limit));
 }
 
 export async function POST(request: Request) {

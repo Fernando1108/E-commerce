@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { contactSchema } from '@/lib/validations';
+import { checkRateLimit } from '@/lib/rate-limit';
+import { logger } from '@/lib/logger';
 
 function sanitizeHtml(text: string): string {
   return text
@@ -14,6 +16,16 @@ function sanitizeHtml(text: string): string {
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: Request) {
+  // Rate limit: 3 emails por minuto por IP
+  const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+  const { allowed, resetIn } = checkRateLimit(`contact:${ip}`, 3, 60000);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: `Demasiadas solicitudes. Intenta en ${Math.ceil(resetIn / 1000)} segundos.` },
+      { status: 429 }
+    );
+  }
+
   const body = await request.json();
   const parsed = contactSchema.safeParse(body);
   if (!parsed.success) {
@@ -39,6 +51,7 @@ export async function POST(request: Request) {
     });
     return NextResponse.json({ sent: true });
   } catch (error: any) {
+    logger.error('Contact email failed', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

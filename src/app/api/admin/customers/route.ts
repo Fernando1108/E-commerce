@@ -1,15 +1,28 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/auth/verify-admin';
+import { getPagination, paginatedResponse } from '@/lib/pagination';
 
-export async function GET() {
+export async function GET(request: Request) {
   const { error, supabase } = await requireAdmin();
   if (error) return error;
 
-  // Get all users with role 'user' and their order stats
-  const { data: profiles, error: pError } = await supabase
+  const { page, limit, offset, search } = getPagination(new URL(request.url).searchParams);
+
+  // Get count
+  const { count } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
+
+  // Get paginated users with optional search
+  let query = supabase
     .from('profiles')
     .select('id, name, phone, role, created_at')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (search) {
+    query = query.ilike('email', `%${search}%`);
+  }
+
+  const { data: profiles, error: pError } = await query;
 
   if (pError) return NextResponse.json({ error: pError.message }, { status: 500 });
 
@@ -32,5 +45,5 @@ export async function GET() {
     total_spent: Math.round((orderStats[p.id]?.total || 0) * 100) / 100,
   }));
 
-  return NextResponse.json(customers);
+  return NextResponse.json(paginatedResponse(customers, count || 0, page, limit));
 }

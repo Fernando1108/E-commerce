@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getAccessToken, PAYPAL_API } from '@/lib/paypal/api';
 import { z } from 'zod';
+import { logger } from '@/lib/logger';
 
 const checkoutSchema = z.object({
   items: z.array(z.object({
@@ -69,7 +70,7 @@ export async function POST(request: Request) {
     const orderData = await order.json();
     return NextResponse.json(orderData);
   } catch (error: any) {
-    console.error('PayPal create order error:', error);
+    logger.error('PayPal create order failed', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

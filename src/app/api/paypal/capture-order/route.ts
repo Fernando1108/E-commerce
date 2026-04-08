@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { sendOrderConfirmation } from '@/lib/email';
 import { getAccessToken, PAYPAL_API } from '@/lib/paypal/api';
 import { z } from 'zod';
+import { logger } from '@/lib/logger';
 
 const captureSchema = z.object({
   orderID: z.string().min(1, 'orderID requerido'),
@@ -70,7 +71,7 @@ export async function POST(request: Request) {
       )
       
       if (Math.abs(capturedAmount - serverTotal) > 0.01) {
-        console.error(`Monto mismatch: capturado=${capturedAmount}, calculado=${serverTotal}`)
+        logger.error('PayPal amount mismatch', { capturedAmount, serverTotal, orderID })
         return NextResponse.json(
           { error: 'El monto capturado no coincide con el total del pedido' },
           { status: 400 }
@@ -111,7 +112,7 @@ export async function POST(request: Request) {
           })),
         });
       } catch (emailError) {
-        console.error('Email error (non-blocking):', emailError);
+        logger.error('Order confirmation email failed', { error: emailError instanceof Error ? emailError.message : String(emailError), orderId });
       }
 
       return NextResponse.json({
@@ -123,7 +124,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ status: captureData.status, details: captureData }, { status: 400 });
   } catch (error: any) {
-    console.error('PayPal capture error:', error);
+    logger.error('PayPal capture failed', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

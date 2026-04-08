@@ -1,6 +1,7 @@
 import { Resend } from 'resend';
 import OrderConfirmation from '@/emails/OrderConfirmation';
 import Welcome from '@/emails/Welcome';
+import { logger } from '@/lib/logger';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM_EMAIL = 'NovaStore <onboarding@resend.dev>';
@@ -27,7 +28,7 @@ export async function sendOrderConfirmation(params: {
     if (error) throw error;
     return data;
   } catch (error) {
-    console.error('Error sending order confirmation:', error);
+    logger.error('Error sending order confirmation', { error: error instanceof Error ? error.message : String(error), orderId: params.orderId });
     throw error;
   }
 }
@@ -43,7 +44,7 @@ export async function sendWelcomeEmail(params: { to: string; name: string }) {
     if (error) throw error;
     return data;
   } catch (error) {
-    console.error('Error sending welcome email:', error);
+    logger.error('Error sending welcome email', { error: error instanceof Error ? error.message : String(error), to: params.to });
     throw error;
   }
 }
