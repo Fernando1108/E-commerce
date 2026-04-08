@@ -83,7 +83,12 @@ function ProductCard({
           <motion.div
             initial={{ scale: 0 }}
             animate={inView ? { scale: 1 } : {}}
-            transition={{ type: 'spring', stiffness: 420, damping: 18, delay: (index % 4) * 0.1 + 0.25 }}
+            transition={{
+              type: 'spring',
+              stiffness: 420,
+              damping: 18,
+              delay: (index % 4) * 0.1 + 0.25,
+            }}
             className="absolute top-4 left-4 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest z-10"
             style={{ backgroundColor: badge.bg, color: badge.color }}
           >
@@ -283,7 +288,9 @@ export default function FeaturedProductsSection() {
         {loading ? (
           /* Skeleton grid */
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
-            {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
+            {Array.from({ length: 4 }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
           </div>
         ) : useCarousel ? (
           /* ── Carousel mode ── */

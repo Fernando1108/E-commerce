@@ -47,7 +47,11 @@
     "node_modules/",
     ".next/",
     "out/",
-    "public/"
+    "public/",
+    "src/lib/",
+    "src/hooks/",
+    "src/store/",
+    "src/app/api/"
   ],
   "env": {
     "browser": true,

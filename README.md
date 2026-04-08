@@ -399,6 +399,15 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 - [x] CategoryBannersSection reorganizado (Electrónica full-width)
 - [x] Carousel de productos destacados con animación spring
 - [x] Footer crédito "Desarrollado por Kodexa Solutions" con link
+- [x] Links reales de redes sociales en Footer (WhatsApp, Instagram, Email)
+- [x] Botón "Cargar más productos" funcional en catálogo (offset+limit, estado loading)
+- [x] Quitar badge "ADMIN" visible del header (solo en dropdown)
+- [x] Fix letras invisibles en dark mode admin (títulos, inputs, selects, modales)
+- [x] Logo dashboard en sidebar (`public/logo/logo-dashboard.png`)
+- [x] Crear/editar producto como modal (AdminModal inline, POST/PUT, sin página separada)
+- [x] Rediseño página de perfil (banner oscuro, avatar, cards, animaciones staggered)
+- [x] Rediseño editar perfil (3 secciones: datos, seguridad con verificación, email con confirmación)
+- [x] Hero grande en página del carrito (full-width h-36/h-48, gradiente, dot grid, Framer Motion)
 
 **Backend (Anderson):**
 - [x] GET/POST `/api/products` + Zod + verificación admin
@@ -435,15 +444,7 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 ### 🚧 Pendiente
 
 **Diego (Frontend):**
-- [ ] Links reales de redes sociales en Footer
-- [ ] Botón "Cargar más productos" funcional en catálogo
-- [ ] Quitar badge "ADMIN" visible del header (dejarlo solo en dropdown)
-- [ ] Fix letras invisibles en dark mode admin
-- [ ] Logo dashboard en sidebar (`public/logo/logo-dashboard.png`)
-- [ ] Crear/editar producto como modal (no página separada)
-- [ ] Rediseño página de perfil (card, animaciones, menos blanco)
-- [ ] Rediseño editar perfil (verificar contraseña actual, cambio de email con confirmación)
-- [ ] Hero grande en página del carrito (full-width con imagen de fondo)
+✅ Frontend completo
 
 **Anderson (Backend):**
 - [ ] Agregar paginación en admin endpoints (customers, suppliers, employees, purchases)

@@ -175,12 +175,10 @@ function InlineSearch({ onClose }: { onClose: () => void }) {
     setLoading(true);
     debounceRef.current = setTimeout(async () => {
       try {
-        const res = await fetch(
-          `/api/products?search=${encodeURIComponent(val.trim())}&limit=5`
-        );
+        const res = await fetch(`/api/products?search=${encodeURIComponent(val.trim())}&limit=5`);
         if (res.ok) {
           const data = await res.json();
-          setResults(Array.isArray(data) ? data : data.products ?? []);
+          setResults(Array.isArray(data) ? data : (data.products ?? []));
         }
       } catch {
         /* silent */
@@ -224,7 +222,11 @@ function InlineSearch({ onClose }: { onClose: () => void }) {
             <div className="size-3.5 border-2 border-[#DDD9D3] border-t-[#2563EB] rounded-full animate-spin" />
           ) : query ? (
             <button
-              onClick={() => { setQuery(''); setResults([]); inputRef.current?.focus(); }}
+              onClick={() => {
+                setQuery('');
+                setResults([]);
+                inputRef.current?.focus();
+              }}
               className="size-4 flex items-center justify-center text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
             >
               <Icon name="XMarkIcon" size={14} variant="outline" />
@@ -272,16 +274,25 @@ function InlineSearch({ onClose }: { onClose: () => void }) {
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-[13px] font-600 text-[#1C1C1C] truncate">{item.name}</p>
-                        <p className="text-[11px] text-[#2563EB] font-700">{formatPrice(item.price)}</p>
+                        <p className="text-[11px] text-[#2563EB] font-700">
+                          {formatPrice(item.price)}
+                        </p>
                       </div>
-                      <Icon name="ChevronRightIcon" size={12} className="text-[#8A8A8A] flex-shrink-0" />
+                      <Icon
+                        name="ChevronRightIcon"
+                        size={12}
+                        className="text-[#8A8A8A] flex-shrink-0"
+                      />
                     </button>
                   </li>
                 ))}
                 {results.length > 0 && (
                   <li className="border-t border-[#DDD9D3]">
                     <button
-                      onClick={() => { onClose(); router.push(`/products?search=${encodeURIComponent(query)}`); }}
+                      onClick={() => {
+                        onClose();
+                        router.push(`/products?search=${encodeURIComponent(query)}`);
+                      }}
                       className="w-full px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-[#2563EB] hover:bg-[#EFF6FF] transition-colors text-center"
                     >
                       Ver todos los resultados →
@@ -319,7 +330,9 @@ function UserDropdown({ user, isAdmin, onSignOut, onClose }: UserDropdownProps) 
   }, [onClose]);
 
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
   }, [onClose]);
@@ -335,7 +348,9 @@ function UserDropdown({ user, isAdmin, onSignOut, onClose }: UserDropdownProps) 
     >
       {/* Email header */}
       <div className="px-4 py-3 border-b border-[#DDD9D3]">
-        <p className="text-[9px] font-black uppercase tracking-widest text-[#8A8A8A]">Sesión activa</p>
+        <p className="text-[9px] font-black uppercase tracking-widest text-[#8A8A8A]">
+          Sesión activa
+        </p>
         <p className="text-[12px] font-600 text-[#1C1C1C] mt-0.5 truncate">{user?.email}</p>
       </div>
 
@@ -362,7 +377,12 @@ function UserDropdown({ user, isAdmin, onSignOut, onClose }: UserDropdownProps) 
           onClick={onClose}
           className="flex items-center gap-3 px-4 py-2.5 text-[12px] font-600 text-[#1C1C1C] hover:bg-[#F8F7F5] transition-colors"
         >
-          <Icon name="UserIcon" size={15} variant="outline" className="text-[#5A5A5A] flex-shrink-0" />
+          <Icon
+            name="UserIcon"
+            size={15}
+            variant="outline"
+            className="text-[#5A5A5A] flex-shrink-0"
+          />
           Mi perfil
         </Link>
 
@@ -371,17 +391,30 @@ function UserDropdown({ user, isAdmin, onSignOut, onClose }: UserDropdownProps) 
           onClick={onClose}
           className="flex items-center gap-3 px-4 py-2.5 text-[12px] font-600 text-[#1C1C1C] hover:bg-[#F8F7F5] transition-colors"
         >
-          <Icon name="ShoppingBagIcon" size={15} variant="outline" className="text-[#5A5A5A] flex-shrink-0" />
+          <Icon
+            name="ShoppingBagIcon"
+            size={15}
+            variant="outline"
+            className="text-[#5A5A5A] flex-shrink-0"
+          />
           Mis pedidos
         </Link>
 
         <div className="my-1 border-t border-[#DDD9D3]" />
 
         <button
-          onClick={() => { onSignOut(); onClose(); }}
+          onClick={() => {
+            onSignOut();
+            onClose();
+          }}
           className="w-full flex items-center gap-3 px-4 py-2.5 text-[12px] font-600 text-[#C33D2F] hover:bg-[#FFF7F5] transition-colors"
         >
-          <Icon name="ArrowRightOnRectangleIcon" size={15} variant="outline" className="flex-shrink-0" />
+          <Icon
+            name="ArrowRightOnRectangleIcon"
+            size={15}
+            variant="outline"
+            className="flex-shrink-0"
+          />
           Cerrar sesión
         </button>
       </div>
@@ -412,7 +445,9 @@ export default function Header() {
   // Lock body scroll when mobile menu is open
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [mobileOpen]);
 
   // Close search when route changes
@@ -463,27 +498,31 @@ export default function Header() {
           </Link>
 
           {/* CENTER: Nav links (desktop) */}
-          <nav className="hidden lg:flex items-center gap-8 xl:gap-10" aria-label="Navegación principal">
-            <Suspense fallback={
-              <>
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.label}
-                    href={link.href}
-                    className="relative text-[11px] font-bold uppercase tracking-widest text-[#5A5A5A] hover:text-[#1C1C1C] transition-colors duration-200 pb-0.5"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-              </>
-            }>
+          <nav
+            className="hidden lg:flex items-center gap-8 xl:gap-10"
+            aria-label="Navegación principal"
+          >
+            <Suspense
+              fallback={
+                <>
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.label}
+                      href={link.href}
+                      className="relative text-[11px] font-bold uppercase tracking-widest text-[#5A5A5A] hover:text-[#1C1C1C] transition-colors duration-200 pb-0.5"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </>
+              }
+            >
               <DesktopNavLinks />
             </Suspense>
           </nav>
 
           {/* RIGHT: Icon actions */}
           <div className="flex items-center gap-1">
-
             {/* ── Search (inline expand) ── */}
             <div className="relative flex items-center">
               <AnimatePresence mode="wait">
@@ -496,12 +535,14 @@ export default function Header() {
                 aria-label="Buscar productos"
                 onClick={handleSearchToggle}
                 className={`ml-1 flex size-9 items-center justify-center transition-colors duration-200 ${
-                  searchOpen
-                    ? 'text-[#2563EB]'
-                    : 'text-[#8A8A8A] hover:text-[#1C1C1C]'
+                  searchOpen ? 'text-[#2563EB]' : 'text-[#8A8A8A] hover:text-[#1C1C1C]'
                 }`}
               >
-                <Icon name={searchOpen ? 'XMarkIcon' : 'MagnifyingGlassIcon'} size={20} variant="outline" />
+                <Icon
+                  name={searchOpen ? 'XMarkIcon' : 'MagnifyingGlassIcon'}
+                  size={20}
+                  variant="outline"
+                />
               </button>
             </div>
 
@@ -558,9 +599,7 @@ export default function Header() {
                     aria-expanded={userDropdownOpen}
                     onClick={handleUserToggle}
                     className={`flex size-9 items-center justify-center transition-colors duration-200 ${
-                      userDropdownOpen
-                        ? 'text-[#2563EB]'
-                        : 'text-[#8A8A8A] hover:text-[#1C1C1C]'
+                      userDropdownOpen ? 'text-[#2563EB]' : 'text-[#8A8A8A] hover:text-[#1C1C1C]'
                     }`}
                   >
                     <Icon name="UserCircleIcon" size={22} variant="outline" />
@@ -633,19 +672,21 @@ export default function Header() {
 
             {/* Mobile nav links */}
             <nav className="flex flex-col px-6 pt-10 gap-1" aria-label="Navegación móvil">
-              <Suspense fallback={
-                <>
-                  {navLinks.map((link) => (
-                    <Link
-                      key={link.label}
-                      href={link.href}
-                      className="mobile-nav-link block py-4 text-3xl font-display font-900 italic tracking-editorial border-b border-[#DDD9D3] text-[#1C1C1C]"
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                </>
-              }>
+              <Suspense
+                fallback={
+                  <>
+                    {navLinks.map((link) => (
+                      <Link
+                        key={link.label}
+                        href={link.href}
+                        className="mobile-nav-link block py-4 text-3xl font-display font-900 italic tracking-editorial border-b border-[#DDD9D3] text-[#1C1C1C]"
+                      >
+                        {link.label}
+                      </Link>
+                    ))}
+                  </>
+                }
+              >
                 <MobileNavLinkList onClose={() => setMobileOpen(false)} />
               </Suspense>
             </nav>
@@ -673,7 +714,10 @@ export default function Header() {
                       Pedidos
                     </Link>
                     <button
-                      onClick={() => { signOut(); setMobileOpen(false); }}
+                      onClick={() => {
+                        signOut();
+                        setMobileOpen(false);
+                      }}
                       className="text-[11px] font-bold uppercase tracking-widest text-[#8A8A8A] hover:text-red-500 transition-colors"
                     >
                       Salir
@@ -698,18 +742,6 @@ export default function Header() {
                   Carrito{itemCount > 0 ? ` (${itemCount})` : ''}
                 </Link>
               </div>
-
-              {/* Admin button (mobile) */}
-              {isAdmin && (
-                <Link
-                  href="/admin"
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center justify-center gap-2 py-3 bg-[#2563EB] text-white text-[11px] font-black uppercase tracking-widest hover:bg-[#1D4ED8] transition-colors"
-                >
-                  <Icon name="Squares2X2Icon" size={14} variant="solid" />
-                  Panel de Admin
-                </Link>
-              )}
 
               {/* CTA */}
               <Link

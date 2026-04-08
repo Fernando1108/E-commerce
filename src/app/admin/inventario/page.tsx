@@ -56,7 +56,8 @@ export default function AdminInventario() {
     fetch(`/api/admin/inventory?view=${view}`)
       .then((r) => r.json())
       .then((d) => {
-        view === 'stock' ? setStockData(d) : setMovements(d);
+        if (view === 'stock') setStockData(d);
+        else setMovements(d);
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -76,7 +77,8 @@ export default function AdminInventario() {
       // Refresh
       const res = await fetch(`/api/admin/inventory?view=${view}`);
       const d = await res.json();
-      view === 'stock' ? setStockData(d) : setMovements(d);
+      if (view === 'stock') setStockData(d);
+      else setMovements(d);
     } catch {
       /* empty */
     }
@@ -183,8 +185,12 @@ export default function AdminInventario() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Inventario</h1>
-          <p className="text-sm text-slate-500 mt-1">Gestión de stock y movimientos</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            Inventario
+          </h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            Gestión de stock y movimientos
+          </p>
         </div>
         <motion.button
           whileTap={{ scale: 0.97 }}
@@ -202,7 +208,7 @@ export default function AdminInventario() {
           <button
             key={v}
             onClick={() => setView(v)}
-            className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${view === v ? 'bg-slate-900 text-white' : 'bg-white border border-slate-200 text-slate-500 hover:bg-slate-50'}`}
+            className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${view === v ? 'bg-slate-900 dark:bg-slate-600 text-white' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
           >
             {v === 'stock' ? 'Stock actual' : 'Movimientos'}
           </button>
@@ -254,13 +260,13 @@ export default function AdminInventario() {
       >
         <form className="space-y-4">
           <label className="block">
-            <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
               Producto
             </span>
             <select
               value={form.product_id}
               onChange={(e) => setForm((f) => ({ ...f, product_id: e.target.value }))}
-              className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 text-sm"
+              className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-800 dark:text-white"
             >
               <option value="">Seleccionar producto</option>
               {stockData.map((p) => (
@@ -271,13 +277,13 @@ export default function AdminInventario() {
             </select>
           </label>
           <label className="block">
-            <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
               Tipo
             </span>
             <select
               value={form.type}
               onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}
-              className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 text-sm"
+              className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-800 dark:text-white"
             >
               <option value="in">Entrada</option>
               <option value="out">Salida</option>
@@ -285,25 +291,25 @@ export default function AdminInventario() {
             </select>
           </label>
           <label className="block">
-            <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
               Cantidad
             </span>
             <input
               type="number"
               value={form.quantity}
               onChange={(e) => setForm((f) => ({ ...f, quantity: e.target.value }))}
-              className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 text-sm"
+              className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-800 dark:text-white"
               min="1"
             />
           </label>
           <label className="block">
-            <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
               Razón
             </span>
             <input
               value={form.reason}
               onChange={(e) => setForm((f) => ({ ...f, reason: e.target.value }))}
-              className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 text-sm"
+              className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-800 dark:text-white"
               placeholder="Motivo del movimiento..."
             />
           </label>

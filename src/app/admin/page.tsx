@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
   AreaChart,
@@ -38,8 +39,12 @@ export default function AdminDashboard() {
     <div className="space-y-6">
       {/* Page header */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Dashboard</h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Resumen general de NovaStore</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+          Dashboard
+        </h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          Resumen general de NovaStore
+        </p>
       </div>
 
       {/* Stats grid */}
@@ -196,12 +201,12 @@ export default function AdminDashboard() {
             <h3 className="text-sm font-bold text-slate-900 dark:text-white">Pedidos recientes</h3>
             <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Últimos 5 pedidos</p>
           </div>
-          <a
+          <Link
             href="/admin/pedidos"
             className="text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors"
           >
             Ver todos →
-          </a>
+          </Link>
         </div>
 
         <div className="overflow-x-auto">
@@ -233,7 +238,10 @@ export default function AdminDashboard() {
                 ))
               ) : stats?.recentOrders && stats.recentOrders.length > 0 ? (
                 stats.recentOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-700/50 transition-colors group">
+                  <tr
+                    key={order.id}
+                    className="hover:bg-slate-50/80 dark:hover:bg-slate-700/50 transition-colors group"
+                  >
                     <td className="px-5 py-3 relative">
                       <span className="absolute left-0 top-0 bottom-0 w-[3px] bg-blue-500 scale-y-0 group-hover:scale-y-100 transition-transform duration-200 origin-center" />
                       <span className="text-sm font-mono font-semibold text-slate-700 dark:text-slate-200">
@@ -263,8 +271,15 @@ export default function AdminDashboard() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={4} className="px-5 py-8 text-center text-sm text-slate-400 dark:text-slate-500">
-                    <Icon name="InboxIcon" size={28} className="mx-auto mb-2 text-slate-300 dark:text-slate-600" />
+                  <td
+                    colSpan={4}
+                    className="px-5 py-8 text-center text-sm text-slate-400 dark:text-slate-500"
+                  >
+                    <Icon
+                      name="InboxIcon"
+                      size={28}
+                      className="mx-auto mb-2 text-slate-300 dark:text-slate-600"
+                    />
                     No hay pedidos recientes
                   </td>
                 </tr>

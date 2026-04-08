@@ -110,8 +110,12 @@ export default function AdminFacturacion() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Facturación</h1>
-          <p className="text-sm text-slate-500 mt-1">{invoices.length} facturas</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            Facturación
+          </h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            {invoices.length} facturas
+          </p>
         </div>
         <Link
           href="/admin/facturacion/reportes"

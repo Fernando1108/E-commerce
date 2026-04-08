@@ -1,16 +1,293 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
+import { useForm } from 'react-hook-form';
 import DataTable, { Column } from '../components/DataTable';
 import AdminModal from '../components/AdminModal';
 import Icon from '@/components/ui/AppIcon';
 import { formatPrice } from '@/lib/utils';
 import type { Product, Category } from '@/types';
 
+interface ProductFormValues {
+  name: string;
+  description: string;
+  price: number;
+  original_price: number | null;
+  category_id: string;
+  image_url: string;
+  stock: number;
+  badge: string;
+  featured: boolean;
+  slug: string;
+}
+
+const INPUT_CLS =
+  'mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all';
+
+const LABEL_CLS =
+  'text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider';
+
+function ProductFormModal({
+  open,
+  onClose,
+  editProduct,
+  categories,
+  onSaved,
+}: {
+  open: boolean;
+  onClose: () => void;
+  editProduct: Product | null;
+  categories: Category[];
+  onSaved: () => void;
+}) {
+  const [submitting, setSubmitting] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+    setValue,
+    reset,
+  } = useForm<ProductFormValues>({
+    defaultValues: {
+      name: '',
+      description: '',
+      price: 0,
+      original_price: null,
+      category_id: '',
+      image_url: '',
+      stock: 0,
+      badge: '',
+      featured: false,
+      slug: '',
+    },
+  });
+
+  // Populate form when editing
+  useEffect(() => {
+    if (open) {
+      if (editProduct) {
+        reset({
+          name: editProduct.name,
+          description: editProduct.description || '',
+          price: editProduct.price,
+          original_price: editProduct.original_price,
+          category_id: editProduct.category_id || '',
+          image_url: editProduct.image_url || '',
+          stock: editProduct.stock,
+          badge: editProduct.badge || '',
+          featured: editProduct.featured,
+          slug: editProduct.slug || '',
+        });
+      } else {
+        reset({
+          name: '',
+          description: '',
+          price: 0,
+          original_price: null,
+          category_id: '',
+          image_url: '',
+          stock: 0,
+          badge: '',
+          featured: false,
+          slug: '',
+        });
+      }
+    }
+  }, [open, editProduct, reset]);
+
+  // Auto-slug from name (only on create)
+  const nameValue = watch('name');
+  useEffect(() => {
+    if (!editProduct && nameValue) {
+      setValue(
+        'slug',
+        nameValue
+          .toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^a-z0-9-]/g, '')
+      );
+    }
+  }, [nameValue, editProduct, setValue]);
+
+  const onSubmit = handleSubmit(async (data) => {
+    setSubmitting(true);
+    try {
+      const url = editProduct ? `/api/products/${editProduct.id}` : '/api/products';
+      const method = editProduct ? 'PUT' : 'POST';
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...data,
+          price: Number(data.price),
+          original_price: data.original_price ? Number(data.original_price) : null,
+          stock: Number(data.stock),
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Error al guardar');
+      }
+      toast.success(editProduct ? 'Producto actualizado' : 'Producto creado');
+      onSaved();
+      onClose();
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Error desconocido');
+    }
+    setSubmitting(false);
+  });
+
+  return (
+    <AdminModal
+      open={open}
+      onClose={onClose}
+      title={editProduct ? 'Editar producto' : 'Nuevo producto'}
+      subtitle={editProduct ? 'Modifica los datos del producto' : 'Completa los datos del producto'}
+      size="xl"
+      footer={
+        <>
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-5 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-colors"
+          >
+            Cancelar
+          </button>
+          <motion.button
+            type="button"
+            onClick={() => onSubmit()}
+            disabled={submitting}
+            whileTap={{ scale: 0.97 }}
+            className="px-6 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-sm shadow-blue-600/20 disabled:opacity-50"
+          >
+            {submitting
+              ? editProduct
+                ? 'Guardando...'
+                : 'Creando...'
+              : editProduct
+                ? 'Guardar cambios'
+                : 'Crear producto'}
+          </motion.button>
+        </>
+      }
+    >
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        {/* Name */}
+        <label className="block sm:col-span-2">
+          <span className={LABEL_CLS}>Nombre *</span>
+          <input
+            {...register('name', { required: 'El nombre es obligatorio' })}
+            className={INPUT_CLS}
+            placeholder="Ej: MacBook Pro M4"
+          />
+          {errors.name && <span className="text-xs text-red-500 mt-1">{errors.name.message}</span>}
+        </label>
+
+        {/* Description */}
+        <label className="block sm:col-span-2">
+          <span className={LABEL_CLS}>Descripción</span>
+          <textarea
+            {...register('description')}
+            rows={3}
+            className="mt-1.5 w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all resize-none"
+            placeholder="Descripción del producto..."
+          />
+        </label>
+
+        {/* Price */}
+        <label className="block">
+          <span className={LABEL_CLS}>Precio *</span>
+          <input
+            type="number"
+            step="0.01"
+            {...register('price', {
+              required: 'El precio es obligatorio',
+              min: { value: 0.01, message: 'Precio debe ser positivo' },
+            })}
+            className={INPUT_CLS}
+          />
+          {errors.price && (
+            <span className="text-xs text-red-500 mt-1">{errors.price.message}</span>
+          )}
+        </label>
+
+        {/* Original price */}
+        <label className="block">
+          <span className={LABEL_CLS}>Precio original</span>
+          <input
+            type="number"
+            step="0.01"
+            {...register('original_price')}
+            className={INPUT_CLS}
+            placeholder="Para mostrar descuento"
+          />
+        </label>
+
+        {/* Category */}
+        <label className="block">
+          <span className={LABEL_CLS}>Categoría</span>
+          <select {...register('category_id')} className={INPUT_CLS}>
+            <option value="">Sin categoría</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        {/* Stock */}
+        <label className="block">
+          <span className={LABEL_CLS}>Stock</span>
+          <input type="number" {...register('stock', { min: 0 })} className={INPUT_CLS} />
+        </label>
+
+        {/* Image URL */}
+        <label className="block sm:col-span-2">
+          <span className={LABEL_CLS}>URL de imagen</span>
+          <input {...register('image_url')} className={INPUT_CLS} placeholder="https://..." />
+        </label>
+
+        {/* Badge */}
+        <label className="block">
+          <span className={LABEL_CLS}>Badge</span>
+          <input
+            {...register('badge')}
+            className={INPUT_CLS}
+            placeholder="Ej: Nuevo, Oferta, -20%"
+          />
+        </label>
+
+        {/* Slug */}
+        <label className="block">
+          <span className={LABEL_CLS}>Slug</span>
+          <input
+            {...register('slug')}
+            className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
+          />
+        </label>
+
+        {/* Featured */}
+        <label className="flex items-center gap-3 sm:col-span-2 cursor-pointer">
+          <input
+            type="checkbox"
+            {...register('featured')}
+            className="size-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+          />
+          <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+            Producto destacado
+          </span>
+        </label>
+      </div>
+    </AdminModal>
+  );
+}
+
 export default function AdminProductos() {
-  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,6 +298,10 @@ export default function AdminProductos() {
   const [deleting, setDeleting] = useState(false);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
+  const [productModal, setProductModal] = useState<{
+    open: boolean;
+    editProduct: Product | null;
+  }>({ open: false, editProduct: null });
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -55,8 +336,9 @@ export default function AdminProductos() {
       await fetch(`/api/products/${deleteModal.product.id}`, { method: 'DELETE' });
       setProducts((prev) => prev.filter((p) => p.id !== deleteModal.product!.id));
       setDeleteModal({ open: false, product: null });
+      toast.success('Producto eliminado');
     } catch {
-      /* empty */
+      toast.error('Error al eliminar');
     }
     setDeleting(false);
   };
@@ -84,7 +366,7 @@ export default function AdminProductos() {
       sortable: true,
       render: (item) => (
         <div>
-          <p className="font-semibold text-slate-800 text-sm">{item.name}</p>
+          <p className="font-semibold text-slate-800 dark:text-slate-100 text-sm">{item.name}</p>
           {item.category_name && (
             <p className="text-xs text-slate-400 mt-0.5">{item.category_name}</p>
           )}
@@ -97,7 +379,9 @@ export default function AdminProductos() {
       sortable: true,
       render: (item) => (
         <div>
-          <span className="font-semibold text-slate-800">{formatPrice(item.price)}</span>
+          <span className="font-semibold text-slate-800 dark:text-slate-100">
+            {formatPrice(item.price)}
+          </span>
           {item.original_price && (
             <span className="text-xs text-slate-400 line-through ml-2">
               {formatPrice(item.original_price)}
@@ -147,12 +431,16 @@ export default function AdminProductos() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Productos</h1>
-          <p className="text-sm text-slate-500 mt-1">{products.length} productos en total</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            Productos
+          </h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            {products.length} productos en total
+          </p>
         </div>
         <motion.button
           whileTap={{ scale: 0.97 }}
-          onClick={() => router.push('/admin/productos/nuevo')}
+          onClick={() => setProductModal({ open: true, editProduct: null })}
           className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-sm shadow-blue-600/20"
         >
           <Icon name="PlusIcon" size={16} />
@@ -173,13 +461,13 @@ export default function AdminProductos() {
             placeholder="Buscar productos..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-10 pl-9 pr-4 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
+            className="w-full h-10 pl-9 pr-4 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
           />
         </div>
         <select
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
-          className="h-10 px-4 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
+          className="h-10 px-4 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
         >
           <option value="">Todas las categorías</option>
           {categories.map((cat) => (
@@ -200,7 +488,7 @@ export default function AdminProductos() {
         actions={(item) => (
           <>
             <button
-              onClick={() => router.push(`/admin/productos/${item.id}/editar`)}
+              onClick={() => setProductModal({ open: true, editProduct: item })}
               className="size-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
               title="Editar"
             >
@@ -217,6 +505,15 @@ export default function AdminProductos() {
         )}
       />
 
+      {/* Create / Edit Modal */}
+      <ProductFormModal
+        open={productModal.open}
+        onClose={() => setProductModal({ open: false, editProduct: null })}
+        editProduct={productModal.editProduct}
+        categories={categories}
+        onSaved={fetchProducts}
+      />
+
       {/* Delete Confirmation Modal */}
       <AdminModal
         open={deleteModal.open}
@@ -228,7 +525,7 @@ export default function AdminProductos() {
           <>
             <button
               onClick={() => setDeleteModal({ open: false, product: null })}
-              className="px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+              className="px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
             >
               Cancelar
             </button>
@@ -242,9 +539,8 @@ export default function AdminProductos() {
           </>
         }
       >
-        <p className="text-sm text-slate-600">
-          Esta acción no se puede deshacer. El producto será eliminado permanentemente de la base de
-          datos.
+        <p className="text-sm text-slate-600 dark:text-slate-300">
+          Esta acción no se puede deshacer. El producto será eliminado permanentemente.
         </p>
       </AdminModal>
     </div>

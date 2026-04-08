@@ -1,18 +1,28 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
+import { useWishlist } from '@/hooks/useWishlist';
 import Icon from '@/components/ui/AppIcon';
+
+const fadeUp = (delay = 0) => ({
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.5, delay, ease: [0.16, 1, 0.3, 1] },
+});
 
 export default function ProfilePage() {
   const { user, loading } = useAuth();
   const { isAdmin } = useProfile();
+  const { itemCount: wishlistCount } = useWishlist();
   const router = useRouter();
+  const [orderCount, setOrderCount] = useState<number | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -20,148 +30,203 @@ export default function ProfilePage() {
     }
   }, [loading, user, router]);
 
+  useEffect(() => {
+    if (user) {
+      fetch('/api/orders')
+        .then((r) => r.json())
+        .then((d) => setOrderCount(Array.isArray(d) ? d.length : null))
+        .catch(() => setOrderCount(null));
+    }
+  }, [user]);
+
   const displayName =
     user?.user_metadata?.name ??
     user?.user_metadata?.full_name ??
     user?.email?.split('@')[0] ??
     'Usuario';
 
-  const avatarUrl = user?.user_metadata?.avatar_url ?? user?.user_metadata?.picture ?? null;
+  const memberSince = user?.created_at
+    ? new Date(user.created_at).toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'long',
+      })
+    : '—';
 
   return (
     <main className="min-h-screen bg-[#FAF9F7]">
       <Header />
 
-      <section className="relative overflow-hidden px-6 pb-20 pt-[120px] lg:px-12">
-        <div
-          className="absolute inset-0 pointer-events-none opacity-[0.025]"
-          style={{
-            backgroundImage:
-              'radial-gradient(circle at 1px 1px, rgba(28,28,28,0.8) 1px, transparent 0)',
-            backgroundSize: '40px 40px',
-          }}
-        />
-        <div className="absolute top-0 right-0 h-[360px] w-[360px] rounded-full bg-[#E8E5DF] blur-[120px] opacity-70 pointer-events-none" />
-        <div className="absolute bottom-0 left-0 h-[280px] w-[280px] rounded-full bg-[#2563EB] blur-[120px] opacity-[0.05] pointer-events-none" />
+      {/* ── Banner ── */}
+      <div className="pt-[72px]">
+        <div className="relative h-40 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 overflow-hidden">
+          {/* Subtle grid pattern */}
+          <div
+            className="absolute inset-0 opacity-[0.06]"
+            style={{
+              backgroundImage:
+                'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.8) 1px, transparent 0)',
+              backgroundSize: '32px 32px',
+            }}
+          />
+          <div className="absolute top-0 right-1/4 w-64 h-64 rounded-full bg-blue-500 blur-[100px] opacity-20" />
+          <div className="absolute bottom-0 left-1/3 w-48 h-48 rounded-full bg-indigo-500 blur-[80px] opacity-15" />
+        </div>
 
-        <div className="relative mx-auto flex max-w-[1440px] justify-center">
-          <div className="w-full max-w-2xl border border-[#DDD9D3] bg-white/90 p-8 shadow-[0_24px_80px_rgba(28,28,28,0.08)] backdrop-blur-xl lg:p-12">
-            <p className="text-center text-[11px] font-black uppercase tracking-[0.28em] text-[#2563EB]">
-              NovaStore Account
-            </p>
-            <h1 className="mt-4 text-center text-4xl font-display font-900 uppercase italic text-[#1C1C1C] lg:text-5xl">
-              Mi perfil
-            </h1>
+        {/* ── Avatar centered on banner edge ── */}
+        <div className="max-w-3xl mx-auto px-6">
+          <div className="flex flex-col items-center -mt-16">
+            <motion.div
+              {...fadeUp(0)}
+              className="size-32 rounded-full border-4 border-white shadow-xl bg-[#EFEDE9] flex items-center justify-center overflow-hidden"
+            >
+              {user?.user_metadata?.avatar_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={user.user_metadata.avatar_url}
+                  alt={displayName}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <Icon name="UserCircleIcon" size={80} className="text-[#8A8A8A]" variant="solid" />
+              )}
+            </motion.div>
 
-            {loading && (
-              <p className="mt-8 text-center text-base leading-relaxed text-[#8A8A8A]">
-                Cargando perfil...
-              </p>
-            )}
-
-            {!loading && user && (
-              <div className="mt-10 flex flex-col items-center">
-                <div className="flex size-28 items-center justify-center overflow-hidden rounded-full border border-[#DDD9D3] bg-[#EFEDE9]">
-                  {avatarUrl ? (
-                    <img
-                      src={avatarUrl}
-                      alt={`Avatar de ${displayName}`}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <span className="text-3xl font-display font-900 text-[#8A8A8A]">
-                      {displayName.charAt(0).toUpperCase()}
-                    </span>
-                  )}
-                </div>
-
-                <div className="mt-8 w-full space-y-4">
-                  <div className="border border-[#E6E1DA] bg-[#FCFBF9] px-5 py-4 text-center">
-                    <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[#8A8A8A]">
-                      Nombre
-                    </p>
-                    <p className="mt-2 text-xl font-display font-900 text-[#1C1C1C]">
-                      {displayName}
-                    </p>
-                  </div>
-
-                  <div className="border border-[#E6E1DA] bg-[#FCFBF9] px-5 py-4 text-center">
-                    <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[#8A8A8A]">
-                      Email
-                    </p>
-                    <p className="mt-2 text-base text-[#1C1C1C]">{user.email}</p>
-                  </div>
-
-                  <div className="border border-[#E6E1DA] bg-[#FCFBF9] px-5 py-4 text-center">
-                    <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[#8A8A8A]">
-                      Miembro desde
-                    </p>
-                    <p className="mt-2 text-base text-[#1C1C1C]">
-                      {user.created_at
-                        ? new Date(user.created_at).toLocaleDateString('es-ES', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                          })
-                        : '—'}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-8 flex flex-col sm:flex-row gap-3">
-                  <Link
-                    href="/profile/settings"
-                    className="inline-flex h-14 items-center justify-center bg-[#1C1C1C] px-8 text-[11px] font-black uppercase tracking-[0.28em] text-white transition hover:bg-[#2563EB]"
-                  >
-                    Editar perfil
-                  </Link>
-                  <Link
-                    href="/profile/orders"
-                    className="inline-flex h-14 items-center justify-center border border-[#DDD9D3] px-8 text-[11px] font-black uppercase tracking-[0.28em] text-[#1C1C1C] transition hover:bg-[#1C1C1C] hover:text-white hover:border-[#1C1C1C]"
-                  >
-                    Mis pedidos
-                  </Link>
-                </div>
-
-                {/* ── Admin Dashboard Card ── */}
-                {isAdmin && (
-                  <div className="mt-6 relative overflow-hidden border border-[#1C1C1C] bg-[#1C1C1C] p-6">
-                    {/* Decorative glow */}
-                    <div className="absolute top-0 right-0 h-[160px] w-[160px] rounded-full bg-[#2563EB] opacity-10 blur-[60px] pointer-events-none" />
-
-                    <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                      <div className="flex items-start gap-4">
-                        <div className="flex size-11 flex-shrink-0 items-center justify-center bg-[#2563EB]">
-                          <Icon name="Squares2X2Icon" size={20} variant="solid" className="text-white" />
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-black uppercase tracking-[0.26em] text-white/50">
-                            Acceso privilegiado
-                          </p>
-                          <h3 className="mt-1 text-lg font-display font-900 uppercase italic text-white leading-tight">
-                            Panel de Administración
-                          </h3>
-                          <p className="mt-1.5 text-[13px] text-white/55 leading-snug">
-                            Gestiona productos, pedidos, inventario y más.
-                          </p>
-                        </div>
-                      </div>
-
-                      <Link
-                        href="/admin"
-                        className="inline-flex flex-shrink-0 items-center gap-2 bg-[#2563EB] px-5 py-3 text-[11px] font-black uppercase tracking-[0.24em] text-white transition hover:bg-[#1D4ED8]"
-                      >
-                        <Icon name="ArrowRightIcon" size={13} variant="outline" />
-                        Ir al Dashboard
-                      </Link>
-                    </div>
-                  </div>
-                )}
+            {loading ? (
+              <div className="mt-6 space-y-2 flex flex-col items-center">
+                <div className="h-7 w-40 bg-[#EFEDE9] rounded animate-pulse" />
+                <div className="h-4 w-56 bg-[#EFEDE9] rounded animate-pulse" />
               </div>
+            ) : (
+              <>
+                <motion.h1
+                  {...fadeUp(0.08)}
+                  className="mt-5 text-3xl lg:text-4xl font-display font-900 italic text-[#1C1C1C] tracking-tight text-center"
+                >
+                  {displayName}
+                </motion.h1>
+                <motion.p {...fadeUp(0.13)} className="text-sm text-[#8A8A8A] mt-1 text-center">
+                  {user?.email}
+                </motion.p>
+              </>
             )}
           </div>
         </div>
+      </div>
+
+      {/* ── Info cards ── */}
+      <section className="bg-[#FAF9F7] py-10">
+        <div className="max-w-3xl mx-auto px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.18 }}
+            className="grid grid-cols-1 sm:grid-cols-3 gap-4"
+          >
+            {[
+              {
+                icon: 'CalendarIcon',
+                label: 'Miembro desde',
+                value: loading ? '—' : memberSince,
+              },
+              {
+                icon: 'ShoppingBagIcon',
+                label: 'Total de pedidos',
+                value: loading ? '—' : orderCount !== null ? String(orderCount) : '—',
+              },
+              {
+                icon: 'HeartIcon',
+                label: 'Wishlist',
+                value: String(wishlistCount),
+              },
+            ].map((card, i) => (
+              <motion.div
+                key={card.label}
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: 0.2 + i * 0.07 }}
+                className="bg-white border border-[#E6E1DA] p-5 text-center shadow-sm"
+              >
+                <div className="flex justify-center mb-3">
+                  <div className="size-9 bg-[#EFF6FF] flex items-center justify-center">
+                    <Icon
+                      name={card.icon as Parameters<typeof Icon>[0]['name']}
+                      size={18}
+                      className="text-[#2563EB]"
+                      variant="outline"
+                    />
+                  </div>
+                </div>
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[#8A8A8A]">
+                  {card.label}
+                </p>
+                <p className="mt-1.5 text-xl font-display font-900 text-[#1C1C1C]">{card.value}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* ── Action buttons ── */}
+          <motion.div
+            {...fadeUp(0.38)}
+            className="mt-6 flex flex-col sm:flex-row gap-3 justify-center"
+          >
+            <Link
+              href="/profile/settings"
+              className="inline-flex h-12 items-center justify-center gap-2 bg-[#1C1C1C] px-8 text-[11px] font-black uppercase tracking-[0.28em] text-white transition-colors hover:bg-[#2563EB]"
+            >
+              <Icon name="PencilSquareIcon" size={14} variant="outline" />
+              Editar perfil
+            </Link>
+            <Link
+              href="/profile/orders"
+              className="inline-flex h-12 items-center justify-center gap-2 border border-[#DDD9D3] bg-white px-8 text-[11px] font-black uppercase tracking-[0.28em] text-[#1C1C1C] transition-colors hover:bg-[#1C1C1C] hover:text-white hover:border-[#1C1C1C]"
+            >
+              <Icon name="ClipboardDocumentListIcon" size={14} variant="outline" />
+              Mis pedidos
+            </Link>
+          </motion.div>
+        </div>
       </section>
+
+      {/* ── Admin card ── */}
+      {!loading && isAdmin && (
+        <section className="bg-[#F2F0EC] border-t border-[#E6E1DA] py-10">
+          <div className="max-w-3xl mx-auto px-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, delay: 0.1 }}
+              className="relative overflow-hidden border border-[#1C1C1C] bg-[#1C1C1C] p-6"
+            >
+              <div className="absolute top-0 right-0 h-[160px] w-[160px] rounded-full bg-[#2563EB] opacity-10 blur-[60px] pointer-events-none" />
+              <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="flex items-start gap-4">
+                  <div className="flex size-11 flex-shrink-0 items-center justify-center bg-[#2563EB]">
+                    <Icon name="Squares2X2Icon" size={20} variant="solid" className="text-white" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.26em] text-white/50">
+                      Acceso privilegiado
+                    </p>
+                    <h3 className="mt-1 text-lg font-display font-900 uppercase italic text-white leading-tight">
+                      Panel de Administración
+                    </h3>
+                    <p className="mt-1.5 text-[13px] text-white/55 leading-snug">
+                      Gestiona productos, pedidos, inventario y más.
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  href="/admin"
+                  className="inline-flex flex-shrink-0 items-center gap-2 bg-[#2563EB] px-5 py-3 text-[11px] font-black uppercase tracking-[0.24em] text-white transition hover:bg-[#1D4ED8]"
+                >
+                  <Icon name="ArrowRightIcon" size={13} variant="outline" />
+                  Ir al Dashboard
+                </Link>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+      )}
 
       <Footer />
     </main>

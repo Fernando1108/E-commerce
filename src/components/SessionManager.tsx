@@ -10,7 +10,7 @@ import Icon from '@/components/ui/AppIcon';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
-const WARNING_TIMEOUT_MS    = 25 * 60 * 1000; // 25 minutes
+const WARNING_TIMEOUT_MS = 25 * 60 * 1000; // 25 minutes
 const ACTIVITY_EVENTS = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'] as const;
 
 // ── Expiry Modal ───────────────────────────────────────────────────────────────
@@ -72,16 +72,16 @@ export default function SessionManager() {
   const router = useRouter();
   const [expired, setExpired] = useState(false);
 
-  const warningTimerRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const expireTimerRef   = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const warningToastRef  = useRef<string | number | null>(null);
+  const warningTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const expireTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const warningToastRef = useRef<string | number | null>(null);
 
   // ── Sign out + redirect ──────────────────────────────────────────────────────
   const performSignOut = useCallback(async () => {
     try {
       const supabase = createBrowserClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
       );
       await supabase.auth.signOut();
     } catch {
@@ -97,9 +97,9 @@ export default function SessionManager() {
 
   // ── Reset timers on activity ─────────────────────────────────────────────────
   const resetTimers = useCallback(() => {
-    if (warningTimerRef.current)  clearTimeout(warningTimerRef.current);
-    if (expireTimerRef.current)   clearTimeout(expireTimerRef.current);
-    if (warningToastRef.current)  toast.dismiss(warningToastRef.current);
+    if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
+    if (expireTimerRef.current) clearTimeout(expireTimerRef.current);
+    if (warningToastRef.current) toast.dismiss(warningToastRef.current);
 
     // 25-min warning
     warningTimerRef.current = setTimeout(() => {
@@ -136,17 +136,13 @@ export default function SessionManager() {
       }, 1000); // throttle to once per second
     };
 
-    ACTIVITY_EVENTS.forEach((ev) =>
-      window.addEventListener(ev, handleActivity, { passive: true })
-    );
+    ACTIVITY_EVENTS.forEach((ev) => window.addEventListener(ev, handleActivity, { passive: true }));
 
     return () => {
-      ACTIVITY_EVENTS.forEach((ev) =>
-        window.removeEventListener(ev, handleActivity)
-      );
+      ACTIVITY_EVENTS.forEach((ev) => window.removeEventListener(ev, handleActivity));
       if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
-      if (expireTimerRef.current)  clearTimeout(expireTimerRef.current);
-      if (throttleHandle)          clearTimeout(throttleHandle);
+      if (expireTimerRef.current) clearTimeout(expireTimerRef.current);
+      if (throttleHandle) clearTimeout(throttleHandle);
       toast.dismiss('session-warning');
     };
   }, [user, expired, resetTimers]);

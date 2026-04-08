@@ -71,7 +71,9 @@ export default function AdminModal({
             <div className="flex items-start justify-between gap-4 px-6 pt-6 pb-4 border-b border-slate-100 dark:border-slate-700">
               <div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">{title}</h3>
-                {subtitle && <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{subtitle}</p>}
+                {subtitle && (
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{subtitle}</p>
+                )}
               </div>
               <button
                 onClick={onClose}

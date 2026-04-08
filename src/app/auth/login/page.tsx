@@ -45,10 +45,7 @@ function LoginContent() {
       if (session?.user) {
         setActiveSession({
           email: session.user.email ?? '',
-          name:
-            session.user.user_metadata?.name ??
-            session.user.user_metadata?.full_name ??
-            null,
+          name: session.user.user_metadata?.name ?? session.user.user_metadata?.full_name ?? null,
         });
       }
       setSessionChecked(true);
@@ -182,7 +179,6 @@ function LoginContent() {
             <div className="relative">
               <div className="absolute -inset-px bg-gradient-to-br from-[#DDD9D3]/70 via-transparent to-transparent pointer-events-none" />
               <div className="relative border border-[#DDD9D3] bg-white/90 backdrop-blur-xl p-6 sm:p-8 lg:p-10 shadow-[0_24px_80px_rgba(28,28,28,0.08)]">
-
                 {/* ── Active session banner ── */}
                 {sessionChecked && activeSession ? (
                   <div>
@@ -251,7 +247,10 @@ function LoginContent() {
                             placeholder="tu@email.com"
                             registration={register('email', {
                               required: 'El email es obligatorio.',
-                              pattern: { value: /\S+@\S+\.\S+/, message: 'Ingresa un email válido.' },
+                              pattern: {
+                                value: /\S+@\S+\.\S+/,
+                                message: 'Ingresa un email válido.',
+                              },
                             })}
                             error={errors.email}
                           />

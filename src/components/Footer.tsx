@@ -49,7 +49,6 @@ export default function Footer() {
     <footer ref={ref} className="border-t border-[#DDD9D3] bg-[#EFEDE9]">
       <div className="max-w-[1440px] mx-auto px-6 lg:px-12 py-16 lg:py-20">
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-12">
-
           {/* Brand column */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
@@ -94,8 +93,7 @@ export default function Footer() {
           transition={{ duration: 0.9, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
           className="mt-12 h-px origin-left"
           style={{
-            background:
-              'linear-gradient(90deg, #2563EB 0%, #DDD9D3 60%, transparent 100%)',
+            background: 'linear-gradient(90deg, #2563EB 0%, #DDD9D3 60%, transparent 100%)',
           }}
         />
 

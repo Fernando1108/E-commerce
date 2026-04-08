@@ -2,20 +2,21 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Icon from '@/components/ui/AppIcon';
 
 const navItems = [
-  { label: 'Dashboard',   href: '/admin',              icon: 'ChartBarIcon' },
-  { label: 'Productos',   href: '/admin/productos',     icon: 'CubeIcon' },
-  { label: 'Categorías',  href: '/admin/categorias',    icon: 'TagIcon' },
-  { label: 'Pedidos',     href: '/admin/pedidos',       icon: 'ShoppingCartIcon' },
-  { label: 'Inventario',  href: '/admin/inventario',    icon: 'ArchiveBoxIcon' },
-  { label: 'Proveedores', href: '/admin/proveedores',   icon: 'TruckIcon' },
-  { label: 'Empleados',   href: '/admin/empleados',     icon: 'UserGroupIcon' },
-  { label: 'Facturación', href: '/admin/facturacion',   icon: 'DocumentTextIcon' },
-  { label: 'Clientes',    href: '/admin/clientes',      icon: 'UsersIcon' },
+  { label: 'Dashboard', href: '/admin', icon: 'ChartBarIcon' },
+  { label: 'Productos', href: '/admin/productos', icon: 'CubeIcon' },
+  { label: 'Categorías', href: '/admin/categorias', icon: 'TagIcon' },
+  { label: 'Pedidos', href: '/admin/pedidos', icon: 'ShoppingCartIcon' },
+  { label: 'Inventario', href: '/admin/inventario', icon: 'ArchiveBoxIcon' },
+  { label: 'Proveedores', href: '/admin/proveedores', icon: 'TruckIcon' },
+  { label: 'Empleados', href: '/admin/empleados', icon: 'UserGroupIcon' },
+  { label: 'Facturación', href: '/admin/facturacion', icon: 'DocumentTextIcon' },
+  { label: 'Clientes', href: '/admin/clientes', icon: 'UsersIcon' },
 ];
 
 interface AdminSidebarProps {
@@ -46,8 +47,14 @@ export default function AdminSidebar({
         className={`flex items-center h-16 border-b border-slate-700/50 ${collapsed ? 'justify-center px-2' : 'px-6'}`}
       >
         <Link href="/admin" className="flex items-center gap-3 group">
-          <div className="size-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
-            <span className="text-white text-sm font-black">N</span>
+          <div className="size-8 rounded-lg overflow-hidden flex items-center justify-center">
+            <Image
+              src="/logo/logo-dashboard.png"
+              alt="Logo"
+              width={32}
+              height={32}
+              className="object-contain"
+            />
           </div>
           {!collapsed && (
             <motion.span
@@ -81,9 +88,7 @@ export default function AdminSidebar({
                 href={item.href}
                 onClick={onMobileClose}
                 className={`group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200 overflow-hidden ${
-                  active
-                    ? 'bg-blue-600/20 text-blue-400'
-                    : 'text-slate-400 hover:text-white'
+                  active ? 'bg-blue-600/20 text-blue-400' : 'text-slate-400 hover:text-white'
                 } ${collapsed ? 'justify-center' : ''}`}
               >
                 {/* Slide-in hover background (inactive items only) */}
@@ -108,9 +113,7 @@ export default function AdminSidebar({
                     active ? 'text-blue-400' : 'text-slate-500 group-hover:text-white'
                   }`}
                 />
-                {!collapsed && (
-                  <span className="relative z-10">{item.label}</span>
-                )}
+                {!collapsed && <span className="relative z-10">{item.label}</span>}
               </Link>
 
               {/* Collapsed tooltip */}

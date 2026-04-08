@@ -79,7 +79,12 @@ function ProductCard({
             <motion.div
               initial={{ scale: 0 }}
               animate={inView ? { scale: 1 } : {}}
-              transition={{ type: 'spring', stiffness: 420, damping: 18, delay: (index % 4) * 0.08 + 0.2 }}
+              transition={{
+                type: 'spring',
+                stiffness: 420,
+                damping: 18,
+                delay: (index % 4) * 0.08 + 0.2,
+              }}
               className="absolute top-3 left-3 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest z-10"
               style={{ backgroundColor: badge.bg, color: badge.textColor }}
             >
@@ -382,7 +387,9 @@ export default function ProductGridSection({
                       className={`bg-[#1C1C1C] h-1 rounded-full transition-all duration-500 ${
                         loadingMore ? 'animate-pulse' : ''
                       }`}
-                      style={{ width: `${Math.min(((offset + PAGE_SIZE) / (offset + PAGE_SIZE * 2)) * 100, 90)}%` }}
+                      style={{
+                        width: `${Math.min(((offset + PAGE_SIZE) / (offset + PAGE_SIZE * 2)) * 100, 90)}%`,
+                      }}
                     />
                   </div>
                   <button
@@ -392,7 +399,12 @@ export default function ProductGridSection({
                   >
                     {loadingMore ? (
                       <>
-                        <Icon name="ArrowPathIcon" size={14} variant="outline" className="animate-spin" />
+                        <Icon
+                          name="ArrowPathIcon"
+                          size={14}
+                          variant="outline"
+                          className="animate-spin"
+                        />
                         Cargando...
                       </>
                     ) : (

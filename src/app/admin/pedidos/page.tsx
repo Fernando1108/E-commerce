@@ -100,8 +100,10 @@ export default function AdminPedidos() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Pedidos</h1>
-        <p className="text-sm text-slate-500 mt-1">{orders.length} pedidos</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+          Pedidos
+        </h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{orders.length} pedidos</p>
       </div>
 
       {/* Status filters */}
@@ -113,8 +115,8 @@ export default function AdminPedidos() {
             onClick={() => setStatusFilter(s)}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${
               statusFilter === s
-                ? 'bg-slate-900 text-white'
-                : 'bg-white border border-slate-200 text-slate-500 hover:bg-slate-50'
+                ? 'bg-slate-900 dark:bg-slate-600 text-white'
+                : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
             }`}
           >
             {s === 'all' ? 'Todos' : statusLabels[s] || s}

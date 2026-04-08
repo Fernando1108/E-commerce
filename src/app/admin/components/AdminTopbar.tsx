@@ -79,7 +79,11 @@ export default function AdminTopbar({ onMenuToggle, darkMode, onToggleDark }: Ad
           <span className="text-slate-400 dark:text-slate-500">Admin</span>
           {breadcrumbs.map((crumb, i) => (
             <React.Fragment key={crumb.path}>
-              <Icon name="ChevronRightIcon" size={12} className="text-slate-300 dark:text-slate-600" />
+              <Icon
+                name="ChevronRightIcon"
+                size={12}
+                className="text-slate-300 dark:text-slate-600"
+              />
               <span
                 className={
                   i === breadcrumbs.length - 1

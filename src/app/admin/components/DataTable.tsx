@@ -121,7 +121,9 @@ export default function DataTable<T extends { id?: string }>({
                   key={col.key}
                   onClick={col.sortable ? () => handleSort(col.key) : undefined}
                   className={`px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 ${
-                    col.sortable ? 'cursor-pointer hover:text-slate-700 dark:hover:text-slate-200 select-none' : ''
+                    col.sortable
+                      ? 'cursor-pointer hover:text-slate-700 dark:hover:text-slate-200 select-none'
+                      : ''
                   } ${col.className || ''}`}
                 >
                   <div className="flex items-center gap-1.5">
@@ -150,7 +152,11 @@ export default function DataTable<T extends { id?: string }>({
                   className="px-4 py-12 text-center text-sm text-slate-400 dark:text-slate-500"
                 >
                   <div className="flex flex-col items-center gap-2">
-                    <Icon name="InboxIcon" size={32} className="text-slate-300 dark:text-slate-600" />
+                    <Icon
+                      name="InboxIcon"
+                      size={32}
+                      className="text-slate-300 dark:text-slate-600"
+                    />
                     <p>{emptyMessage}</p>
                   </div>
                 </td>

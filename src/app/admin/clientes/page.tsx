@@ -96,8 +96,12 @@ export default function AdminClientes() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Clientes</h1>
-        <p className="text-sm text-slate-500 mt-1">{customers.length} usuarios registrados</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+          Clientes
+        </h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          {customers.length} usuarios registrados
+        </p>
       </div>
 
       <div className="relative max-w-sm">
@@ -111,7 +115,7 @@ export default function AdminClientes() {
           placeholder="Buscar por nombre..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full h-10 pl-9 pr-4 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
+          className="w-full h-10 pl-9 pr-4 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
         />
       </div>
 
