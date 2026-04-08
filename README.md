@@ -446,6 +446,11 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 - [x] Agregar `phone` y `subject` al `contactSchema` y procesarlos en el API
 - [x] Agregar field filtering en PUT de suppliers (evitar inyección de columnas)
 - [x] Remover imports no usados (`startOfWeek`/`startOfMonth` en reports)
+- [x] Paginación en admin endpoints (customers, suppliers, employees, purchases) con helper reutilizable
+- [x] Rate limiting en endpoints críticos (welcome 2/min, contact 3/min, newsletter 3/min)
+- [x] Logging estructurado con `logger.ts` (JSON entries, reemplaza console.error)
+- [x] Enums de estado de pedido centralizados en `lib/constants/order-status.ts`
+- [x] RLS policies en Supabase (11 tablas: products, categories, orders, order_items, reviews, wishlist, cart_items, coupons, product_images, product_variants, newsletter_subscribers)
 
 ### 🚧 Pendiente
 
@@ -505,10 +510,7 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 | `src/components/Header.tsx` | ~516 | Dropdown de usuario sin `role` ARIA en contenedor |
 
 **Anderson (Backend):**
-- [ ] Agregar paginación en admin endpoints (customers, suppliers, employees, purchases)
-- [ ] Rate limiting en endpoints críticos (welcome, contact, newsletter)
-- [ ] Logging estructurado (reemplazar console.error)
-- [ ] Unificar enums de estado de pedido (Zod vs admin inline)
+✅ Todas las tareas de backend completadas.
 
 ---
 
