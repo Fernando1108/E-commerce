@@ -451,7 +451,58 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 
 **Diego (Frontend):**
 
-✅ Frontend completo — segunda auditoría cerrada (admin dark mode, error handling, iconos categorías, perfil)
+> Auditoría #3 — Admin sidebar rediseñado (collapse en header, animaciones staggered, "Volver a la tienda" mejorado, logo hover). Pendientes listados abajo por severidad.
+
+#### 🔴 Alta prioridad
+
+| Archivo | Línea | Descripción |
+|---------|-------|-------------|
+| `src/components/ui/AppIcon.tsx` | 17 | Remover `[key: string]: any` — permite tipado inseguro en props |
+| `src/components/ui/AppImage.tsx` | 22 | Remover `[key: string]: any` — permite tipado inseguro en props |
+| `src/app/cart/components/CartPayPalButton.tsx` | ~57 | `console.error()` residual — remover antes de producción |
+| `src/app/product/[id]/page.tsx` | ~100 | Fetch de productos relacionados sin `.catch()` — falla silenciosa |
+| `src/app/products/components/ProductGridSection.tsx` | ~245 | Fetch sin `.catch()` en carga del catálogo |
+| `src/app/products/components/ProductFiltersSection.tsx` | ~38 | `.catch(() => {})` vacío — error silenciado sin feedback al usuario |
+| `src/app/profile/page.tsx` | ~101 | Fetch de orderCount sin error handling — falla silenciosa |
+| `src/components/Header.tsx` | ~174 | `.catch()` vacío en búsqueda — búsqueda falla sin toast |
+| `src/app/product/[id]/components/ProductTabs.tsx` | ~48 | Fetch de reviews sin `.catch()` |
+| `src/app/product/[id]/components/ProductTabs.tsx` | ~90 | Fetch de delete review sin `.catch()` |
+| `src/app/homepage/components/FeaturedProductsSection.tsx` | ~216 | Fetch de productos destacados sin `.catch()` |
+| `src/app/homepage/components/CategoryBannersSection.tsx` | ~219 | Fetch de categorías sin `.catch()` |
+| `src/app/auth/register/page.tsx` | ~68 | `catch` vacío en welcome email — error silenciado |
+| `src/components/Header.tsx` | ~255 | `<img>` con eslint-disable — reemplazar con `AppImage` |
+| `src/app/profile/page.tsx` | ~138 | `<img>` con eslint-disable — reemplazar con `AppImage` |
+
+#### 🟡 Media prioridad
+
+| Archivo | Línea | Descripción |
+|---------|-------|-------------|
+| `src/components/ui/AuthField.tsx` | completo | Inputs sin clases `dark:` — login/register/contacto sin dark mode |
+| `src/app/cart/page.tsx` | ~67 | Dark mode incompleto en cart summary background |
+| `src/app/product/[id]/components/ProductActions.tsx` | ~33 | Color `#0F0F0F` hardcodeado — usar token del design system |
+| `src/app/product/[id]/components/ProductInfo.tsx` | ~22 | Color `#0F0F0F` hardcodeado inconsistente con tema |
+| `src/app/profile/orders/page.tsx` | ~29 | Fetch de pedidos sin error handling ni toast de error |
+| `src/components/SearchModal.tsx` | ~62 | Sin validación de que `data` sea array con estructura esperada |
+| `src/app/cart/components/CartItemCard.tsx` | ~38 | Sin validación de `item.product` nulo — puede renderizar "undefined" |
+| `src/app/homepage/components/NewsletterSection.tsx` | ~73 | Typo: "Suscribete" → "Suscríbete" |
+| `src/app/homepage/components/NewsletterSection.tsx` | ~111 | Typo: "confirmacion" → "confirmación" |
+| `src/app/contacto/page.tsx` | ~111 | Typo: "Escribenos" → "Escríbenos" |
+| `src/app/contacto/page.tsx` | ~162 | Typos: "pagina" → "página", "mas" → "más" |
+| `src/app/admin/page.tsx` | ~35 | Sin validación de que `data` tenga la estructura esperada de `AdminStats` |
+
+#### 🟢 Baja prioridad
+
+| Archivo | Línea | Descripción |
+|---------|-------|-------------|
+| `src/app/products/components/ProductGridSection.tsx` | ~377 | Botón "Cargar más" sin indicación de cuántos productos quedan |
+| `src/app/homepage/components/TestimonialsSection.tsx` | ~10 | Array de testimonios hardcodeado — idealmente traer de BD o constants |
+| `src/app/product/[id]/components/ProductTabs.tsx` | ~159 | Review textarea sin sanitización de input al mostrar |
+| `src/app/auth/login/page.tsx` | ~39 | Email guardado en localStorage sin encriptación |
+| `src/app/contacto/page.tsx` | ~324 | Número de WhatsApp `+507` hardcodeado — extraer a variable de entorno |
+| `src/components/Footer.tsx` | ~117 | Links externos sin `rel="noopener noreferrer"` ni indicador visual |
+| `src/app/cart/components/CartItemCard.tsx` | ~54 | Sin confirmación visual antes de remover ítem del carrito |
+| `src/app/profile/page.tsx` | ~92 | Fetch de orderCount duplica lógica de `profile/orders/page.tsx` |
+| `src/components/Header.tsx` | ~516 | Dropdown de usuario sin `role` ARIA en contenedor |
 
 **Anderson (Backend):**
 - [ ] Agregar paginación en admin endpoints (customers, suppliers, employees, purchases)
