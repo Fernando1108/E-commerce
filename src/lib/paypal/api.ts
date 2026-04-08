@@ -5,20 +5,35 @@ const PAYPAL_API =
 
 export { PAYPAL_API };
 
-export async function getAccessToken() {
-  const auth = Buffer.from(
-    `${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`
-  ).toString('base64');
+export async function getAccessToken(): Promise<string> {
+  const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID
+  const clientSecret = process.env.PAYPAL_CLIENT_SECRET
+
+  if (!clientId || !clientSecret) {
+    throw new Error('PayPal credentials not configured')
+  }
+
+  const auth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64')
 
   const res = await fetch(`${PAYPAL_API}/v1/oauth2/token`, {
     method: 'POST',
     headers: {
-      Authorization: `Basic ${auth}`,
+      'Authorization': `Basic ${auth}`,
       'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: 'grant_type=client_credentials',
-  });
+  })
 
-  const data = await res.json();
-  return data.access_token;
+  if (!res.ok) {
+    const errorData = await res.text()
+    throw new Error(`PayPal auth failed (${res.status}): ${errorData}`)
+  }
+
+  const data = await res.json()
+  
+  if (!data.access_token) {
+    throw new Error('PayPal did not return an access token')
+  }
+
+  return data.access_token
 }

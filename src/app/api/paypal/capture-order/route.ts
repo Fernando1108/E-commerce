@@ -42,9 +42,22 @@ export async function POST(request: Request) {
         return sum + realPrice * item.quantity;
       }, 0);
 
+      // Verificar que el monto capturado coincide con el total calculado
+      const capturedAmount = parseFloat(
+        captureData.purchase_units?.[0]?.payments?.captures?.[0]?.amount?.value || '0'
+      )
+      
+      if (Math.abs(capturedAmount - serverTotal) > 0.01) {
+        console.error(`Monto mismatch: capturado=${capturedAmount}, calculado=${serverTotal}`)
+        return NextResponse.json(
+          { error: 'El monto capturado no coincide con el total del pedido' },
+          { status: 400 }
+        )
+      }
+
       const orderItems = cartItems.map((item: any) => ({
         product_id: item.product_id,
-        variant_id: item.variant_id || '',
+        variant_id: item.variant_id || null,
         quantity: item.quantity,
         price: priceMap.get(item.product_id) || 0,
       }));

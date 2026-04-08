@@ -2,6 +2,15 @@ import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { contactSchema } from '@/lib/validations';
 
+function sanitizeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+}
+
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: Request) {
@@ -15,13 +24,13 @@ export async function POST(request: Request) {
     await resend.emails.send({
       from: 'NovaStore <onboarding@resend.dev>',
       to: 'kodexasolutions@gmail.com',
-      subject: `Contacto NovaStore: ${parsed.data.name}`,
+      subject: `Contacto NovaStore: ${sanitizeHtml(parsed.data.name)}`,
       html: `
         <h2>Nuevo mensaje de contacto</h2>
-        <p><strong>Nombre:</strong> ${parsed.data.name}</p>
-        <p><strong>Email:</strong> ${parsed.data.email}</p>
+        <p><strong>Nombre:</strong> ${sanitizeHtml(parsed.data.name)}</p>
+        <p><strong>Email:</strong> ${sanitizeHtml(parsed.data.email)}</p>
         <p><strong>Mensaje:</strong></p>
-        <p>${parsed.data.message}</p>
+        <p>${sanitizeHtml(parsed.data.message)}</p>
       `,
     });
     return NextResponse.json({ sent: true });
