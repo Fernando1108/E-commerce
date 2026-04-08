@@ -70,7 +70,7 @@ export default function NewsletterSection() {
               <span className="text-[#2563EB]">Saberlo.</span>
             </h2>
             <p className="max-w-sm text-base leading-relaxed text-white/45">
-              Suscribete y recibe acceso anticipado a lanzamientos, ofertas exclusivas y contenido
+              Suscríbete y recibe acceso anticipado a lanzamientos, ofertas exclusivas y contenido
               editorial sobre tecnologia premium.
             </p>
 
@@ -175,7 +175,7 @@ export default function NewsletterSection() {
                 <div>
                   <p className="text-xl font-700 text-white">Bienvenido a NovaStore!</p>
                   <p className="mt-1.5 text-sm text-white/40">
-                    Te hemos enviado un email de confirmacion a{' '}
+                    Te hemos enviado un email de confirmación a{' '}
                     <strong className="text-white/70">{email}</strong>.
                   </p>
                 </div>

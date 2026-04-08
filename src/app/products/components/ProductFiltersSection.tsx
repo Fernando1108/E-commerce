@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Icon from '@/components/ui/AppIcon';
 import { getCategories } from '@/lib/supabase/services';
+import { toast } from 'sonner';
 import type { Category } from '@/types';
 
 export const sortOptions = [
@@ -36,7 +37,9 @@ export default function ProductFiltersSection({
   useEffect(() => {
     getCategories()
       .then((data) => setCategories(data))
-      .catch(() => {});
+      .catch(() => {
+        toast.error('Error al cargar filtros');
+      });
   }, []);
 
   const allCategories = [

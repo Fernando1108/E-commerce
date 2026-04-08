@@ -156,7 +156,7 @@ export default function CartPage() {
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.55, delay: 0.18, ease: [0.16, 1, 0.3, 1] }}
-                className="bg-white border border-[#DDD9D3] overflow-hidden"
+                className="bg-white border border-[#DDD9D3] overflow-hidden dark:bg-slate-800 dark:border-slate-700"
               >
                 <CartSummary
                   itemCount={itemCount}

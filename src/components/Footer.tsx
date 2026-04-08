@@ -117,7 +117,7 @@ export default function Footer() {
             <motion.a
               href="https://instagram.com/kodexasolutions"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               aria-label="Instagram de NovaStore"
               whileHover={{ scale: 1.15 }}
               transition={{ type: 'spring', stiffness: 400, damping: 17 }}
@@ -128,7 +128,7 @@ export default function Footer() {
             <motion.a
               href="https://wa.me/50766449530"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               aria-label="WhatsApp de NovaStore"
               whileHover={{ scale: 1.15 }}
               transition={{ type: 'spring', stiffness: 400, damping: 17 }}
@@ -164,7 +164,7 @@ export default function Footer() {
             <a
               href="https://www.kodexasolutions.com/home"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-[12px] font-500 text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors duration-200 group/kodexa"
             >
               Desarrollado por{' '}

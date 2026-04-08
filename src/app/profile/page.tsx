@@ -10,6 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { useWishlist } from '@/hooks/useWishlist';
 import Icon from '@/components/ui/AppIcon';
+import AppImage from '@/components/ui/AppImage';
 
 // ─── Animation helpers ────────────────────────────────────────────────────────
 const fadeUp = (delay = 0) => ({
@@ -101,7 +102,7 @@ export default function ProfilePage() {
       fetch('/api/orders')
         .then((r) => r.json())
         .then((d) => setOrderCount(Array.isArray(d) ? d.length : null))
-        .catch(() => setOrderCount(null));
+        .catch(() => setOrderCount(0));
     }
   }, [user]);
 
@@ -134,10 +135,11 @@ export default function ProfilePage() {
               className="size-32 rounded-full border-4 border-white shadow-xl bg-[#EFEDE9] flex items-center justify-center overflow-hidden"
             >
               {user?.user_metadata?.avatar_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <AppImage
                   src={user.user_metadata.avatar_url}
                   alt={displayName}
+                  width={128}
+                  height={128}
                   className="w-full h-full object-cover"
                 />
               ) : (

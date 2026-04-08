@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Icon from '@/components/ui/AppIcon';
+import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { formatPrice } from '@/lib/utils';
 import type { Order } from '@/types';
@@ -33,6 +34,7 @@ export default function OrdersPage() {
         setLoading(false);
       })
       .catch(() => {
+        toast.error('Error al cargar pedidos');
         setError('No se pudieron cargar tus pedidos.');
         setLoading(false);
       });

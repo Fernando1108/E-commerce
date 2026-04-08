@@ -66,7 +66,7 @@ export default function RegisterPage() {
         body: JSON.stringify({ email, name: fullName.trim() }),
       });
     } catch {
-      // welcome email failure is non-blocking
+      // Welcome email is non-critical
     }
 
     setStatus('success');

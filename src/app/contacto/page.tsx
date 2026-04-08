@@ -29,12 +29,12 @@ const contactHighlights = [
   {
     title: 'Respuesta organizada',
     description:
-      'Buscamos que cada solicitud llegue con el contexto suficiente para responder de forma mas precisa y util.',
+      'Buscamos que cada solicitud llegue con el contexto suficiente para responder de forma más precisa y útil.',
   },
   {
     title: 'Canal directo',
     description:
-      'La pagina esta pensada para facilitar contacto inicial sin perder el tono editorial y limpio del sitio.',
+      'La página está pensada para facilitar contacto inicial sin perder el tono editorial y limpio del sitio.',
   },
 ];
 
@@ -159,7 +159,7 @@ export default function ContactoPage() {
               </h1>
 
               <p className="mt-6 max-w-xl text-base leading-relaxed text-[#5A5A5A] lg:text-lg">
-                Esta pagina esta pensada para consultas comerciales, dudas operativas y
+                Esta página está pensada para consultas comerciales, dudas operativas y
                 requerimientos relacionados con pedidos, soporte o informacion general sobre
                 NovaStore.
               </p>
@@ -193,7 +193,7 @@ export default function ContactoPage() {
                       Formulario de contacto
                     </p>
                     <h2 className="mt-3 text-3xl font-display font-900 uppercase italic text-[#1C1C1C]">
-                      Escribenos
+                      Escríbenos
                     </h2>
                   </div>
                   <span className="inline-flex items-center border border-[#D8E4FF] bg-[#EFF6FF] px-3 py-2 text-[10px] font-black uppercase tracking-[0.22em] text-[#2563EB]">

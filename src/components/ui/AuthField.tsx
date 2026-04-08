@@ -29,10 +29,10 @@ export default function AuthField({
         type={type}
         placeholder={placeholder}
         {...registration}
-        className={`h-14 w-full border px-4 text-[15px] text-[#1C1C1C] outline-none transition ${
+        className={`h-14 w-full border px-4 text-[15px] text-[#1C1C1C] outline-none transition dark:text-white dark:placeholder-slate-400 ${
           error
-            ? 'border-[#C33D2F] bg-[#FFF7F5] focus:border-[#C33D2F]'
-            : 'border-[#DDD9D3] bg-[#FCFBF9] focus:border-[#1C1C1C] focus:bg-white'
+            ? 'border-[#C33D2F] bg-[#FFF7F5] focus:border-[#C33D2F] dark:bg-slate-700 dark:border-red-500'
+            : 'border-[#DDD9D3] bg-[#FCFBF9] focus:border-[#1C1C1C] focus:bg-white dark:bg-slate-700 dark:border-slate-600 dark:focus:border-slate-400'
         }`}
       />
       {error?.message && <span className="mt-2 block text-sm text-[#C33D2F]">{error.message}</span>}

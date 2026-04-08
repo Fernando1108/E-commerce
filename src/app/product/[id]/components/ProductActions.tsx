@@ -30,7 +30,7 @@ export default function ProductActions({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <p className="text-[10px] font-black uppercase tracking-widest text-[#0F0F0F]">Cantidad</p>
+        <p className="text-[10px] font-black uppercase tracking-widest text-nova-fg">Cantidad</p>
         <p className="text-[11px] text-[#8A8A8A]">Máx. {stock} unidades</p>
       </div>
 

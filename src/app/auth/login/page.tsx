@@ -20,6 +20,7 @@ function LoginContent() {
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<StatusState>('idle');
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+  const [rememberEmail, setRememberEmail] = useState(false);
 
   // Active-session detection
   const [activeSession, setActiveSession] = useState<{
@@ -55,17 +56,20 @@ function LoginContent() {
   // Restore remembered email
   useEffect(() => {
     const saved = window.localStorage.getItem(EMAIL_KEY);
-    if (saved) setValue('email', saved);
+    if (saved) {
+      setValue('email', saved);
+      setRememberEmail(true);
+    }
   }, [setValue]);
 
-  // Persist email as user types
+  // Persist or clear email based on checkbox
   useEffect(() => {
-    if (emailValue?.trim()) {
+    if (rememberEmail && emailValue?.trim()) {
       window.localStorage.setItem(EMAIL_KEY, emailValue);
     } else {
       window.localStorage.removeItem(EMAIL_KEY);
     }
-  }, [emailValue]);
+  }, [emailValue, rememberEmail]);
 
   const redirectParam = searchParams.get('redirect');
   const isValidRedirect =
@@ -258,6 +262,18 @@ function LoginContent() {
                             error={errors.password}
                           />
                         </div>
+
+                        <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                          <input
+                            type="checkbox"
+                            checked={rememberEmail}
+                            onChange={(e) => setRememberEmail(e.target.checked)}
+                            className="size-4 accent-[#1C1C1C] cursor-pointer"
+                          />
+                          <span className="text-[11px] font-600 text-[#5A5A5A]">
+                            Recordar email
+                          </span>
+                        </label>
 
                         <div className="flex items-center justify-between gap-4 border-t border-[#E6E1DA] pt-6">
                           <Link
