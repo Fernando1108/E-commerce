@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   AreaChart,
   Area,
@@ -39,6 +40,7 @@ const COLORS = [
 ];
 
 export default function AdminReportes() {
+  const router = useRouter();
   const [data, setData] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState('30');
@@ -59,20 +61,24 @@ export default function AdminReportes() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => (window.location.href = '/admin/facturacion')}
-            className="size-9 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+            onClick={() => router.push('/admin/facturacion')}
+            className="size-9 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
           >
             <Icon name="ArrowLeftIcon" size={18} />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Reportes</h1>
-            <p className="text-sm text-slate-500 mt-0.5">Análisis de ventas e ingresos</p>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+              Reportes
+            </h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+              Análisis de ventas e ingresos
+            </p>
           </div>
         </div>
         <select
           value={period}
           onChange={(e) => setPeriod(e.target.value)}
-          className="h-10 px-4 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          className="h-10 px-4 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
         >
           <option value="7">Últimos 7 días</option>
           <option value="30">Últimos 30 días</option>
@@ -238,8 +244,10 @@ export default function AdminReportes() {
                       className="size-3 rounded-full"
                       style={{ backgroundColor: COLORS[i % COLORS.length] }}
                     />
-                    <span className="text-xs text-slate-600 flex-1 truncate">{cat.name}</span>
-                    <span className="text-xs font-semibold text-slate-800">
+                    <span className="text-xs text-slate-600 dark:text-slate-300 flex-1 truncate">
+                      {cat.name}
+                    </span>
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-100">
                       {formatPrice(cat.revenue)}
                     </span>
                   </div>

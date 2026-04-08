@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import DataTable, { Column } from '../components/DataTable';
 import Icon from '@/components/ui/AppIcon';
+import { toast } from 'sonner';
 import { formatPrice } from '@/lib/utils';
 
 interface InvoiceRow {
@@ -44,6 +45,10 @@ export default function AdminFacturacion() {
       .then((d) => {
         setInvoices(Array.isArray(d) ? d : []);
         setLoading(false);
+      })
+      .catch(() => {
+        toast.error('Error al cargar facturas');
+        setLoading(false);
       });
   }, []);
 
@@ -52,7 +57,7 @@ export default function AdminFacturacion() {
       key: 'id',
       label: 'Factura',
       render: (item) => (
-        <span className="font-mono text-sm font-semibold text-slate-700">
+        <span className="font-mono text-sm font-semibold text-slate-700 dark:text-slate-300">
           #{item.id.slice(0, 8).toUpperCase()}
         </span>
       ),
@@ -61,14 +66,18 @@ export default function AdminFacturacion() {
       key: 'order',
       label: 'Pedido',
       render: (item) => (
-        <span className="font-mono text-sm text-slate-500">#{item.order_id.slice(0, 8)}</span>
+        <span className="font-mono text-sm text-slate-500 dark:text-slate-400">
+          #{item.order_id.slice(0, 8)}
+        </span>
       ),
     },
     {
       key: 'customer',
       label: 'Cliente',
       render: (item) => (
-        <span className="text-sm text-slate-700">{item.orders?.profiles?.name || 'Cliente'}</span>
+        <span className="text-sm text-slate-700 dark:text-slate-300">
+          {item.orders?.profiles?.name || 'Cliente'}
+        </span>
       ),
     },
     {
@@ -76,7 +85,9 @@ export default function AdminFacturacion() {
       label: 'Total',
       sortable: true,
       render: (item) => (
-        <span className="text-sm font-semibold text-slate-800">{formatPrice(item.total)}</span>
+        <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+          {formatPrice(item.total)}
+        </span>
       ),
     },
     {
@@ -95,7 +106,7 @@ export default function AdminFacturacion() {
       label: 'Fecha',
       sortable: true,
       render: (item) => (
-        <span className="text-sm text-slate-500">
+        <span className="text-sm text-slate-500 dark:text-slate-400">
           {new Date(item.created_at).toLocaleDateString('es-ES', {
             day: '2-digit',
             month: 'short',
@@ -119,7 +130,7 @@ export default function AdminFacturacion() {
         </div>
         <Link
           href="/admin/facturacion/reportes"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 transition-colors"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 dark:bg-slate-700 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 dark:hover:bg-slate-600 transition-colors"
         >
           <Icon name="ChartBarIcon" size={16} />
           Ver reportes

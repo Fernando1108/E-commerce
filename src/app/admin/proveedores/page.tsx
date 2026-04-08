@@ -1,13 +1,16 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import DataTable, { Column } from '../components/DataTable';
 import AdminModal from '../components/AdminModal';
 import Icon from '@/components/ui/AppIcon';
+import { toast } from 'sonner';
 import type { Supplier } from '@/types';
 
 export default function AdminProveedores() {
+  const router = useRouter();
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -27,10 +30,15 @@ export default function AdminProveedores() {
 
   const fetchSuppliers = async () => {
     setLoading(true);
-    const res = await fetch('/api/admin/suppliers');
-    const data = await res.json();
-    setSuppliers(Array.isArray(data) ? data : []);
-    setLoading(false);
+    try {
+      const res = await fetch('/api/admin/suppliers');
+      const data = await res.json();
+      setSuppliers(Array.isArray(data) ? data : []);
+    } catch {
+      toast.error('Error al cargar proveedores');
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -74,30 +82,41 @@ export default function AdminProveedores() {
     setSubmitting(true);
     try {
       if (editing) {
-        await fetch(`/api/admin/suppliers/${editing.id}`, {
+        const res = await fetch(`/api/admin/suppliers/${editing.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(form),
         });
+        if (!res.ok) throw new Error('Error al actualizar proveedor');
+        toast.success('Proveedor actualizado');
       } else {
-        await fetch('/api/admin/suppliers', {
+        const res = await fetch('/api/admin/suppliers', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(form),
         });
+        if (!res.ok) throw new Error('Error al crear proveedor');
+        toast.success('Proveedor creado');
       }
       setModalOpen(false);
       fetchSuppliers();
-    } catch {
-      /* empty */
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'Error al guardar proveedor');
+    } finally {
+      setSubmitting(false);
     }
-    setSubmitting(false);
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm('¿Eliminar proveedor?')) return;
-    await fetch(`/api/admin/suppliers/${id}`, { method: 'DELETE' });
-    fetchSuppliers();
+    try {
+      const res = await fetch(`/api/admin/suppliers/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Error al eliminar proveedor');
+      toast.success('Proveedor eliminado');
+      fetchSuppliers();
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'Error al eliminar proveedor');
+    }
   };
 
   const columns: Column<Supplier>[] = [
@@ -107,7 +126,7 @@ export default function AdminProveedores() {
       sortable: true,
       render: (item) => (
         <div>
-          <p className="text-sm font-semibold text-slate-800">{item.name}</p>
+          <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{item.name}</p>
           <p className="text-xs text-slate-400">{item.contact_name || '—'}</p>
         </div>
       ),
@@ -115,13 +134,15 @@ export default function AdminProveedores() {
     {
       key: 'email',
       label: 'Email',
-      render: (item) => <span className="text-sm text-slate-600">{item.email || '—'}</span>,
+      render: (item) => (
+        <span className="text-sm text-slate-600 dark:text-slate-300">{item.email || '—'}</span>
+      ),
     },
     {
       key: 'city',
       label: 'Ciudad',
       render: (item) => (
-        <span className="text-sm text-slate-600">
+        <span className="text-sm text-slate-600 dark:text-slate-300">
           {item.city ? `${item.city}, ${item.country || ''}` : '—'}
         </span>
       ),
@@ -153,8 +174,8 @@ export default function AdminProveedores() {
         <div className="flex gap-2">
           <motion.button
             whileTap={{ scale: 0.97 }}
-            onClick={() => (window.location.href = '/admin/proveedores/compras')}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl hover:bg-slate-50 transition-colors"
+            onClick={() => router.push('/admin/proveedores/compras')}
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 text-sm font-semibold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
           >
             <Icon name="DocumentTextIcon" size={16} />
             Compras

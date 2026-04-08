@@ -7,6 +7,21 @@ import AdminModal from '../components/AdminModal';
 import Icon from '@/components/ui/AppIcon';
 import { toast } from 'sonner';
 
+function getCategoryIcon(name: string): Parameters<typeof Icon>[0]['name'] {
+  const lower = name.toLowerCase();
+  if (lower.includes('electr')) return 'ComputerDesktopIcon';
+  if (lower.includes('audio') || lower.includes('sonido') || lower.includes('music'))
+    return 'SpeakerWaveIcon';
+  if (lower.includes('gaming') || lower.includes('juego') || lower.includes('videojuego'))
+    return 'PuzzlePieceIcon';
+  if (lower.includes('accesorio') || lower.includes('herrami')) return 'WrenchScrewdriverIcon';
+  if (lower.includes('hogar') || lower.includes('casa') || lower.includes('home'))
+    return 'HomeModernIcon';
+  if (lower.includes('wearable') || lower.includes('reloj') || lower.includes('watch'))
+    return 'ClockIcon';
+  return 'TagIcon';
+}
+
 interface CategoryRow {
   id: string;
   name: string;
@@ -155,12 +170,18 @@ export default function AdminCategorias() {
       render: (item) => (
         <div className="flex items-center gap-3">
           <div
-            className="size-8 rounded-lg flex items-center justify-center"
+            className="size-8 rounded-lg flex items-center justify-center flex-shrink-0"
             style={{ backgroundColor: item.accent_color + '20' }}
           >
-            <div className="size-3 rounded-full" style={{ backgroundColor: item.accent_color }} />
+            <Icon
+              name={getCategoryIcon(item.name)}
+              size={16}
+              style={{ color: item.accent_color }}
+            />
           </div>
-          <span className="text-sm font-semibold text-slate-800">{item.name}</span>
+          <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+            {item.name}
+          </span>
         </div>
       ),
     },
@@ -168,7 +189,9 @@ export default function AdminCategorias() {
       key: 'description',
       label: 'Descripción',
       render: (item) => (
-        <span className="text-sm text-slate-500 line-clamp-1">{item.description || '—'}</span>
+        <span className="text-sm text-slate-500 dark:text-slate-400 line-clamp-1">
+          {item.description || '—'}
+        </span>
       ),
     },
     {
@@ -176,14 +199,16 @@ export default function AdminCategorias() {
       label: 'Productos',
       sortable: true,
       render: (item) => (
-        <span className="text-sm font-semibold text-slate-700">{item.product_count ?? 0}</span>
+        <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+          {item.product_count ?? 0}
+        </span>
       ),
     },
     {
       key: 'display_size',
       label: 'Tamaño',
       render: (item) => (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold bg-slate-100 text-slate-600">
+        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
           {item.display_size}
         </span>
       ),
@@ -291,7 +316,7 @@ export default function AdminCategorias() {
                 type="color"
                 value={form.accent_color}
                 onChange={(e) => setForm({ ...form, accent_color: e.target.value })}
-                className="w-full h-10 rounded-lg border border-slate-200 cursor-pointer"
+                className="w-full h-10 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer"
               />
             </div>
             <div>
@@ -380,7 +405,7 @@ export default function AdminCategorias() {
                 type="color"
                 value={form.accent_color}
                 onChange={(e) => setForm({ ...form, accent_color: e.target.value })}
-                className="w-full h-10 rounded-lg border border-slate-200 cursor-pointer"
+                className="w-full h-10 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer"
               />
             </div>
             <div>

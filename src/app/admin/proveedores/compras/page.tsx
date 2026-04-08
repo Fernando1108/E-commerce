@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import DataTable, { Column } from '../../components/DataTable';
 import Icon from '@/components/ui/AppIcon';
+import { toast } from 'sonner';
 import { formatPrice } from '@/lib/utils';
 
 interface PurchaseRow {
@@ -27,6 +29,7 @@ const statusLabels: Record<string, string> = {
 };
 
 export default function AdminCompras() {
+  const router = useRouter();
   const [purchases, setPurchases] = useState<PurchaseRow[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,6 +39,10 @@ export default function AdminCompras() {
       .then((d) => {
         setPurchases(Array.isArray(d) ? d : []);
         setLoading(false);
+      })
+      .catch(() => {
+        toast.error('Error al cargar órdenes de compra');
+        setLoading(false);
       });
   }, []);
 
@@ -44,14 +51,18 @@ export default function AdminCompras() {
       key: 'id',
       label: 'ID',
       render: (item) => (
-        <span className="font-mono text-sm text-slate-700">#{item.id.slice(0, 8)}</span>
+        <span className="font-mono text-sm text-slate-700 dark:text-slate-300">
+          #{item.id.slice(0, 8)}
+        </span>
       ),
     },
     {
       key: 'supplier',
       label: 'Proveedor',
       render: (item) => (
-        <span className="text-sm font-semibold text-slate-800">{item.suppliers?.name || '—'}</span>
+        <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+          {item.suppliers?.name || '—'}
+        </span>
       ),
     },
     {
@@ -59,7 +70,9 @@ export default function AdminCompras() {
       label: 'Total',
       sortable: true,
       render: (item) => (
-        <span className="text-sm font-semibold text-slate-800">{formatPrice(item.total)}</span>
+        <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+          {formatPrice(item.total)}
+        </span>
       ),
     },
     {
@@ -78,7 +91,7 @@ export default function AdminCompras() {
       label: 'Fecha',
       sortable: true,
       render: (item) => (
-        <span className="text-sm text-slate-500">
+        <span className="text-sm text-slate-500 dark:text-slate-400">
           {new Date(item.created_at).toLocaleDateString('es-ES', {
             day: '2-digit',
             month: 'short',
@@ -93,14 +106,18 @@ export default function AdminCompras() {
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <button
-          onClick={() => (window.location.href = '/admin/proveedores')}
-          className="size-9 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+          onClick={() => router.push('/admin/proveedores')}
+          className="size-9 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
         >
           <Icon name="ArrowLeftIcon" size={18} />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Órdenes de compra</h1>
-          <p className="text-sm text-slate-500 mt-1">{purchases.length} compras registradas</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            Órdenes de compra
+          </h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            {purchases.length} compras registradas
+          </p>
         </div>
       </div>
       <DataTable

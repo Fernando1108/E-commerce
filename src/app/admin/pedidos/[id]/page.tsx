@@ -66,8 +66,8 @@ export default function PedidoDetalle({ params }: { params: Promise<{ id: string
   if (loading) {
     return (
       <div className="max-w-4xl space-y-6 animate-pulse">
-        <div className="h-8 w-60 bg-slate-200 rounded" />
-        <div className="h-64 bg-slate-100 rounded-xl" />
+        <div className="h-8 w-60 bg-slate-200 dark:bg-slate-700 rounded" />
+        <div className="h-64 bg-slate-100 dark:bg-slate-800 rounded-xl" />
       </div>
     );
   }
@@ -75,8 +75,12 @@ export default function PedidoDetalle({ params }: { params: Promise<{ id: string
   if (!order) {
     return (
       <div className="text-center py-20">
-        <Icon name="ExclamationCircleIcon" size={40} className="mx-auto text-slate-300 mb-4" />
-        <p className="text-slate-500">Pedido no encontrado</p>
+        <Icon
+          name="ExclamationCircleIcon"
+          size={40}
+          className="mx-auto text-slate-300 dark:text-slate-600 mb-4"
+        />
+        <p className="text-slate-500 dark:text-slate-400">Pedido no encontrado</p>
       </div>
     );
   }
@@ -86,15 +90,15 @@ export default function PedidoDetalle({ params }: { params: Promise<{ id: string
       <div className="flex items-center gap-4">
         <button
           onClick={() => router.back()}
-          className="size-9 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+          className="size-9 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
         >
           <Icon name="ArrowLeftIcon" size={18} />
         </button>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
             Pedido #{order.id.slice(0, 8).toUpperCase()}
           </h1>
-          <p className="text-sm text-slate-500 mt-0.5">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             {new Date(order.created_at).toLocaleDateString('es-ES', {
               day: '2-digit',
               month: 'long',
@@ -116,38 +120,44 @@ export default function PedidoDetalle({ params }: { params: Promise<{ id: string
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="lg:col-span-2 bg-white rounded-xl border border-slate-200 overflow-hidden"
+          className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden"
         >
-          <div className="px-5 py-4 border-b border-slate-100">
-            <h2 className="text-sm font-bold text-slate-900">Items del pedido</h2>
+          <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-700">
+            <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+              Items del pedido
+            </h2>
           </div>
-          <div className="divide-y divide-slate-50">
+          <div className="divide-y divide-slate-50 dark:divide-slate-700">
             {order.items.map((item) => (
               <div key={item.id} className="flex items-center gap-4 px-5 py-3">
-                <div className="size-12 rounded-lg bg-slate-100 overflow-hidden flex-shrink-0">
+                <div className="size-12 rounded-lg bg-slate-100 dark:bg-slate-700 overflow-hidden flex-shrink-0">
                   {item.products?.image_url ? (
                     <img src={item.products.image_url} alt="" className="size-full object-cover" />
                   ) : (
-                    <div className="size-full flex items-center justify-center text-slate-300">
+                    <div className="size-full flex items-center justify-center text-slate-300 dark:text-slate-500">
                       <Icon name="PhotoIcon" size={16} />
                     </div>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-slate-800 truncate">
+                  <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">
                     {item.products?.name || 'Producto'}
                   </p>
-                  <p className="text-xs text-slate-400">Cantidad: {item.quantity}</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500">
+                    Cantidad: {item.quantity}
+                  </p>
                 </div>
-                <p className="text-sm font-semibold text-slate-800">
+                <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
                   {formatPrice(item.price * item.quantity)}
                 </p>
               </div>
             ))}
           </div>
-          <div className="px-5 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-            <span className="text-sm font-bold text-slate-700">Total</span>
-            <span className="text-lg font-bold text-slate-900">{formatPrice(order.total)}</span>
+          <div className="px-5 py-4 bg-slate-50 dark:bg-slate-700/50 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
+            <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Total</span>
+            <span className="text-lg font-bold text-slate-900 dark:text-white">
+              {formatPrice(order.total)}
+            </span>
           </div>
         </motion.div>
 
@@ -157,17 +167,17 @@ export default function PedidoDetalle({ params }: { params: Promise<{ id: string
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-white rounded-xl border border-slate-200 p-5 space-y-3"
+            className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5 space-y-3"
           >
-            <h3 className="text-sm font-bold text-slate-900">Cliente</h3>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">Cliente</h3>
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm text-slate-600">
-                <Icon name="UserIcon" size={14} className="text-slate-400" />
+              <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                <Icon name="UserIcon" size={14} className="text-slate-400 dark:text-slate-500" />
                 {order.profiles?.name || 'Sin nombre'}
               </div>
               {order.profiles?.phone && (
-                <div className="flex items-center gap-2 text-sm text-slate-600">
-                  <Icon name="PhoneIcon" size={14} className="text-slate-400" />
+                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                  <Icon name="PhoneIcon" size={14} className="text-slate-400 dark:text-slate-500" />
                   {order.profiles.phone}
                 </div>
               )}
@@ -178,14 +188,14 @@ export default function PedidoDetalle({ params }: { params: Promise<{ id: string
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-white rounded-xl border border-slate-200 p-5 space-y-3"
+            className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5 space-y-3"
           >
-            <h3 className="text-sm font-bold text-slate-900">Cambiar estado</h3>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">Cambiar estado</h3>
             <select
               value={order.status}
               onChange={(e) => handleStatusChange(e.target.value)}
               disabled={updating}
-              className="w-full h-10 px-3 rounded-lg border border-slate-200 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 disabled:opacity-50"
+              className="w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 disabled:opacity-50"
             >
               {allStatuses.map((s) => (
                 <option key={s} value={s}>
@@ -193,7 +203,9 @@ export default function PedidoDetalle({ params }: { params: Promise<{ id: string
                 </option>
               ))}
             </select>
-            {updating && <p className="text-xs text-blue-600">Actualizando...</p>}
+            {updating && (
+              <p className="text-xs text-blue-600 dark:text-blue-400">Actualizando...</p>
+            )}
           </motion.div>
         </div>
       </div>

@@ -405,9 +405,15 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 - [x] Fix letras invisibles en dark mode admin (títulos, inputs, selects, modales)
 - [x] Logo dashboard en sidebar (`public/logo/logo-dashboard.png`)
 - [x] Crear/editar producto como modal (AdminModal inline, POST/PUT, sin página separada)
-- [x] Rediseño página de perfil (banner oscuro, avatar, cards, animaciones staggered)
-- [x] Rediseño editar perfil (3 secciones: datos, seguridad con verificación, email con confirmación)
+- [x] Rediseño página de perfil — 4 secciones: header con avatar y 3 stats cards (miembro desde, pedidos, wishlist), info personal desde `user_metadata`, 6 acciones rápidas con `whileHover` spring, banner admin
+- [x] Rediseño editar perfil — 2 secciones: datos personales expandidos (nombre, teléfono, dirección, ciudad, país, código postal, email readonly) + seguridad; guarda vía `supabase.auth.updateUser({ data })`
 - [x] Hero grande en página del carrito (full-width h-36/h-48, gradiente, dot grid, Framer Motion)
+- [x] Panel Admin — Iconos de categoría por tipo (`getCategoryIcon`): Electrónica→`ComputerDesktopIcon`, Audio→`SpeakerWaveIcon`, Gaming→`PuzzlePieceIcon`, Accesorios→`WrenchScrewdriverIcon`, Hogar→`HomeModernIcon`, Wearables→`ClockIcon`, fallback→`TagIcon`; el icono usa `accent_color` como color
+- [x] Panel Admin — Dark mode auditado y completado en todos los módulos: `pedidos/[id]`, `categorias`, `inventario`, `proveedores`, `empleados`, `compras`, `facturación`, `reportes`, `clientes` (textos, cards, tablas, selects, botones, divisores)
+- [x] Panel Admin — Error handling con `try/catch` + `toast.error/success` en todos los CRUD: proveedores (fetch, create, update, delete), empleados (fetch, create, update, delete), inventario (submit movimiento), facturación (fetch), compras (fetch), clientes (fetch)
+- [x] Panel Admin — `window.location.href` reemplazado por `useRouter` + `router.push` en proveedores (`/compras`), compras (back), reportes (back)
+- [x] Panel Admin — `pedidos/page.tsx`: textos de tabla con `dark:text-*` en cliente, fecha y total
+- [x] Panel Admin — `bg-dot-pattern` y `skeleton-shimmer` estandarizados; `animate-pulse` reemplazado en product detail
 
 **Backend (Anderson):**
 - [x] GET/POST `/api/products` + Zod + verificación admin
@@ -445,7 +451,7 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 
 **Diego (Frontend):**
 
-✅ Frontend completo — auditoría cerrada
+✅ Frontend completo — segunda auditoría cerrada (admin dark mode, error handling, iconos categorías, perfil)
 
 **Anderson (Backend):**
 - [ ] Agregar paginación en admin endpoints (customers, suppliers, employees, purchases)

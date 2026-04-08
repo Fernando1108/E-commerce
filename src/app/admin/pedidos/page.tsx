@@ -59,7 +59,7 @@ export default function AdminPedidos() {
       key: 'id',
       label: 'Orden',
       render: (item) => (
-        <span className="font-mono text-sm font-semibold text-slate-700">
+        <span className="font-mono text-sm font-semibold text-slate-700 dark:text-slate-300">
           #{item.id.slice(0, 8).toUpperCase()}
         </span>
       ),
@@ -68,7 +68,9 @@ export default function AdminPedidos() {
       key: 'customer',
       label: 'Cliente',
       render: (item) => (
-        <span className="text-sm text-slate-700">{item.profiles?.name || 'Cliente'}</span>
+        <span className="text-sm text-slate-700 dark:text-slate-300">
+          {item.profiles?.name || 'Cliente'}
+        </span>
       ),
     },
     {
@@ -76,7 +78,7 @@ export default function AdminPedidos() {
       label: 'Fecha',
       sortable: true,
       render: (item) => (
-        <span className="text-sm text-slate-500">
+        <span className="text-sm text-slate-500 dark:text-slate-400">
           {new Date(item.created_at).toLocaleDateString('es-ES', {
             day: '2-digit',
             month: 'short',
@@ -90,7 +92,9 @@ export default function AdminPedidos() {
       label: 'Total',
       sortable: true,
       render: (item) => (
-        <span className="text-sm font-semibold text-slate-800">{formatPrice(item.total)}</span>
+        <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+          {formatPrice(item.total)}
+        </span>
       ),
     },
     {

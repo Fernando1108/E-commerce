@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import DataTable, { Column } from '../components/DataTable';
 import AdminModal from '../components/AdminModal';
 import Icon from '@/components/ui/AppIcon';
+import { toast } from 'sonner';
 import { formatPrice } from '@/lib/utils';
 import type { Employee } from '@/types';
 
@@ -38,10 +39,15 @@ export default function AdminEmpleados() {
 
   const fetchEmployees = async () => {
     setLoading(true);
-    const res = await fetch('/api/admin/employees');
-    const data = await res.json();
-    setEmployees(Array.isArray(data) ? data : []);
-    setLoading(false);
+    try {
+      const res = await fetch('/api/admin/employees');
+      const data = await res.json();
+      setEmployees(Array.isArray(data) ? data : []);
+    } catch {
+      toast.error('Error al cargar empleados');
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -83,23 +89,33 @@ export default function AdminEmpleados() {
     setSubmitting(true);
     try {
       const url = editing ? `/api/admin/employees/${editing.id}` : '/api/admin/employees';
-      await fetch(url, {
+      const res = await fetch(url, {
         method: editing ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       });
+      if (!res.ok)
+        throw new Error(editing ? 'Error al actualizar empleado' : 'Error al crear empleado');
+      toast.success(editing ? 'Empleado actualizado' : 'Empleado creado');
       setModalOpen(false);
       fetchEmployees();
-    } catch {
-      /* empty */
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'Error al guardar empleado');
+    } finally {
+      setSubmitting(false);
     }
-    setSubmitting(false);
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm('¿Eliminar empleado?')) return;
-    await fetch(`/api/admin/employees/${id}`, { method: 'DELETE' });
-    fetchEmployees();
+    try {
+      const res = await fetch(`/api/admin/employees/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Error al eliminar empleado');
+      toast.success('Empleado eliminado');
+      fetchEmployees();
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'Error al eliminar empleado');
+    }
   };
 
   const columns: Column<Employee>[] = [
@@ -109,27 +125,33 @@ export default function AdminEmpleados() {
       sortable: true,
       render: (item) => (
         <div>
-          <p className="text-sm font-semibold text-slate-800">{item.name}</p>
-          <p className="text-xs text-slate-400">{item.position || '—'}</p>
+          <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{item.name}</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500">{item.position || '—'}</p>
         </div>
       ),
     },
     {
       key: 'department',
       label: 'Departamento',
-      render: (item) => <span className="text-sm text-slate-600">{item.department || '—'}</span>,
+      render: (item) => (
+        <span className="text-sm text-slate-600 dark:text-slate-300">{item.department || '—'}</span>
+      ),
     },
     {
       key: 'email',
       label: 'Email',
-      render: (item) => <span className="text-sm text-slate-600">{item.email || '—'}</span>,
+      render: (item) => (
+        <span className="text-sm text-slate-600 dark:text-slate-300">{item.email || '—'}</span>
+      ),
     },
     {
       key: 'salary',
       label: 'Salario',
       sortable: true,
       render: (item) => (
-        <span className="text-sm font-semibold text-slate-800">{formatPrice(item.salary)}</span>
+        <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+          {formatPrice(item.salary)}
+        </span>
       ),
     },
     {

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import DataTable, { Column } from '../components/DataTable';
 import Icon from '@/components/ui/AppIcon';
+import { toast } from 'sonner';
 import { formatPrice } from '@/lib/utils';
 
 interface CustomerRow {
@@ -26,6 +27,10 @@ export default function AdminClientes() {
       .then((d) => {
         setCustomers(Array.isArray(d) ? d : []);
         setLoading(false);
+      })
+      .catch(() => {
+        toast.error('Error al cargar clientes');
+        setLoading(false);
       });
   }, []);
 
@@ -40,12 +45,14 @@ export default function AdminClientes() {
       sortable: true,
       render: (item) => (
         <div className="flex items-center gap-3">
-          <div className="size-9 rounded-full bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center text-slate-600 text-xs font-bold flex-shrink-0">
+          <div className="size-9 rounded-full bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-600 dark:to-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 text-xs font-bold flex-shrink-0">
             {(item.name || '?').charAt(0).toUpperCase()}
           </div>
           <div>
-            <p className="text-sm font-semibold text-slate-800">{item.name || 'Sin nombre'}</p>
-            <p className="text-xs text-slate-400">{item.phone || '—'}</p>
+            <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+              {item.name || 'Sin nombre'}
+            </p>
+            <p className="text-xs text-slate-400 dark:text-slate-500">{item.phone || '—'}</p>
           </div>
         </div>
       ),
@@ -65,14 +72,16 @@ export default function AdminClientes() {
       key: 'order_count',
       label: 'Pedidos',
       sortable: true,
-      render: (item) => <span className="text-sm text-slate-700">{item.order_count}</span>,
+      render: (item) => (
+        <span className="text-sm text-slate-700 dark:text-slate-300">{item.order_count}</span>
+      ),
     },
     {
       key: 'total_spent',
       label: 'Total gastado',
       sortable: true,
       render: (item) => (
-        <span className="text-sm font-semibold text-slate-800">
+        <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
           {formatPrice(item.total_spent)}
         </span>
       ),

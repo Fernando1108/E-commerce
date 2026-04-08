@@ -10,21 +10,54 @@ import Footer from '@/components/Footer';
 import { useAuth } from '@/hooks/useAuth';
 import { createClient } from '@/lib/supabase/client';
 import Icon from '@/components/ui/AppIcon';
+import { toast } from 'sonner';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-type NameForm = { name: string };
+type PersonalForm = {
+  name: string;
+  phone: string;
+  address: string;
+  city: string;
+  country: string;
+  postal_code: string;
+};
+
 type PasswordForm = {
   currentPassword: string;
   newPassword: string;
   confirmPassword: string;
 };
-type EmailForm = { newEmail: string };
+
 type SectionStatus = 'idle' | 'loading' | 'success' | 'error';
 
 // ─── Shared field style ────────────────────────────────────────────────────────
 const INPUT =
   'mt-1.5 w-full h-11 px-4 border border-[#DDD9D3] bg-white text-sm text-[#1C1C1C] placeholder:text-[#8A8A8A] focus:outline-none focus:border-[#2563EB] transition-colors';
 const LABEL = 'block text-[10px] font-black uppercase tracking-[0.22em] text-[#8A8A8A]';
+
+const LATAM_COUNTRIES = [
+  'Argentina',
+  'Bolivia',
+  'Chile',
+  'Colombia',
+  'Costa Rica',
+  'Cuba',
+  'Ecuador',
+  'El Salvador',
+  'España',
+  'Estados Unidos',
+  'Guatemala',
+  'Honduras',
+  'México',
+  'Nicaragua',
+  'Panamá',
+  'Paraguay',
+  'Perú',
+  'Puerto Rico',
+  'República Dominicana',
+  'Uruguay',
+  'Venezuela',
+];
 
 function SectionCard({
   title,
@@ -77,7 +110,16 @@ function PersonalSection({
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<NameForm>({ defaultValues: { name: '' } });
+  } = useForm<PersonalForm>({
+    defaultValues: {
+      name: '',
+      phone: '',
+      address: '',
+      city: '',
+      country: '',
+      postal_code: '',
+    },
+  });
 
   useEffect(() => {
     if (user) {
@@ -87,27 +129,54 @@ function PersonalSection({
           user.user_metadata?.full_name ??
           user.email?.split('@')[0] ??
           '',
+        phone: user.user_metadata?.phone ?? '',
+        address: user.user_metadata?.address ?? '',
+        city: user.user_metadata?.city ?? '',
+        country: user.user_metadata?.country ?? '',
+        postal_code: user.user_metadata?.postal_code ?? '',
       });
     }
   }, [user, reset]);
 
-  const onSubmit = handleSubmit(async ({ name }) => {
+  const onSubmit = handleSubmit(async ({ name, phone, address, city, country, postal_code }) => {
     setStatus('loading');
     setMsg('');
     const supabase = createClient();
-    const { error } = await supabase.auth.updateUser({ data: { name: name.trim() } });
+    const { error } = await supabase.auth.updateUser({
+      data: {
+        name: name.trim(),
+        phone: phone.trim(),
+        address: address.trim(),
+        city: city.trim(),
+        country,
+        postal_code: postal_code.trim(),
+      },
+    });
     if (error) {
       setStatus('error');
       setMsg(error.message);
     } else {
       setStatus('success');
-      setMsg('Nombre actualizado correctamente.');
+      setMsg('Datos actualizados correctamente.');
+      toast.success('Datos actualizados');
     }
   });
 
   return (
-    <SectionCard title="Datos personales" description="Actualiza tu nombre visible">
+    <SectionCard
+      title="Datos personales"
+      description="Actualiza tu información de contacto y envío"
+    >
       <form onSubmit={onSubmit} className="space-y-4">
+        {/* Email — readonly */}
+        <div>
+          <label className={LABEL}>Email</label>
+          <div className="mt-1.5 h-11 px-4 flex items-center border border-[#E6E1DA] bg-[#F8F7F5] text-sm text-[#5A5A5A]">
+            {user?.email ?? '—'}
+          </div>
+        </div>
+
+        {/* Name */}
         <div>
           <label className={LABEL}>Nombre</label>
           <input
@@ -117,7 +186,50 @@ function PersonalSection({
           />
           {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>}
         </div>
+
+        {/* Phone */}
+        <div>
+          <label className={LABEL}>Teléfono</label>
+          <input type="tel" {...register('phone')} className={INPUT} placeholder="+507 6644-9530" />
+        </div>
+
+        {/* Address */}
+        <div>
+          <label className={LABEL}>Dirección</label>
+          <input
+            {...register('address')}
+            className={INPUT}
+            placeholder="Calle, número, apartamento"
+          />
+        </div>
+
+        {/* City + Postal code */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={LABEL}>Ciudad</label>
+            <input {...register('city')} className={INPUT} placeholder="Ciudad" />
+          </div>
+          <div>
+            <label className={LABEL}>Código postal</label>
+            <input {...register('postal_code')} className={INPUT} placeholder="0801" />
+          </div>
+        </div>
+
+        {/* Country */}
+        <div>
+          <label className={LABEL}>País</label>
+          <select {...register('country')} className={INPUT + ' appearance-none cursor-pointer'}>
+            <option value="">Selecciona un país</option>
+            {LATAM_COUNTRIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <StatusBanner status={status} message={msg} />
+
         <div className="flex justify-end">
           <button
             type="submit"
@@ -125,7 +237,7 @@ function PersonalSection({
             className="inline-flex h-11 items-center gap-2 bg-[#1C1C1C] px-6 text-[11px] font-black uppercase tracking-[0.26em] text-white transition hover:bg-[#2563EB] disabled:opacity-50"
           >
             <Icon name="CheckIcon" size={13} variant="outline" />
-            {status === 'loading' ? 'Guardando...' : 'Guardar nombre'}
+            {status === 'loading' ? 'Guardando...' : 'Guardar cambios'}
           </button>
         </div>
       </form>
@@ -245,103 +357,6 @@ function SecuritySection({ user }: { user: { email?: string } | null }) {
   );
 }
 
-// ─── Section 3: Email ─────────────────────────────────────────────────────────
-function EmailSection({ user }: { user: { email?: string } | null }) {
-  const [changing, setChanging] = useState(false);
-  const [status, setStatus] = useState<SectionStatus>('idle');
-  const [msg, setMsg] = useState('');
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<EmailForm>({ defaultValues: { newEmail: '' } });
-
-  const onSubmit = handleSubmit(async ({ newEmail }) => {
-    setStatus('loading');
-    setMsg('');
-    const supabase = createClient();
-    const { error } = await supabase.auth.updateUser({ email: newEmail.trim() });
-    if (error) {
-      setStatus('error');
-      setMsg(error.message);
-    } else {
-      setStatus('success');
-      setMsg('Revisa tu bandeja de entrada para confirmar el cambio de email.');
-      setChanging(false);
-      reset();
-    }
-  });
-
-  return (
-    <SectionCard title="Email" description="Cambia tu dirección de correo electrónico">
-      <div className="space-y-4">
-        {/* Current email — readonly */}
-        <div>
-          <label className={LABEL}>Email actual</label>
-          <div className="mt-1.5 h-11 px-4 flex items-center border border-[#E6E1DA] bg-[#F8F7F5] text-sm text-[#5A5A5A]">
-            {user?.email ?? '—'}
-          </div>
-        </div>
-
-        {!changing ? (
-          <button
-            onClick={() => setChanging(true)}
-            className="inline-flex h-11 items-center gap-2 border border-[#DDD9D3] bg-white px-6 text-[11px] font-black uppercase tracking-[0.26em] text-[#1C1C1C] transition hover:bg-[#1C1C1C] hover:text-white hover:border-[#1C1C1C]"
-          >
-            <Icon name="EnvelopeIcon" size={13} variant="outline" />
-            Cambiar email
-          </button>
-        ) : (
-          <form onSubmit={onSubmit} className="space-y-4">
-            <div>
-              <label className={LABEL}>Nuevo email</label>
-              <input
-                type="email"
-                {...register('newEmail', {
-                  required: 'Introduce el nuevo email.',
-                  pattern: { value: /\S+@\S+\.\S+/, message: 'Email no válido.' },
-                })}
-                className={INPUT}
-                placeholder="nuevo@email.com"
-                autoComplete="email"
-              />
-              {errors.newEmail && (
-                <p className="text-xs text-red-500 mt-1">{errors.newEmail.message}</p>
-              )}
-            </div>
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  setChanging(false);
-                  reset();
-                  setStatus('idle');
-                  setMsg('');
-                }}
-                className="h-11 px-5 text-[11px] font-black uppercase tracking-[0.22em] text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                disabled={status === 'loading'}
-                className="inline-flex h-11 items-center gap-2 bg-[#1C1C1C] px-6 text-[11px] font-black uppercase tracking-[0.26em] text-white transition hover:bg-[#2563EB] disabled:opacity-50"
-              >
-                <Icon name="PaperAirplaneIcon" size={13} variant="outline" />
-                {status === 'loading' ? 'Enviando...' : 'Enviar confirmación'}
-              </button>
-            </div>
-          </form>
-        )}
-
-        <StatusBanner status={status} message={msg} />
-      </div>
-    </SectionCard>
-  );
-}
-
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function ProfileSettingsPage() {
   const { user, loading } = useAuth();
@@ -373,7 +388,9 @@ export default function ProfileSettingsPage() {
             <h1 className="text-3xl font-display font-900 italic uppercase text-[#1C1C1C] leading-tight">
               Configuración
             </h1>
-            <p className="text-sm text-[#5A5A5A] mt-1">Gestiona tu nombre, contraseña y email.</p>
+            <p className="text-sm text-[#5A5A5A] mt-1">
+              Gestiona tu información personal y contraseña.
+            </p>
           </div>
         </div>
 
@@ -381,7 +398,7 @@ export default function ProfileSettingsPage() {
         <div className="max-w-3xl mx-auto px-6 py-10 space-y-6">
           {loading ? (
             <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
+              {[1, 2].map((i) => (
                 <div key={i} className="h-40 bg-[#EFEDE9] animate-pulse rounded" />
               ))}
             </div>
@@ -400,13 +417,6 @@ export default function ProfileSettingsPage() {
                 transition={{ duration: 0.45, delay: 0.08 }}
               >
                 <SecuritySection user={user} />
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.45, delay: 0.16 }}
-              >
-                <EmailSection user={user} />
               </motion.div>
             </>
           )}
