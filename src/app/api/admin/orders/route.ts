@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/auth/verify-admin';
+import { logger } from '@/lib/logger';
 
 // GET - All orders (admin only) with optional filters
 export async function GET(request: Request) {
@@ -20,7 +21,10 @@ export async function GET(request: Request) {
   if (status) query = query.eq('status', status);
 
   const { data, error: dbError, count } = await query;
-  if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 });
+  if (dbError) {
+    logger.error('Admin orders list error', { error: dbError.message });
+    return NextResponse.json({ error: dbError.message }, { status: 500 });
+  }
 
   return NextResponse.json({ data: data || [], total: count || 0 });
 }

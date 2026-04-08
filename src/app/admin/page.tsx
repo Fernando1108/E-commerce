@@ -34,7 +34,11 @@ export default function AdminDashboard() {
         }
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch((err) => {
+        setLoading(false);
+        console.error('Dashboard stats error:', err);
+        // El dashboard mostrará valores en 0 si falla
+      });
   }, []);
 
   return (

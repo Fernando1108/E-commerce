@@ -361,7 +361,7 @@ export default function AdminProductos() {
       const data = await res.json();
       setProducts(Array.isArray(data) ? data : []);
     } catch {
-      /* empty */
+      toast.error('Error al cargar productos');
     }
     setLoading(false);
   }, [search, categoryFilter]);
@@ -369,7 +369,8 @@ export default function AdminProductos() {
   useEffect(() => {
     fetch('/api/categories')
       .then((r) => r.json())
-      .then((d) => setCategories(Array.isArray(d) ? d : []));
+      .then((d) => setCategories(Array.isArray(d) ? d : []))
+      .catch(() => toast.error('Error al cargar categorías'));
   }, []);
 
   useEffect(() => {

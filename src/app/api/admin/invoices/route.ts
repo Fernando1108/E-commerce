@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/auth/verify-admin';
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   const { error, supabase } = await requireAdmin();
@@ -11,6 +12,9 @@ export async function GET() {
     .order('created_at', { ascending: false })
     .limit(100);
 
-  if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 });
+  if (dbError) {
+    logger.error('Admin invoices error', { error: dbError.message });
+    return NextResponse.json({ error: dbError.message }, { status: 500 });
+  }
   return NextResponse.json(data || []);
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/auth/verify-admin';
 import { subDays, format } from 'date-fns';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: Request) {
   const { error, supabase } = await requireAdmin();

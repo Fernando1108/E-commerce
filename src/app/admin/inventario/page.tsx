@@ -49,7 +49,9 @@ export default function AdminInventario() {
       .then((d) => {
         if (Array.isArray(d)) setStockData(d);
       })
-      .catch(() => {});
+      .catch(() => {
+        toast.error('Error al cargar inventario');
+      });
   }, []);
 
   useEffect(() => {
@@ -61,7 +63,10 @@ export default function AdminInventario() {
         else setMovements(d);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => {
+        toast.error('Error al cargar inventario');
+        setLoading(false);
+      });
   }, [view]);
 
   const handleSubmitMovement = async (e: React.FormEvent) => {

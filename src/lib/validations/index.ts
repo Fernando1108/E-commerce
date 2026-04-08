@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ORDER_STATUSES } from '@/lib/constants/order-status';
+import { ORDER_STATUS_VALUES } from '@/lib/constants/order-status';
 
 export const productSchema = z.object({
   name: z.string().min(1, 'Nombre requerido').max(200),
@@ -25,13 +25,7 @@ export const categorySchema = z.object({
 });
 
 export const orderStatusSchema = z.object({
-  status: z.enum([
-    ORDER_STATUSES.PENDING,
-    ORDER_STATUSES.PAID,
-    ORDER_STATUSES.SHIPPED,
-    ORDER_STATUSES.DELIVERED,
-    ORDER_STATUSES.CANCELLED,
-  ]),
+  status: z.enum(ORDER_STATUS_VALUES),
 });
 
 export const contactSchema = z.object({

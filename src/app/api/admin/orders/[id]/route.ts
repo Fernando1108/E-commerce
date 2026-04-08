@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/auth/verify-admin';
+import { ORDER_STATUS_VALUES } from '@/lib/constants/order-status';
+import { logger } from '@/lib/logger';
 
 // GET - Order detail with items and profile
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -12,8 +14,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     supabase.from('order_items').select('*, products(name, image_url, price)').eq('order_id', id),
   ]);
 
-  if (orderResult.error)
+  if (orderResult.error) {
+    logger.error('Admin order detail error', { id, error: orderResult.error.message });
     return NextResponse.json({ error: orderResult.error.message }, { status: 500 });
+  }
 
   return NextResponse.json({
     ...orderResult.data,
@@ -28,13 +32,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   if (error) return error;
 
   const { status } = await request.json();
-  const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'completed', 'cancelled'];
 
-  if (!validStatuses.includes(status)) {
-    return NextResponse.json(
-      { error: `Estado inválido. Válidos: ${validStatuses.join(', ')}` },
-      { status: 400 }
-    );
+  if (!ORDER_STATUS_VALUES.includes(status)) {
+    return NextResponse.json({ error: 'Estado inválido' }, { status: 400 });
   }
 
   const { data, error: dbError } = await supabase
@@ -44,6 +44,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     .select()
     .single();
 
-  if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 });
+  if (dbError) {
+    logger.error('Admin order status update error', { id, status, error: dbError.message });
+    return NextResponse.json({ error: dbError.message }, { status: 500 });
+  }
   return NextResponse.json(data);
 }

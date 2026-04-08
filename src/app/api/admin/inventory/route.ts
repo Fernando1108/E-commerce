@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/auth/verify-admin';
 import { z } from 'zod';
+import { logger } from '@/lib/logger';
 
 const inventoryMovementSchema = z.object({
   product_id: z.string().uuid(),
@@ -23,7 +24,10 @@ export async function GET(request: Request) {
       .select('id, name, image_url, stock, price, category_id, categories(name)')
       .order('stock', { ascending: true });
 
-    if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 });
+    if (dbError) {
+      logger.error('Admin inventory stock error', { error: dbError.message });
+      return NextResponse.json({ error: dbError.message }, { status: 500 });
+    }
     return NextResponse.json(data || []);
   }
 
@@ -34,7 +38,10 @@ export async function GET(request: Request) {
     .order('created_at', { ascending: false })
     .limit(100);
 
-  if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 });
+  if (dbError) {
+    logger.error('Admin inventory movements error', { error: dbError.message });
+    return NextResponse.json({ error: dbError.message }, { status: 500 });
+  }
   return NextResponse.json(data || []);
 }
 
@@ -64,7 +71,10 @@ export async function POST(request: Request) {
     .select()
     .single();
 
-  if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 });
+  if (dbError) {
+    logger.error('Admin inventory movement create error', { error: dbError.message });
+    return NextResponse.json({ error: dbError.message }, { status: 500 });
+  }
 
   // Update product stock — try RPC first, fallback to manual
   const stockChange =

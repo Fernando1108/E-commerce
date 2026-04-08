@@ -8,8 +8,12 @@ export async function GET(request: Request) {
 
   const { page, limit, offset, search } = getPagination(new URL(request.url).searchParams);
 
-  // Get count
-  const { count } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
+  // Get count (with search filter if applicable)
+  let countQuery = supabase.from('profiles').select('*', { count: 'exact', head: true });
+  if (search) {
+    countQuery = countQuery.or(`name.ilike.%${search}%,phone.ilike.%${search}%`);
+  }
+  const { count } = await countQuery;
 
   // Get paginated users with optional search
   let query = supabase
@@ -19,7 +23,7 @@ export async function GET(request: Request) {
     .range(offset, offset + limit - 1);
 
   if (search) {
-    query = query.ilike('email', `%${search}%`);
+    query = query.or(`name.ilike.%${search}%,phone.ilike.%${search}%`);
   }
 
   const { data: profiles, error: pError } = await query;

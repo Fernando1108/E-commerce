@@ -12,6 +12,7 @@ const employeeSchema = z.object({
   hire_date: z.string().nullable().optional(),
   salary: z.number().min(0).nullable().optional(),
   status: z.enum(['active', 'inactive', 'terminated']).optional().default('active'),
+  role: z.string().max(100).nullable().optional(),
 });
 
 export async function GET(request: Request) {

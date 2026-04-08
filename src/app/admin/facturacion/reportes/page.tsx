@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import {
   AreaChart,
   Area,
@@ -53,7 +54,10 @@ export default function AdminReportes() {
         setData(d);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => {
+        toast.error('Error al cargar reportes');
+        setLoading(false);
+      });
   }, [period]);
 
   return (

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import DataTable, { Column } from '../components/DataTable';
 import Icon from '@/components/ui/AppIcon';
 import { toast } from 'sonner';
@@ -26,25 +26,29 @@ export default function AdminClientes() {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
 
-  useEffect(() => {
+  const fetchCustomers = useCallback(async () => {
     setLoading(true);
-    fetch(`/api/admin/customers?page=${page}&limit=${LIMIT}`)
-      .then((r) => r.json())
-      .then((d) => {
-        setCustomers(Array.isArray(d.data) ? d.data : []);
-        setTotalPages(d.pagination?.totalPages ?? 1);
-        setTotal(d.pagination?.total ?? 0);
-        setLoading(false);
-      })
-      .catch(() => {
-        toast.error('Error al cargar clientes');
-        setLoading(false);
-      });
-  }, [page]);
+    try {
+      const params = new URLSearchParams();
+      params.set('page', String(page));
+      params.set('limit', String(LIMIT));
+      if (search.trim()) params.set('search', search.trim());
+      const res = await fetch(`/api/admin/customers?${params}`);
+      const d = await res.json();
+      setCustomers(Array.isArray(d.data) ? d.data : []);
+      setTotalPages(d.pagination?.totalPages ?? 1);
+      setTotal(d.pagination?.total ?? 0);
+    } catch {
+      toast.error('Error al cargar clientes');
+    } finally {
+      setLoading(false);
+    }
+  }, [page, search]);
 
-  const filteredCustomers = search
-    ? customers.filter((c) => (c.name || '').toLowerCase().includes(search.toLowerCase()))
-    : customers;
+  useEffect(() => {
+    const t = setTimeout(() => fetchCustomers(), search ? 400 : 0);
+    return () => clearTimeout(t);
+  }, [fetchCustomers, search]);
 
   const columns: Column<CustomerRow>[] = [
     {
@@ -138,7 +142,7 @@ export default function AdminClientes() {
 
       <DataTable
         columns={columns}
-        data={filteredCustomers}
+        data={customers}
         loading={loading}
         pageSize={LIMIT}
         emptyMessage="No hay clientes registrados"
