@@ -97,13 +97,13 @@ export default function NuevoProducto() {
       <div className="flex items-center gap-4">
         <button
           onClick={() => router.back()}
-          className="size-9 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+          className="size-9 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
         >
           <Icon name="ArrowLeftIcon" size={18} />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Nuevo producto</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Completa los datos del producto</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Nuevo producto</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Completa los datos del producto</p>
         </div>
       </div>
 
@@ -117,20 +117,20 @@ export default function NuevoProducto() {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-xl border border-slate-200 p-6 space-y-5"
+          className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 space-y-5"
         >
-          <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+          <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
             Información básica
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <label className="block sm:col-span-2">
-              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
                 Nombre *
               </span>
               <input
                 {...register('name', { required: 'El nombre es obligatorio' })}
-                className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
+                className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
                 placeholder="Ej: MacBook Pro M4"
               />
               {errors.name && (
@@ -139,19 +139,19 @@ export default function NuevoProducto() {
             </label>
 
             <label className="block sm:col-span-2">
-              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
                 Descripción
               </span>
               <textarea
                 {...register('description')}
                 rows={4}
-                className="mt-1.5 w-full px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all resize-none"
+                className="mt-1.5 w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all resize-none"
                 placeholder="Descripción detallada del producto..."
               />
             </label>
 
             <label className="block">
-              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
                 Precio *
               </span>
               <input
@@ -161,7 +161,7 @@ export default function NuevoProducto() {
                   required: 'El precio es obligatorio',
                   min: { value: 0.01, message: 'Precio debe ser positivo' },
                 })}
-                className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
+                className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
               />
               {errors.price && (
                 <span className="text-xs text-red-500 mt-1">{errors.price.message}</span>
@@ -169,25 +169,25 @@ export default function NuevoProducto() {
             </label>
 
             <label className="block">
-              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
                 Precio original
               </span>
               <input
                 type="number"
                 step="0.01"
                 {...register('original_price')}
-                className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
+                className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
                 placeholder="Para mostrar descuento"
               />
             </label>
 
             <label className="block">
-              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
                 Categoría
               </span>
               <select
                 {...register('category_id')}
-                className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
+                className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
               >
                 <option value="">Sin categoría</option>
                 {categories.map((c) => (
@@ -199,45 +199,45 @@ export default function NuevoProducto() {
             </label>
 
             <label className="block">
-              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
                 Stock
               </span>
               <input
                 type="number"
                 {...register('stock', { min: 0 })}
-                className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
+                className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
               />
             </label>
 
             <label className="block sm:col-span-2">
-              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
                 URL de imagen
               </span>
               <input
                 {...register('image_url')}
-                className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
+                className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
                 placeholder="https://..."
               />
             </label>
 
             <label className="block">
-              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
                 Badge
               </span>
               <input
                 {...register('badge')}
-                className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
+                className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
                 placeholder="Ej: Nuevo, Oferta, -20%"
               />
             </label>
 
             <label className="block">
-              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
                 Slug
               </span>
               <input
                 {...register('slug')}
-                className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 text-sm text-slate-800 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
+                className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
               />
             </label>
 
@@ -247,7 +247,7 @@ export default function NuevoProducto() {
                 {...register('featured')}
                 className="size-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
               />
-              <span className="text-sm font-semibold text-slate-700">Producto destacado</span>
+              <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">Producto destacado</span>
             </label>
           </div>
         </motion.div>
@@ -257,7 +257,7 @@ export default function NuevoProducto() {
           <button
             type="button"
             onClick={() => router.back()}
-            className="px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-100 rounded-xl transition-colors"
+            className="px-5 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-colors"
           >
             Cancelar
           </button>

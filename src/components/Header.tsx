@@ -558,7 +558,7 @@ export default function Header() {
                     aria-expanded={userDropdownOpen}
                     onClick={handleUserToggle}
                     className={`flex size-9 items-center justify-center transition-colors duration-200 ${
-                      userDropdownOpen || isAdmin
+                      userDropdownOpen
                         ? 'text-[#2563EB]'
                         : 'text-[#8A8A8A] hover:text-[#1C1C1C]'
                     }`}
@@ -587,18 +587,6 @@ export default function Header() {
                 </Link>
               )}
             </div>
-
-            {/* ── Admin badge (desktop, visible only to admin/employee) ── */}
-            {isAdmin && (
-              <Link
-                href="/admin"
-                aria-label="Panel de administración"
-                className="hidden md:inline-flex items-center gap-1.5 ml-1 px-3 py-1.5 bg-[#2563EB] text-white text-[9px] font-black uppercase tracking-widest hover:bg-[#1D4ED8] transition-colors duration-200"
-              >
-                <Icon name="Squares2X2Icon" size={11} variant="solid" />
-                Admin
-              </Link>
-            )}
 
             {/* ── Mobile hamburger ── */}
             <button

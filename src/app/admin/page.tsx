@@ -38,8 +38,8 @@ export default function AdminDashboard() {
     <div className="space-y-6">
       {/* Page header */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Dashboard</h1>
-        <p className="text-sm text-slate-500 mt-1">Resumen general de NovaStore</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Dashboard</h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Resumen general de NovaStore</p>
       </div>
 
       {/* Stats grid */}
@@ -189,12 +189,12 @@ export default function AdminDashboard() {
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-xl border border-slate-200 overflow-hidden"
+        className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden transition-colors duration-300"
       >
         <div className="px-5 pt-5 pb-3 flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-bold text-slate-900">Pedidos recientes</h3>
-            <p className="text-xs text-slate-400 mt-0.5">Últimos 5 pedidos</p>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Pedidos recientes</h3>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Últimos 5 pedidos</p>
           </div>
           <a
             href="/admin/pedidos"
@@ -207,47 +207,47 @@ export default function AdminDashboard() {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-slate-100 bg-slate-50/50">
-                <th className="px-5 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              <tr className="border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-700/50">
+                <th className="px-5 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                   Orden
                 </th>
-                <th className="px-5 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                <th className="px-5 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                   Fecha
                 </th>
-                <th className="px-5 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                <th className="px-5 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                   Total
                 </th>
-                <th className="px-5 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                <th className="px-5 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                   Estado
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-50">
+            <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i}>
                     <td colSpan={4} className="px-5 py-3">
-                      <div className="skeleton-shimmer h-4 bg-slate-100 rounded" />
+                      <div className="skeleton-shimmer h-4 bg-slate-100 dark:bg-slate-700 rounded" />
                     </td>
                   </tr>
                 ))
               ) : stats?.recentOrders && stats.recentOrders.length > 0 ? (
                 stats.recentOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-slate-50/80 transition-colors group">
+                  <tr key={order.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-700/50 transition-colors group">
                     <td className="px-5 py-3 relative">
                       <span className="absolute left-0 top-0 bottom-0 w-[3px] bg-blue-500 scale-y-0 group-hover:scale-y-100 transition-transform duration-200 origin-center" />
-                      <span className="text-sm font-mono font-semibold text-slate-700">
+                      <span className="text-sm font-mono font-semibold text-slate-700 dark:text-slate-200">
                         #{order.id.slice(0, 8).toUpperCase()}
                       </span>
                     </td>
-                    <td className="px-5 py-3 text-sm text-slate-500">
+                    <td className="px-5 py-3 text-sm text-slate-500 dark:text-slate-400">
                       {new Date(order.created_at).toLocaleDateString('es-ES', {
                         day: '2-digit',
                         month: 'short',
                         year: 'numeric',
                       })}
                     </td>
-                    <td className="px-5 py-3 text-sm font-semibold text-slate-700">
+                    <td className="px-5 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200">
                       {formatPrice(order.total)}
                     </td>
                     <td className="px-5 py-3">
@@ -263,8 +263,8 @@ export default function AdminDashboard() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={4} className="px-5 py-8 text-center text-sm text-slate-400">
-                    <Icon name="InboxIcon" size={28} className="mx-auto mb-2 text-slate-300" />
+                  <td colSpan={4} className="px-5 py-8 text-center text-sm text-slate-400 dark:text-slate-500">
+                    <Icon name="InboxIcon" size={28} className="mx-auto mb-2 text-slate-300 dark:text-slate-600" />
                     No hay pedidos recientes
                   </td>
                 </tr>

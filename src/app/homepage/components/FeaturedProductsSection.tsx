@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
-import { motion, useInView } from 'framer-motion';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
 import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
 import { getFeaturedProducts } from '@/lib/supabase/services';
@@ -192,12 +192,17 @@ function SkeletonCard() {
   );
 }
 
+const slideVariants = {
+  enter: (dir: number) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit: (dir: number) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0 }),
+};
+
 export default function FeaturedProductsSection() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [containerWidth, setContainerWidth] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [direction, setDirection] = useState<1 | -1>(1);
 
   const { addItem } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
@@ -226,24 +231,16 @@ export default function FeaturedProductsSection() {
       .catch(() => setLoading(false));
   }, []);
 
-  useEffect(() => {
-    if (products.length <= 4) return;
-    const update = () => {
-      if (containerRef.current) setContainerWidth(containerRef.current.clientWidth);
-    };
-    update();
-    window.addEventListener('resize', update, { passive: true });
-    return () => window.removeEventListener('resize', update);
-  }, [products]);
-
   const totalPages = Math.ceil(products.length / 4);
-  const canScrollLeft = currentIndex > 0;
-  const canScrollRight = currentIndex < totalPages - 1;
+  const canPrev = currentPage > 0;
+  const canNext = currentPage < totalPages - 1;
 
-  const scrollPage = (dir: 1 | -1) => {
-    setCurrentIndex((prev) => Math.max(0, Math.min(totalPages - 1, prev + dir)));
+  const changePage = (dir: 1 | -1) => {
+    setDirection(dir);
+    setCurrentPage((prev) => Math.max(0, Math.min(totalPages - 1, prev + dir)));
   };
 
+  const pageProducts = products.slice(currentPage * 4, (currentPage + 1) * 4);
   const useCarousel = products.length > 4;
 
   return (
@@ -293,47 +290,53 @@ export default function FeaturedProductsSection() {
           <div className="relative">
             {/* Left arrow */}
             <motion.button
-              onClick={() => scrollPage(-1)}
+              onClick={() => changePage(-1)}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               aria-label="Anterior"
-              className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-5 z-10 size-12 rounded-full bg-white border border-[#DDD9D3] shadow-nova-md flex items-center justify-center text-[#1C1C1C] hover:bg-[#1C1C1C] hover:text-white hover:border-[#1C1C1C] transition-colors duration-200 ${
-                canScrollLeft ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-              } transition-opacity duration-200`}
+              className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-5 z-10 size-12 rounded-full bg-white/80 backdrop-blur-sm border border-[#DDD9D3] shadow-nova-md flex items-center justify-center text-[#1C1C1C] transition-all duration-200 ${
+                canPrev ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+              }`}
             >
               <Icon name="ChevronLeftIcon" size={20} variant="outline" />
             </motion.button>
 
-            {/* Framer Motion carousel container */}
-            <div ref={containerRef} className="overflow-hidden">
-              <motion.div
-                className="flex gap-3 lg:gap-4"
-                animate={{ x: -currentIndex * containerWidth }}
-                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              >
-                {products.map((product, i) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    index={i}
-                    onAddToCart={handleAddToCart}
-                    onToggleWishlist={handleToggleWishlist}
-                    isWishlisted={isInWishlist(product.id)}
-                    carousel
-                  />
-                ))}
-              </motion.div>
+            {/* AnimatePresence carousel */}
+            <div className="overflow-hidden">
+              <AnimatePresence mode="wait" custom={direction}>
+                <motion.div
+                  key={currentPage}
+                  custom={direction}
+                  variants={slideVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={{ type: 'spring', stiffness: 260, damping: 26 }}
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4"
+                >
+                  {pageProducts.map((product, i) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      index={i}
+                      onAddToCart={handleAddToCart}
+                      onToggleWishlist={handleToggleWishlist}
+                      isWishlisted={isInWishlist(product.id)}
+                    />
+                  ))}
+                </motion.div>
+              </AnimatePresence>
             </div>
 
             {/* Right arrow */}
             <motion.button
-              onClick={() => scrollPage(1)}
+              onClick={() => changePage(1)}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               aria-label="Siguiente"
-              className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-5 z-10 size-12 rounded-full bg-white border border-[#DDD9D3] shadow-nova-md flex items-center justify-center text-[#1C1C1C] hover:bg-[#1C1C1C] hover:text-white hover:border-[#1C1C1C] transition-colors duration-200 ${
-                canScrollRight ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-              } transition-opacity duration-200`}
+              className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-5 z-10 size-12 rounded-full bg-white/80 backdrop-blur-sm border border-[#DDD9D3] shadow-nova-md flex items-center justify-center text-[#1C1C1C] transition-all duration-200 ${
+                canNext ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+              }`}
             >
               <Icon name="ChevronRightIcon" size={20} variant="outline" />
             </motion.button>
@@ -343,9 +346,12 @@ export default function FeaturedProductsSection() {
               {Array.from({ length: totalPages }).map((_, i) => (
                 <button
                   key={i}
-                  onClick={() => setCurrentIndex(i)}
+                  onClick={() => {
+                    setDirection(i > currentPage ? 1 : -1);
+                    setCurrentPage(i);
+                  }}
                   className="h-1 rounded-full transition-all duration-300 bg-[#1C1C1C]/20 hover:bg-[#1C1C1C]/40"
-                  style={{ width: i === currentIndex ? '24px' : '8px' }}
+                  style={{ width: i === currentPage ? '24px' : '8px' }}
                   aria-label={`Página ${i + 1}`}
                 />
               ))}
