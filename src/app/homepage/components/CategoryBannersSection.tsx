@@ -224,53 +224,32 @@ export default function CategoryBannersSection() {
       .catch(() => setLoading(false));
   }, []);
 
-  // Determine grid layout based on display_size
-  const largeCategories = categories.filter((c) => c.display_size === 'large');
-  const mediumCategories = categories.filter((c) => c.display_size === 'medium');
-  const smallCategories = categories.filter(
-    (c) => c.display_size !== 'large' && c.display_size !== 'medium'
-  );
-
   return (
     <section className="py-14 lg:py-20 bg-[#F8F7F5]">
       <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
         <SectionHeader />
 
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-2.5">
-            <SkeletonBanner className="md:col-span-7 h-[520px] lg:h-[640px]" />
-            <SkeletonBanner className="md:col-span-5 h-[520px] lg:h-[640px]" />
-            <SkeletonBanner className="md:col-span-3 h-[300px] lg:h-[370px]" />
-            <SkeletonBanner className="md:col-span-3 h-[300px] lg:h-[370px]" />
-            <SkeletonBanner className="md:col-span-3 h-[300px] lg:h-[370px]" />
-            <SkeletonBanner className="md:col-span-3 h-[300px] lg:h-[370px]" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <SkeletonBanner className="col-span-full h-[400px] lg:h-[480px]" />
+            <SkeletonBanner className="h-[280px] lg:h-[340px]" />
+            <SkeletonBanner className="h-[280px] lg:h-[340px]" />
+            <SkeletonBanner className="h-[280px] lg:h-[340px]" />
+            <SkeletonBanner className="h-[280px] lg:h-[340px]" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-2.5">
-            {/* Row 1: large + medium */}
-            {largeCategories.slice(0, 1).map((cat, i) => (
-              <div key={cat.id} className="md:col-span-7 h-[520px] lg:h-[640px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Row 1: hero banner — full width */}
+            {categories.slice(0, 1).map((cat, i) => (
+              <div key={cat.id} className="col-span-full h-[400px] lg:h-[480px]">
                 <CategoryCard cat={cat} index={i} className="w-full h-full" />
               </div>
             ))}
-            {mediumCategories.slice(0, 1).map((cat, i) => (
-              <div key={cat.id} className="md:col-span-5 h-[520px] lg:h-[640px]">
-                <CategoryCard
-                  cat={cat}
-                  index={largeCategories.length + i}
-                  className="w-full h-full"
-                />
-              </div>
-            ))}
 
-            {/* Row 2: small cards */}
-            {smallCategories.slice(0, 4).map((cat, i) => (
-              <div key={cat.id} className="md:col-span-3 h-[300px] lg:h-[370px]">
-                <CategoryCard
-                  cat={cat}
-                  index={largeCategories.length + mediumCategories.length + i}
-                  className="w-full h-full"
-                />
+            {/* Row 2: remaining categories — 4 equal columns */}
+            {categories.slice(1, 5).map((cat, i) => (
+              <div key={cat.id} className="h-[280px] lg:h-[340px]">
+                <CategoryCard cat={cat} index={i + 1} className="w-full h-full" />
               </div>
             ))}
           </div>

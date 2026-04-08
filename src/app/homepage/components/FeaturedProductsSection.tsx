@@ -195,9 +195,9 @@ function SkeletonCard() {
 export default function FeaturedProductsSection() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const { addItem } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
@@ -226,31 +226,22 @@ export default function FeaturedProductsSection() {
       .catch(() => setLoading(false));
   }, []);
 
-  // Update arrow visibility on scroll
-  const updateArrows = useCallback(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 4);
-    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
-  }, []);
-
   useEffect(() => {
     if (products.length <= 4) return;
-    const el = scrollRef.current;
-    if (!el) return;
-    updateArrows();
-    el.addEventListener('scroll', updateArrows, { passive: true });
-    window.addEventListener('resize', updateArrows, { passive: true });
-    return () => {
-      el.removeEventListener('scroll', updateArrows);
-      window.removeEventListener('resize', updateArrows);
+    const update = () => {
+      if (containerRef.current) setContainerWidth(containerRef.current.clientWidth);
     };
-  }, [products, updateArrows]);
+    update();
+    window.addEventListener('resize', update, { passive: true });
+    return () => window.removeEventListener('resize', update);
+  }, [products]);
+
+  const totalPages = Math.ceil(products.length / 4);
+  const canScrollLeft = currentIndex > 0;
+  const canScrollRight = currentIndex < totalPages - 1;
 
   const scrollPage = (dir: 1 | -1) => {
-    const el = scrollRef.current;
-    if (!el) return;
-    el.scrollBy({ left: dir * el.clientWidth, behavior: 'smooth' });
+    setCurrentIndex((prev) => Math.max(0, Math.min(totalPages - 1, prev + dir)));
   };
 
   const useCarousel = products.length > 4;
@@ -313,23 +304,25 @@ export default function FeaturedProductsSection() {
               <Icon name="ChevronLeftIcon" size={20} variant="outline" />
             </motion.button>
 
-            {/* Scroll container */}
-            <div
-              ref={scrollRef}
-              className="flex gap-3 lg:gap-4 overflow-x-hidden"
-              style={{ scrollSnapType: 'x mandatory' }}
-            >
-              {products.map((product, i) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  index={i}
-                  onAddToCart={handleAddToCart}
-                  onToggleWishlist={handleToggleWishlist}
-                  isWishlisted={isInWishlist(product.id)}
-                  carousel
-                />
-              ))}
+            {/* Framer Motion carousel container */}
+            <div ref={containerRef} className="overflow-hidden">
+              <motion.div
+                className="flex gap-3 lg:gap-4"
+                animate={{ x: -currentIndex * containerWidth }}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              >
+                {products.map((product, i) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    index={i}
+                    onAddToCart={handleAddToCart}
+                    onToggleWishlist={handleToggleWishlist}
+                    isWishlisted={isInWishlist(product.id)}
+                    carousel
+                  />
+                ))}
+              </motion.div>
             </div>
 
             {/* Right arrow */}
@@ -347,16 +340,12 @@ export default function FeaturedProductsSection() {
 
             {/* Dot indicators */}
             <div className="flex justify-center gap-1.5 mt-6">
-              {Array.from({ length: Math.ceil(products.length / 4) }).map((_, i) => (
+              {Array.from({ length: totalPages }).map((_, i) => (
                 <button
                   key={i}
-                  onClick={() => {
-                    const el = scrollRef.current;
-                    if (!el) return;
-                    el.scrollTo({ left: i * el.clientWidth, behavior: 'smooth' });
-                  }}
+                  onClick={() => setCurrentIndex(i)}
                   className="h-1 rounded-full transition-all duration-300 bg-[#1C1C1C]/20 hover:bg-[#1C1C1C]/40"
-                  style={{ width: i === 0 ? '24px' : '8px' }}
+                  style={{ width: i === currentIndex ? '24px' : '8px' }}
                   aria-label={`Página ${i + 1}`}
                 />
               ))}

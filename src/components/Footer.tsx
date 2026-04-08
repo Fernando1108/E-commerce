@@ -162,6 +162,24 @@ export default function Footer() {
             >
               Terminos
             </Link>
+            <span className="mx-1 text-[#DDD9D3]">·</span>
+            <a
+              href="https://www.kodexasolutions.com/home"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 text-[12px] font-500 text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors duration-200 group/kodexa"
+            >
+              Desarrollado por{' '}
+              <span className="font-700 group-hover/kodexa:text-[#2563EB] transition-colors duration-200">
+                Kodexa Solutions
+              </span>
+              <Icon
+                name="ArrowTopRightOnSquareIcon"
+                size={11}
+                variant="outline"
+                className="opacity-50 group-hover/kodexa:opacity-100 transition-opacity duration-200"
+              />
+            </a>
           </motion.div>
         </div>
       </div>
