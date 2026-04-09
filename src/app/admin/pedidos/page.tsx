@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import DataTable, { Column } from '../components/DataTable';
+import AdminLoader from '../components/AdminLoader';
 import Icon from '@/components/ui/AppIcon';
 import { statusColors, statusLabels } from '@/constants';
 import { formatPrice } from '@/lib/utils';
@@ -111,6 +112,8 @@ export default function AdminPedidos() {
       ),
     },
   ];
+
+  if (loading) return <AdminLoader message="Cargando pedidos" />;
 
   return (
     <div className="space-y-6">

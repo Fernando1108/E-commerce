@@ -19,6 +19,7 @@ import {
 } from 'recharts';
 import ChartCard from '../../components/ChartCard';
 import StatCard from '../../components/StatCard';
+import AdminLoader from '../../components/AdminLoader';
 import Icon from '@/components/ui/AppIcon';
 import { formatPrice } from '@/lib/utils';
 
@@ -59,6 +60,8 @@ export default function AdminReportes() {
         setLoading(false);
       });
   }, [period]);
+
+  if (loading) return <AdminLoader message="Cargando reportes" />;
 
   return (
     <div className="space-y-6">

@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import DataTable, { Column } from '../components/DataTable';
+import AdminLoader from '../components/AdminLoader';
 import Icon from '@/components/ui/AppIcon';
 import { toast } from 'sonner';
 import { formatPrice } from '@/lib/utils';
@@ -114,6 +115,8 @@ export default function AdminClientes() {
       ),
     },
   ];
+
+  if (loading) return <AdminLoader message="Cargando clientes" />;
 
   return (
     <div className="space-y-6">

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import DataTable, { Column } from '../../components/DataTable';
 import AdminModal from '../../components/AdminModal';
+import AdminLoader from '../../components/AdminLoader';
 import Icon from '@/components/ui/AppIcon';
 import { toast } from 'sonner';
 import { formatPrice } from '@/lib/utils';
@@ -155,6 +156,8 @@ export default function AdminCompras() {
       ),
     },
   ];
+
+  if (loading) return <AdminLoader message="Cargando compras" />;
 
   return (
     <div className="space-y-6">

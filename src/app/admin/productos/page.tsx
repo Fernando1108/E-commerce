@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import DataTable, { Column } from '../components/DataTable';
 import AdminModal from '../components/AdminModal';
+import AdminLoader from '../components/AdminLoader';
 import Icon from '@/components/ui/AppIcon';
 import AppImage from '@/components/ui/AppImage';
 import { formatPrice } from '@/lib/utils';
@@ -480,6 +481,8 @@ export default function AdminProductos() {
       ),
     },
   ];
+
+  if (loading) return <AdminLoader message="Cargando productos" />;
 
   return (
     <div className="space-y-6">

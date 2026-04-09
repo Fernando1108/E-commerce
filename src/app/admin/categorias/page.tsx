@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import DataTable, { Column } from '../components/DataTable';
 import AdminModal from '../components/AdminModal';
+import AdminLoader from '../components/AdminLoader';
 import Icon from '@/components/ui/AppIcon';
 import { toast } from 'sonner';
 
@@ -214,6 +215,8 @@ export default function AdminCategorias() {
       ),
     },
   ];
+
+  if (loading) return <AdminLoader message="Cargando categorías" />;
 
   return (
     <div className="space-y-6">

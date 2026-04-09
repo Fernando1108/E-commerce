@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminSidebar from './components/AdminSidebar';
 import AdminTopbar from './components/AdminTopbar';
+import AdminPageTransition from './components/AdminPageTransition';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -41,7 +42,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             onToggleDark={handleToggleDark}
           />
 
-          <main className="p-4 lg:p-8">{children}</main>
+          <main className="p-4 lg:p-8">
+            <AdminPageTransition>
+              {children}
+            </AdminPageTransition>
+          </main>
         </div>
       </div>
     </div>

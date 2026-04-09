@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import DataTable, { Column } from '../components/DataTable';
 import AdminModal from '../components/AdminModal';
+import AdminLoader from '../components/AdminLoader';
 import Icon from '@/components/ui/AppIcon';
 import AppImage from '@/components/ui/AppImage';
 import { toast } from 'sonner';
@@ -192,6 +193,8 @@ export default function AdminInventario() {
       ),
     },
   ];
+
+  if (loading) return <AdminLoader message="Cargando inventario" />;
 
   return (
     <div className="space-y-6">

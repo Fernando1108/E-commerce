@@ -3,6 +3,7 @@
 import React, { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+import AdminLoader from '../../components/AdminLoader';
 import Icon from '@/components/ui/AppIcon';
 import AppImage from '@/components/ui/AppImage';
 import { toast } from 'sonner';
@@ -72,14 +73,7 @@ export default function PedidoDetalle({ params }: { params: Promise<{ id: string
     setUpdating(false);
   };
 
-  if (loading) {
-    return (
-      <div className="max-w-4xl space-y-6 animate-pulse">
-        <div className="h-8 w-60 bg-slate-200 dark:bg-slate-700 rounded" />
-        <div className="h-64 bg-slate-100 dark:bg-slate-800 rounded-xl" />
-      </div>
-    );
-  }
+  if (loading) return <AdminLoader message="Cargando detalle del pedido" />;
 
   if (!order) {
     return (

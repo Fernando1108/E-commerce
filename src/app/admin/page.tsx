@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import AdminLoader from './components/AdminLoader';
 import {
   AreaChart,
   Area,
@@ -40,6 +41,8 @@ export default function AdminDashboard() {
         // El dashboard mostrará valores en 0 si falla
       });
   }, []);
+
+  if (loading) return <AdminLoader message="Cargando dashboard" />;
 
   return (
     <div className="space-y-6">

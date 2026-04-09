@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import DataTable, { Column } from '../components/DataTable';
 import AdminModal from '../components/AdminModal';
+import AdminLoader from '../components/AdminLoader';
 import Icon from '@/components/ui/AppIcon';
 import { toast } from 'sonner';
 import { exportToCSV } from '@/lib/export-csv';
@@ -169,6 +170,8 @@ export default function AdminProveedores() {
       ),
     },
   ];
+
+  if (loading) return <AdminLoader message="Cargando proveedores" />;
 
   return (
     <div className="space-y-6">
