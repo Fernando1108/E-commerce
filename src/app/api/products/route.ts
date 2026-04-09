@@ -19,7 +19,9 @@ export async function GET(request: Request) {
   });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(data);
+  return NextResponse.json(data, {
+    headers: { 'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60' },
+  });
 }
 
 export async function POST(request: Request) {

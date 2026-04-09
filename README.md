@@ -473,6 +473,12 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 - [x] Sprint 1 Admin: estados de pedido unificados (7 estados), endpoint PUT/DELETE categorías, role en empleados, toast errors, logger en endpoints admin
 - [x] Sprint 2 Admin: paginación en orders/invoices/inventory, modales confirmación (proveedores, empleados), AppImage, skeleton shimmer
 - [x] Sprint 3 Admin: exportar CSV en 8 tablas, búsqueda en empleados/proveedores/compras/facturas, breadcrumbs dinámicos, UI crear compras
+- [x] AdminLoader premium con SVG animado (anillos gradiente, punto pulsante, barra de progreso) aplicado en 12 páginas admin
+- [x] AdminPageTransition con Framer Motion en layout admin
+- [x] Optimización: Promise.all en fetches paralelos (productos, inventario, compras)
+- [x] Optimización: cache headers en GET /api/products y /api/categories
+- [x] Optimización: useDebounce hook aplicado en 5 páginas de búsqueda admin
+- [x] Optimización: AppImage sizes default para thumbnails admin
 - [x] Fix: foreign key orders → profiles para JOIN en admin pedidos
 
 ### 🚧 Pendiente

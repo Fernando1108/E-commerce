@@ -7,6 +7,7 @@ import Icon from '@/components/ui/AppIcon';
 import { toast } from 'sonner';
 import { formatPrice } from '@/lib/utils';
 import { exportToCSV } from '@/lib/export-csv';
+import { useDebounce } from '@/hooks/useDebounce';
 
 const LIMIT = 20;
 
@@ -24,6 +25,7 @@ export default function AdminClientes() {
   const [customers, setCustomers] = useState<CustomerRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 400);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
@@ -34,7 +36,7 @@ export default function AdminClientes() {
       const params = new URLSearchParams();
       params.set('page', String(page));
       params.set('limit', String(LIMIT));
-      if (search.trim()) params.set('search', search.trim());
+      if (debouncedSearch.trim()) params.set('search', debouncedSearch.trim());
       const res = await fetch(`/api/admin/customers?${params}`);
       const d = await res.json();
       setCustomers(Array.isArray(d.data) ? d.data : []);
@@ -45,12 +47,11 @@ export default function AdminClientes() {
     } finally {
       setLoading(false);
     }
-  }, [page, search]);
+  }, [page, debouncedSearch]);
 
   useEffect(() => {
-    const t = setTimeout(() => fetchCustomers(), search ? 400 : 0);
-    return () => clearTimeout(t);
-  }, [fetchCustomers, search]);
+    fetchCustomers();
+  }, [fetchCustomers]);
 
   const columns: Column<CustomerRow>[] = [
     {

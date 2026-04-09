@@ -9,6 +9,7 @@ import Icon from '@/components/ui/AppIcon';
 import { toast } from 'sonner';
 import { formatPrice } from '@/lib/utils';
 import { exportToCSV } from '@/lib/export-csv';
+import { useDebounce } from '@/hooks/useDebounce';
 import type { Employee } from '@/types';
 
 const LIMIT = 20;
@@ -62,6 +63,7 @@ export default function AdminEmpleados() {
   const [total, setTotal] = useState(0);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearch = useDebounce(searchTerm, 300);
   const [form, setForm] = useState({
     name: '',
     position: '',
@@ -345,8 +347,8 @@ export default function AdminEmpleados() {
       <DataTable
         columns={columns}
         data={employees.filter(e => {
-          if (!searchTerm) return true;
-          const term = searchTerm.toLowerCase();
+          if (!debouncedSearch) return true;
+          const term = debouncedSearch.toLowerCase();
           return (e.name || '').toLowerCase().includes(term) || (e.email || '').toLowerCase().includes(term);
         })}
         loading={loading}

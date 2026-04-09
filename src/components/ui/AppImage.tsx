@@ -124,7 +124,13 @@ const AppImage = memo(function AppImage({
   }
 
   return (
-    <Image {...imageProps} width={width || 400} height={height || 300} sizes={sizes} {...props} />
+    <Image
+      {...imageProps}
+      width={width || 400}
+      height={height || 300}
+      sizes={sizes || '(max-width: 768px) 40px, 40px'}
+      {...props}
+    />
   );
 });
 

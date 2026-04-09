@@ -11,6 +11,7 @@ import Icon from '@/components/ui/AppIcon';
 import AppImage from '@/components/ui/AppImage';
 import { formatPrice } from '@/lib/utils';
 import { exportToCSV } from '@/lib/export-csv';
+import { useDebounce } from '@/hooks/useDebounce';
 import type { Product, Category } from '@/types';
 
 interface ProductFormValues {
@@ -347,6 +348,7 @@ export default function AdminProductos() {
   const [deleting, setDeleting] = useState(false);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
   const [productModal, setProductModal] = useState<{
     open: boolean;
     editProduct: Product | null;
@@ -357,7 +359,7 @@ export default function AdminProductos() {
     try {
       const params = new URLSearchParams();
       params.set('limit', '100');
-      if (search) params.set('search', search);
+      if (debouncedSearch) params.set('search', debouncedSearch);
       if (categoryFilter) params.set('category', categoryFilter);
       const res = await fetch(`/api/products?${params}`);
       const data = await res.json();
@@ -366,15 +368,26 @@ export default function AdminProductos() {
       toast.error('Error al cargar productos');
     }
     setLoading(false);
-  }, [search, categoryFilter]);
+  }, [debouncedSearch, categoryFilter]);
 
+  // Initial parallel load: products + categories at the same time
   useEffect(() => {
-    fetch('/api/categories')
-      .then((r) => r.json())
-      .then((d) => setCategories(Array.isArray(d) ? d : []))
-      .catch(() => toast.error('Error al cargar categorías'));
+    setLoading(true);
+    const params = new URLSearchParams();
+    params.set('limit', '100');
+    Promise.all([
+      fetch(`/api/products?${params}`).then((r) => r.json()),
+      fetch('/api/categories').then((r) => r.json()),
+    ])
+      .then(([productsData, categoriesData]) => {
+        setProducts(Array.isArray(productsData) ? productsData : []);
+        setCategories(Array.isArray(categoriesData) ? categoriesData : []);
+      })
+      .catch(() => toast.error('Error al cargar datos'))
+      .finally(() => setLoading(false));
   }, []);
 
+  // Re-fetch products when search/filter changes (after initial load)
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);

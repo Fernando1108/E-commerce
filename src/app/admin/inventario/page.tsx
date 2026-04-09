@@ -45,18 +45,37 @@ export default function AdminInventario() {
   const [form, setForm] = useState({ product_id: '', type: 'in', quantity: '', reason: '' });
   const [submitting, setSubmitting] = useState(false);
 
-  // Always keep stockData loaded (needed for the product selector in the movement modal)
+  // Initial load: fetch stock (always needed for modal selector) and current view in parallel
   useEffect(() => {
-    fetch('/api/admin/inventory?view=stock')
-      .then((r) => r.json())
-      .then((d) => {
-        if (Array.isArray(d)) setStockData(d);
+    setLoading(true);
+    const viewUrl = `/api/admin/inventory?view=${view}`;
+    const stockUrl = '/api/admin/inventory?view=stock';
+    const fetches =
+      view === 'stock'
+        ? [fetch(stockUrl).then((r) => r.json())]
+        : Promise.all([
+            fetch(stockUrl).then((r) => r.json()),
+            fetch(viewUrl).then((r) => r.json()),
+          ]);
+
+    Promise.resolve(fetches)
+      .then((results) => {
+        if (view === 'stock') {
+          const d = (results as unknown[])[0];
+          setStockData(Array.isArray(d) ? (d as StockItem[]) : []);
+        } else {
+          const [stockRes, movRes] = results as [unknown, unknown];
+          if (Array.isArray(stockRes)) setStockData(stockRes as StockItem[]);
+          const m = movRes as { data?: unknown[] } | unknown[];
+          setMovements(Array.isArray((m as { data?: unknown[] }).data) ? (m as { data: Movement[] }).data : Array.isArray(m) ? (m as Movement[]) : []);
+        }
       })
-      .catch(() => {
-        toast.error('Error al cargar inventario');
-      });
+      .catch(() => toast.error('Error al cargar inventario'))
+      .finally(() => setLoading(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Re-fetch when view tab changes (after initial load)
   useEffect(() => {
     setLoading(true);
     fetch(`/api/admin/inventory?view=${view}`)

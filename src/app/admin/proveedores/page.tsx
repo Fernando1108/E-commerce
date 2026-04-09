@@ -9,6 +9,7 @@ import AdminLoader from '../components/AdminLoader';
 import Icon from '@/components/ui/AppIcon';
 import { toast } from 'sonner';
 import { exportToCSV } from '@/lib/export-csv';
+import { useDebounce } from '@/hooks/useDebounce';
 import type { Supplier } from '@/types';
 
 const LIMIT = 20;
@@ -25,6 +26,7 @@ export default function AdminProveedores() {
   const [total, setTotal] = useState(0);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearch = useDebounce(searchTerm, 300);
   const [form, setForm] = useState({
     name: '',
     contact_name: '',
@@ -235,8 +237,8 @@ export default function AdminProveedores() {
       <DataTable
         columns={columns}
         data={suppliers.filter(s => {
-          if (!searchTerm) return true;
-          const term = searchTerm.toLowerCase();
+          if (!debouncedSearch) return true;
+          const term = debouncedSearch.toLowerCase();
           return (s.name || '').toLowerCase().includes(term) || (s.contact_name || '').toLowerCase().includes(term);
         })}
         loading={loading}

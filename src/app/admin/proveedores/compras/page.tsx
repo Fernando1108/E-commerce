@@ -9,6 +9,7 @@ import Icon from '@/components/ui/AppIcon';
 import { toast } from 'sonner';
 import { formatPrice } from '@/lib/utils';
 import { exportToCSV } from '@/lib/export-csv';
+import { useDebounce } from '@/hooks/useDebounce';
 
 const LIMIT = 20;
 
@@ -41,6 +42,7 @@ export default function AdminCompras() {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearch = useDebounce(searchTerm, 300);
   const [showModal, setShowModal] = useState(false);
   const [suppliers, setSuppliers] = useState<{ id: string; name: string }[]>([]);
   const [newPurchase, setNewPurchase] = useState({ supplier_id: '', total: '', notes: '' });
@@ -61,17 +63,33 @@ export default function AdminCompras() {
       });
   };
 
+  // Initial parallel load: purchases + suppliers at the same time
   useEffect(() => {
-    fetchPurchases();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+    setLoading(true);
+    Promise.all([
+      fetch(`/api/admin/purchases?page=1&limit=${LIMIT}`).then((r) => r.json()),
+      fetch('/api/admin/suppliers?limit=100').then((r) => r.json()),
+    ])
+      .then(([purchasesData, suppliersData]) => {
+        setPurchases(Array.isArray(purchasesData.data) ? purchasesData.data : []);
+        setTotalPages(purchasesData.pagination?.totalPages ?? 1);
+        setTotal(purchasesData.pagination?.total ?? 0);
+        setSuppliers(
+          Array.isArray(suppliersData.data)
+            ? suppliersData.data
+            : Array.isArray(suppliersData)
+              ? suppliersData
+              : []
+        );
+      })
+      .catch(() => toast.error('Error al cargar datos'))
+      .finally(() => setLoading(false));
+  }, []);
 
   useEffect(() => {
-    fetch('/api/admin/suppliers?limit=100')
-      .then((r) => r.json())
-      .then((data) => setSuppliers(Array.isArray(data.data) ? data.data : Array.isArray(data) ? data : []))
-      .catch(() => {});
-  }, []);
+    if (page > 1) fetchPurchases();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   const handleCreatePurchase = async () => {
     try {
@@ -95,9 +113,9 @@ export default function AdminCompras() {
     }
   };
 
-  const filteredPurchases = searchTerm
+  const filteredPurchases = debouncedSearch
     ? purchases.filter((p) =>
-        (p.suppliers?.name || '').toLowerCase().includes(searchTerm.toLowerCase())
+        (p.suppliers?.name || '').toLowerCase().includes(debouncedSearch.toLowerCase())
       )
     : purchases;
 
