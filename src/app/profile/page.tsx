@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,6 +13,8 @@ import { useWishlist } from '@/hooks/useWishlist';
 import { createClient } from '@/lib/supabase/client';
 import Icon from '@/components/ui/AppIcon';
 import AppImage from '@/components/ui/AppImage';
+import StarRating from '@/components/ui/StarRating';
+import { formatPrice } from '@/lib/utils';
 import { toast } from 'sonner';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -470,6 +472,462 @@ function EditProfileModal({
   );
 }
 
+// ─── Orders modal ─────────────────────────────────────────────────────────────
+const ORDER_STATUS: Record<string, { label: string; cls: string }> = {
+  pending: { label: 'Pendiente', cls: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
+  processing: { label: 'Procesando', cls: 'bg-blue-100 text-blue-700 border-blue-200' },
+  shipped: { label: 'Enviado', cls: 'bg-indigo-100 text-indigo-700 border-indigo-200' },
+  delivered: { label: 'Entregado', cls: 'bg-green-100 text-green-700 border-green-200' },
+  completed: { label: 'Completado', cls: 'bg-green-100 text-green-700 border-green-200' },
+  cancelled: { label: 'Cancelado', cls: 'bg-red-100 text-red-700 border-red-200' },
+};
+
+type OrderItem = { product_name: string; quantity: number; price: number };
+type Order = {
+  id: string;
+  created_at: string;
+  total: number;
+  status: string;
+  items?: OrderItem[];
+};
+
+function OrdersModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    setLoading(true);
+    fetch('/api/orders')
+      .then((r) => r.json())
+      .then((d) => setOrders(Array.isArray(d) ? d : []))
+      .catch(() => setOrders([]))
+      .finally(() => setLoading(false));
+  }, [open]);
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <>
+          <motion.div
+            key="orders-bd"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 z-50"
+            onClick={onClose}
+          />
+          <motion.div
+            key="orders-modal"
+            initial={{ opacity: 0, scale: 0.96, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 20 }}
+            transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
+          >
+            <div className="bg-white w-full max-w-lg max-h-[85vh] flex flex-col pointer-events-auto shadow-xl">
+              <div className="flex items-center justify-between px-6 py-5 border-b border-[#E6E1DA]">
+                <h2 className="text-base font-display font-900 italic uppercase text-[#1C1C1C]">
+                  Mis Pedidos
+                </h2>
+                <button
+                  onClick={onClose}
+                  className="size-8 flex items-center justify-center text-[#8A8A8A] hover:text-[#1C1C1C] hover:bg-[#F2F0EC] transition-colors rounded"
+                >
+                  <Icon name="XMarkIcon" size={16} variant="outline" />
+                </button>
+              </div>
+
+              <div className="overflow-y-auto flex-1 px-6 py-4 space-y-3">
+                {loading ? (
+                  <div className="flex justify-center py-12">
+                    <div className="size-6 border-2 border-[#1C1C1C] border-t-transparent rounded-full animate-spin" />
+                  </div>
+                ) : orders.length === 0 ? (
+                  <p className="text-center text-[#8A8A8A] text-sm py-10">No tienes pedidos aún.</p>
+                ) : (
+                  orders.map((order) => {
+                    const cfg = ORDER_STATUS[order.status] ?? {
+                      label: order.status,
+                      cls: 'bg-slate-100 text-slate-500 border-slate-200',
+                    };
+                    const expanded = expandedId === order.id;
+                    return (
+                      <div key={order.id} className="border border-[#E6E1DA] bg-[#FAFAF8]">
+                        <button
+                          className="w-full flex items-center justify-between px-4 py-3 text-left"
+                          onClick={() => setExpandedId(expanded ? null : order.id)}
+                        >
+                          <div className="flex items-center gap-3">
+                            <Icon
+                              name={expanded ? 'ChevronDownIcon' : 'ChevronRightIcon'}
+                              size={13}
+                              variant="outline"
+                              className="text-[#8A8A8A]"
+                            />
+                            <div>
+                              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#1C1C1C]">
+                                #{order.id.slice(0, 8).toUpperCase()}
+                              </p>
+                              <p className="text-[11px] text-[#8A8A8A]">
+                                {new Date(order.created_at).toLocaleDateString('es-ES', {
+                                  day: 'numeric',
+                                  month: 'short',
+                                  year: 'numeric',
+                                })}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span
+                              className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 border rounded-full ${cfg.cls}`}
+                            >
+                              {cfg.label}
+                            </span>
+                            <span className="font-display font-900 italic text-[#1C1C1C] text-sm">
+                              {formatPrice(order.total)}
+                            </span>
+                          </div>
+                        </button>
+                        {expanded && order.items && order.items.length > 0 && (
+                          <div className="border-t border-[#E6E1DA] px-4 py-3 space-y-2 bg-white">
+                            {order.items.map((item, i) => (
+                              <div
+                                key={i}
+                                className="flex items-center justify-between text-[12px]"
+                              >
+                                <span className="text-[#1C1C1C] font-500">
+                                  {item.product_name}{' '}
+                                  <span className="text-[#8A8A8A]">×{item.quantity}</span>
+                                </span>
+                                <span className="text-[#5A5A5A]">
+                                  {formatPrice(item.price * item.quantity)}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              <div className="border-t border-[#E6E1DA] px-6 py-4">
+                <Link
+                  href="/profile/orders"
+                  onClick={onClose}
+                  className="block w-full py-3 bg-[#1C1C1C] text-white text-[10px] font-black uppercase tracking-[0.22em] text-center hover:bg-[#2563EB] transition-colors"
+                >
+                  Ver todos los pedidos
+                </Link>
+              </div>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+}
+
+// ─── Wishlist modal ────────────────────────────────────────────────────────────
+type WishlistProduct = { id: string; name: string; price: number; image_url: string | null };
+type WishlistItem = { id: string; product_id: string; products: WishlistProduct };
+
+function WishlistModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const [items, setItems] = useState<WishlistItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(() => {
+    setLoading(true);
+    fetch('/api/wishlist')
+      .then((r) => r.json())
+      .then((d) => setItems(Array.isArray(d) ? d : []))
+      .catch(() => setItems([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    if (open) load();
+  }, [open, load]);
+
+  const handleRemove = async (productId: string) => {
+    try {
+      const res = await fetch(`/api/wishlist/${productId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Error');
+      toast.success('Eliminado de la wishlist');
+      load();
+    } catch {
+      toast.error('Error al eliminar');
+    }
+  };
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <>
+          <motion.div
+            key="wl-bd"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 z-50"
+            onClick={onClose}
+          />
+          <motion.div
+            key="wl-modal"
+            initial={{ opacity: 0, scale: 0.96, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 20 }}
+            transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
+          >
+            <div className="bg-white w-full max-w-lg max-h-[85vh] flex flex-col pointer-events-auto shadow-xl">
+              <div className="flex items-center justify-between px-6 py-5 border-b border-[#E6E1DA]">
+                <h2 className="text-base font-display font-900 italic uppercase text-[#1C1C1C]">
+                  Mi Wishlist
+                </h2>
+                <button
+                  onClick={onClose}
+                  className="size-8 flex items-center justify-center text-[#8A8A8A] hover:text-[#1C1C1C] hover:bg-[#F2F0EC] transition-colors rounded"
+                >
+                  <Icon name="XMarkIcon" size={16} variant="outline" />
+                </button>
+              </div>
+
+              <div className="overflow-y-auto flex-1 px-6 py-4">
+                {loading ? (
+                  <div className="flex justify-center py-12">
+                    <div className="size-6 border-2 border-[#1C1C1C] border-t-transparent rounded-full animate-spin" />
+                  </div>
+                ) : items.length === 0 ? (
+                  <p className="text-center text-[#8A8A8A] text-sm py-10">
+                    Tu wishlist está vacía.
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-2 gap-3">
+                    {items.map((item) => {
+                      const p = item.products;
+                      if (!p) return null;
+                      return (
+                        <div
+                          key={item.id}
+                          className="border border-[#E6E1DA] bg-[#FAFAF8] overflow-hidden"
+                        >
+                          <Link
+                            href={`/product/${p.id}`}
+                            onClick={onClose}
+                            className="block relative bg-[#F2F0EC]"
+                            style={{ aspectRatio: '4/3' }}
+                          >
+                            <AppImage
+                              src={p.image_url || '/assets/images/no_image.png'}
+                              alt={p.name}
+                              fill
+                              className="object-cover"
+                              sizes="200px"
+                            />
+                          </Link>
+                          <div className="p-3">
+                            <p className="text-[12px] font-700 text-[#1C1C1C] line-clamp-2 mb-1">
+                              {p.name}
+                            </p>
+                            <p className="text-[13px] font-display font-900 italic text-[#1C1C1C] mb-2">
+                              {formatPrice(p.price)}
+                            </p>
+                            <button
+                              onClick={() => handleRemove(item.product_id)}
+                              className="w-full py-1.5 border border-red-200 text-red-500 text-[9px] font-black uppercase tracking-wider hover:bg-red-50 transition-colors flex items-center justify-center gap-1"
+                            >
+                              <Icon name="TrashIcon" size={10} variant="outline" />
+                              Quitar
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div className="border-t border-[#E6E1DA] px-6 py-4">
+                <Link
+                  href="/wishlist"
+                  onClick={onClose}
+                  className="block w-full py-3 bg-[#1C1C1C] text-white text-[10px] font-black uppercase tracking-[0.22em] text-center hover:bg-[#2563EB] transition-colors"
+                >
+                  Ir a wishlist completa
+                </Link>
+              </div>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+}
+
+// ─── Reviews modal ─────────────────────────────────────────────────────────────
+type UserReview = {
+  id: string;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+  product_id: string;
+  products?: { name: string } | null;
+};
+
+function ReviewsModal({
+  open,
+  onClose,
+  userId,
+}: {
+  open: boolean;
+  onClose: () => void;
+  userId: string;
+}) {
+  const [reviews, setReviews] = useState<UserReview[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    if (!userId) return;
+    setLoading(true);
+    try {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from('reviews')
+        .select('id, rating, comment, created_at, product_id, products(name)')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+      setReviews(Array.isArray(data) ? (data as unknown as UserReview[]) : []);
+    } catch {
+      setReviews([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    if (open) load();
+  }, [open, load]);
+
+  const handleDelete = async (reviewId: string) => {
+    try {
+      const res = await fetch(`/api/reviews/${reviewId}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Error');
+      }
+      toast.success('Reseña eliminada');
+      load();
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Error al eliminar');
+    }
+  };
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <>
+          <motion.div
+            key="rv-bd"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 z-50"
+            onClick={onClose}
+          />
+          <motion.div
+            key="rv-modal"
+            initial={{ opacity: 0, scale: 0.96, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 20 }}
+            transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
+          >
+            <div className="bg-white w-full max-w-lg max-h-[85vh] flex flex-col pointer-events-auto shadow-xl">
+              <div className="flex items-center justify-between px-6 py-5 border-b border-[#E6E1DA]">
+                <h2 className="text-base font-display font-900 italic uppercase text-[#1C1C1C]">
+                  Mis Reseñas
+                </h2>
+                <button
+                  onClick={onClose}
+                  className="size-8 flex items-center justify-center text-[#8A8A8A] hover:text-[#1C1C1C] hover:bg-[#F2F0EC] transition-colors rounded"
+                >
+                  <Icon name="XMarkIcon" size={16} variant="outline" />
+                </button>
+              </div>
+
+              <div className="overflow-y-auto flex-1 px-6 py-4 space-y-3">
+                {loading ? (
+                  <div className="flex justify-center py-12">
+                    <div className="size-6 border-2 border-[#1C1C1C] border-t-transparent rounded-full animate-spin" />
+                  </div>
+                ) : reviews.length === 0 ? (
+                  <p className="text-center text-[#8A8A8A] text-sm py-10">
+                    No has dejado reseñas aún.
+                  </p>
+                ) : (
+                  reviews.map((review) => (
+                    <div key={review.id} className="border border-[#E6E1DA] bg-[#FAFAF8] p-4">
+                      <div className="flex items-start justify-between gap-3 mb-2">
+                        <div>
+                          <p className="text-[12px] font-black text-[#1C1C1C] mb-1.5">
+                            {(review.products as { name: string } | null)?.name ?? 'Producto'}
+                          </p>
+                          <StarRating rating={review.rating} size="sm" readOnly />
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className="text-[10px] text-[#8A8A8A]">
+                            {new Date(review.created_at).toLocaleDateString('es-ES', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric',
+                            })}
+                          </span>
+                          <button
+                            onClick={() => handleDelete(review.id)}
+                            className="size-7 flex items-center justify-center text-[#8A8A8A] hover:text-red-500 border border-[#E6E1DA] hover:border-red-200 transition-colors"
+                            title="Eliminar reseña"
+                          >
+                            <Icon name="TrashIcon" size={12} variant="outline" />
+                          </button>
+                        </div>
+                      </div>
+                      {review.comment && (
+                        <p className="text-[12px] text-[#5A5A5A] leading-relaxed mt-2">
+                          {review.comment}
+                        </p>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <div className="border-t border-[#E6E1DA] px-6 py-4">
+                <button
+                  onClick={onClose}
+                  className="block w-full py-3 border border-[#DDD9D3] text-[#5A5A5A] text-[10px] font-black uppercase tracking-[0.22em] text-center hover:bg-[#F8F7F5] transition-colors"
+                >
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+}
+
+// ─── Modal key map ─────────────────────────────────────────────────────────────
+const MODAL_MAP: Record<string, 'orders' | 'wishlist' | 'reviews'> = {
+  'Mis pedidos': 'orders',
+  Wishlist: 'wishlist',
+  'Mis reseñas': 'reviews',
+};
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function ProfilePage() {
   const { user, loading } = useAuth();
@@ -478,6 +936,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const [orderCount, setOrderCount] = useState<number | null>(null);
   const [editOpen, setEditOpen] = useState(false);
+  const [openModal, setOpenModal] = useState<'orders' | 'wishlist' | 'reviews' | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -527,6 +986,21 @@ export default function ProfilePage() {
           >
             {/* Avatar + name */}
             <div className="flex flex-col items-center py-10 px-8">
+              {/* Role badge above avatar */}
+              {!loading && role && (
+                <span
+                  className={`mb-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-[9px] font-black uppercase tracking-[0.22em] ${
+                    (
+                      ROLE_BADGE[role] ?? {
+                        cls: 'bg-slate-100 text-slate-500 border-slate-200',
+                      }
+                    ).cls
+                  }`}
+                >
+                  <Icon name="ShieldCheckIcon" size={10} variant="outline" />
+                  {(ROLE_BADGE[role] ?? { label: role }).label}
+                </span>
+              )}
               <div className="size-24 rounded-full border-4 border-[#F2F0EC] bg-[#EFEDE9] flex items-center justify-center overflow-hidden shadow-sm">
                 {user?.user_metadata?.avatar_url ? (
                   <AppImage
@@ -658,31 +1132,50 @@ export default function ProfilePage() {
                     transition: { type: 'spring', stiffness: 400, damping: 25 },
                   }}
                 >
-                  <Link
-                    href={action.href}
-                    className="group flex items-start gap-4 bg-white border border-[#E6E1DA] p-5 shadow-sm hover:border-[#1C1C1C] hover:shadow-md transition-all duration-300 h-full"
-                  >
-                    <div className="size-9 flex-shrink-0 bg-[#F2F0EC] group-hover:bg-[#EFF6FF] flex items-center justify-center transition-colors duration-300">
-                      <Icon
-                        name={action.icon}
-                        size={17}
-                        variant="outline"
-                        className="text-[#5A5A5A] group-hover:text-[#2563EB] transition-colors duration-300"
-                      />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-[12px] font-black uppercase tracking-[0.18em] text-[#1C1C1C] group-hover:text-[#2563EB] transition-colors duration-300 leading-tight">
-                        {action.label}
-                      </p>
-                      <p className="mt-1 text-[12px] text-[#8A8A8A] leading-snug">{action.desc}</p>
-                    </div>
-                    <Icon
-                      name="ChevronRightIcon"
-                      size={13}
-                      variant="outline"
-                      className="ml-auto flex-shrink-0 text-[#DDD9D3] group-hover:text-[#2563EB] group-hover:translate-x-0.5 transition-all duration-300 mt-0.5"
-                    />
-                  </Link>
+                  {(() => {
+                    const modalKey = MODAL_MAP[action.label];
+                    const inner = (
+                      <>
+                        <div className="size-9 flex-shrink-0 bg-[#F2F0EC] group-hover:bg-[#EFF6FF] flex items-center justify-center transition-colors duration-300">
+                          <Icon
+                            name={action.icon}
+                            size={17}
+                            variant="outline"
+                            className="text-[#5A5A5A] group-hover:text-[#2563EB] transition-colors duration-300"
+                          />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[12px] font-black uppercase tracking-[0.18em] text-[#1C1C1C] group-hover:text-[#2563EB] transition-colors duration-300 leading-tight">
+                            {action.label}
+                          </p>
+                          <p className="mt-1 text-[12px] text-[#8A8A8A] leading-snug">
+                            {action.desc}
+                          </p>
+                        </div>
+                        <Icon
+                          name="ChevronRightIcon"
+                          size={13}
+                          variant="outline"
+                          className="ml-auto flex-shrink-0 text-[#DDD9D3] group-hover:text-[#2563EB] group-hover:translate-x-0.5 transition-all duration-300 mt-0.5"
+                        />
+                      </>
+                    );
+                    return modalKey ? (
+                      <button
+                        onClick={() => setOpenModal(modalKey)}
+                        className="group flex items-start gap-4 bg-white border border-[#E6E1DA] p-5 shadow-sm hover:border-[#1C1C1C] hover:shadow-md transition-all duration-300 h-full w-full text-left"
+                      >
+                        {inner}
+                      </button>
+                    ) : (
+                      <Link
+                        href={action.href}
+                        className="group flex items-start gap-4 bg-white border border-[#E6E1DA] p-5 shadow-sm hover:border-[#1C1C1C] hover:shadow-md transition-all duration-300 h-full"
+                      >
+                        {inner}
+                      </Link>
+                    );
+                  })()}
                 </motion.div>
               ))}
             </div>
@@ -726,6 +1219,15 @@ export default function ProfilePage() {
           )}
         </div>
       </div>
+
+      {/* Quick-action modals */}
+      <OrdersModal open={openModal === 'orders'} onClose={() => setOpenModal(null)} />
+      <WishlistModal open={openModal === 'wishlist'} onClose={() => setOpenModal(null)} />
+      <ReviewsModal
+        open={openModal === 'reviews'}
+        onClose={() => setOpenModal(null)}
+        userId={user?.id ?? ''}
+      />
 
       {/* Edit profile modal */}
       <EditProfileModal open={editOpen} onClose={() => setEditOpen(false)} user={user} />

@@ -304,15 +304,17 @@ export default function AdminEmpleados() {
         </div>
         <div className="flex gap-2">
           <button
-            onClick={() => exportToCSV(employees as unknown as Record<string, unknown>[], 'empleados', [
-              { key: 'name', label: 'Nombre' },
-              { key: 'position', label: 'Cargo' },
-              { key: 'department', label: 'Departamento' },
-              { key: 'email', label: 'Email' },
-              { key: 'phone', label: 'Teléfono' },
-              { key: 'status', label: 'Estado' },
-              { key: 'salary', label: 'Salario' },
-            ])}
+            onClick={() =>
+              exportToCSV(employees as unknown as Record<string, unknown>[], 'empleados', [
+                { key: 'name', label: 'Nombre' },
+                { key: 'position', label: 'Cargo' },
+                { key: 'department', label: 'Departamento' },
+                { key: 'email', label: 'Email' },
+                { key: 'phone', label: 'Teléfono' },
+                { key: 'status', label: 'Estado' },
+                { key: 'salary', label: 'Salario' },
+              ])
+            }
             className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
           >
             <Icon name="ArrowDownTrayIcon" size={16} />
@@ -346,10 +348,13 @@ export default function AdminEmpleados() {
 
       <DataTable
         columns={columns}
-        data={employees.filter(e => {
+        data={employees.filter((e) => {
           if (!debouncedSearch) return true;
           const term = debouncedSearch.toLowerCase();
-          return (e.name || '').toLowerCase().includes(term) || (e.email || '').toLowerCase().includes(term);
+          return (
+            (e.name || '').toLowerCase().includes(term) ||
+            (e.email || '').toLowerCase().includes(term)
+          );
         })}
         loading={loading}
         pageSize={LIMIT}
@@ -597,11 +602,7 @@ export default function AdminEmpleados() {
         </form>
       </AdminModal>
 
-      <AdminModal
-        open={!!deleteId}
-        onClose={() => setDeleteId(null)}
-        title="Eliminar empleado"
-      >
+      <AdminModal open={!!deleteId} onClose={() => setDeleteId(null)} title="Eliminar empleado">
         <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
           ¿Estás seguro de que deseas eliminar este empleado? Esta acción no se puede deshacer.
         </p>
@@ -613,7 +614,10 @@ export default function AdminEmpleados() {
             Cancelar
           </button>
           <button
-            onClick={() => { handleDelete(deleteId!); setDeleteId(null); }}
+            onClick={() => {
+              handleDelete(deleteId!);
+              setDeleteId(null);
+            }}
             className="px-4 py-2 text-sm font-semibold rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors"
           >
             Eliminar

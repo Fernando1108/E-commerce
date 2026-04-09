@@ -300,7 +300,7 @@ export default function FeaturedProductsSection() {
               <button
                 onClick={scrollLeft}
                 aria-label="Anterior"
-                className={`absolute left-0 top-[40%] -translate-y-1/2 -translate-x-5 z-10 size-12 rounded-full bg-white/90 backdrop-blur-sm border border-[#DDD9D3] shadow-nova-md flex items-center justify-center text-[#1C1C1C] transition-all duration-300 opacity-0 group-hover/carousel:opacity-100 ${
+                className={`absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 backdrop-blur-sm flex items-center justify-center text-white transition-all duration-300 opacity-0 group-hover/carousel:opacity-100 ${
                   !canScrollLeft ? 'pointer-events-none !opacity-0' : ''
                 }`}
               >
@@ -338,7 +338,7 @@ export default function FeaturedProductsSection() {
               <button
                 onClick={scrollRight}
                 aria-label="Siguiente"
-                className={`absolute right-0 top-[40%] -translate-y-1/2 translate-x-5 z-10 size-12 rounded-full bg-white/90 backdrop-blur-sm border border-[#DDD9D3] shadow-nova-md flex items-center justify-center text-[#1C1C1C] transition-all duration-300 opacity-0 group-hover/carousel:opacity-100 ${
+                className={`absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 backdrop-blur-sm flex items-center justify-center text-white transition-all duration-300 opacity-0 group-hover/carousel:opacity-100 ${
                   !canScrollRight ? 'pointer-events-none !opacity-0' : ''
                 }`}
               >

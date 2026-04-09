@@ -13,6 +13,17 @@ interface ProductsHeroSectionProps {
   view?: string;
 }
 
+const categoryDescriptions: Record<string, string> = {
+  accesorios: 'Fundas, cargadores, cables y accesorios premium para potenciar tus dispositivos.',
+  audio: 'Auriculares, parlantes y equipos de sonido de alta fidelidad para profesionales.',
+  electrónica: 'Smartphones, laptops y gadgets de última generación con tecnología de punta.',
+  gaming: 'Consolas, periféricos y accesorios gaming para la mejor experiencia de juego.',
+  hogar: 'Tecnología inteligente para el hogar: seguridad, automatización y conectividad.',
+  wearables: 'Smartwatches, fitness trackers y tecnología portátil de última generación.',
+};
+
+const DEFAULT_DESCRIPTION = 'Más de 500 productos de tecnología premium seleccionados para ti.';
+
 export default function ProductsHeroSection({
   onSearch,
   categoryId,
@@ -177,13 +188,13 @@ export default function ProductsHeroSection({
 
             {/* Supporting text */}
             <motion.p
+              key={categoryName}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3, ease: [0.4, 0, 0.2, 1] }}
               className="text-[#5A5A5A] text-base leading-relaxed max-w-md mb-10"
             >
-              Más de 500 productos de tecnología premium, workspace y lifestyle — seleccionados para
-              profesionales que no aceptan compromisos.
+              {categoryDescriptions[categoryName.toLowerCase()] ?? DEFAULT_DESCRIPTION}
             </motion.p>
 
             {/* Premium search bar */}

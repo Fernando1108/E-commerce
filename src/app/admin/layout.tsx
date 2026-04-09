@@ -43,9 +43,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           />
 
           <main className="p-4 lg:p-8">
-            <AdminPageTransition>
-              {children}
-            </AdminPageTransition>
+            <AdminPageTransition>{children}</AdminPageTransition>
           </main>
         </div>
       </div>

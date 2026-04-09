@@ -16,6 +16,7 @@ import type { Category } from '@/types';
 
 // ─── Nav Links ────────────────────────────────────────────────────────────────
 const navLinks = [
+  { label: 'Home', href: '/homepage' },
   { label: 'Tienda', href: '/products' },
   { label: 'Categorías', href: '/products?view=categories' },
   { label: 'Novedades', href: '/products?sort=newest' },

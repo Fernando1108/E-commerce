@@ -135,7 +135,13 @@ export default function PedidoDetalle({ params }: { params: Promise<{ id: string
               <div key={item.id} className="flex items-center gap-4 px-5 py-3">
                 <div className="size-12 rounded-lg bg-slate-100 dark:bg-slate-700 overflow-hidden flex-shrink-0">
                   {item.products?.image_url ? (
-                    <AppImage src={item.products.image_url} alt={item.products?.name || ''} width={48} height={48} className="size-full object-cover" />
+                    <AppImage
+                      src={item.products.image_url}
+                      alt={item.products?.name || ''}
+                      width={48}
+                      height={48}
+                      className="size-full object-cover"
+                    />
                   ) : (
                     <div className="size-full flex items-center justify-center text-slate-300 dark:text-slate-500">
                       <Icon name="PhotoIcon" size={16} />

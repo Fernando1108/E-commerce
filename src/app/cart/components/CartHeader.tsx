@@ -10,7 +10,7 @@ type CartHeaderProps = {
 
 export default function CartHeader({ itemCount }: CartHeaderProps) {
   return (
-    <section className="relative h-36 lg:h-48 overflow-hidden flex items-end">
+    <section className="relative -mt-[72px] pt-[72px] h-56 lg:h-72 overflow-hidden flex items-end">
       {/* ── Background image ── */}
       <div
         className="absolute inset-0"
@@ -22,10 +22,10 @@ export default function CartHeader({ itemCount }: CartHeaderProps) {
       />
 
       {/* Dark overlay for text legibility */}
-      <div className="absolute inset-0 bg-black/50" />
+      <div className="absolute inset-0 bg-black/55" />
 
       {/* ── Content ── */}
-      <div className="relative w-full max-w-[1440px] mx-auto px-6 lg:px-14 pb-8 lg:pb-10">
+      <div className="relative w-full max-w-[1440px] mx-auto px-6 lg:px-14 pb-10 lg:pb-14">
         <div className="flex items-end justify-between gap-4">
           <div>
             <motion.p
@@ -40,7 +40,7 @@ export default function CartHeader({ itemCount }: CartHeaderProps) {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.07, ease: [0.16, 1, 0.3, 1] }}
-              className="font-display italic font-900 text-5xl lg:text-7xl tracking-editorial text-white leading-none"
+              className="font-display italic font-900 text-6xl lg:text-8xl tracking-editorial text-white leading-none"
             >
               Carrito
             </motion.h1>
@@ -50,13 +50,13 @@ export default function CartHeader({ itemCount }: CartHeaderProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.22, duration: 0.5 }}
-            className="hidden sm:flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 pb-1"
+            className="hidden sm:flex items-center gap-2 text-sm font-medium text-white pb-1"
           >
             <Link href="/homepage" className="hover:text-white/80 transition-colors duration-200">
-              Inicio
+              INICIO
             </Link>
-            <span className="text-white/20">/</span>
-            <span className="text-white/60">Carrito{itemCount > 0 ? ` (${itemCount})` : ''}</span>
+            <span className="text-white/50">/</span>
+            <span>CARRITO{itemCount > 0 ? ` (${itemCount})` : ''}</span>
           </motion.div>
         </div>
       </div>

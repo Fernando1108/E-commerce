@@ -131,13 +131,15 @@ export default function AdminClientes() {
           </p>
         </div>
         <button
-          onClick={() => exportToCSV(customers as unknown as Record<string, unknown>[], 'clientes', [
-            { key: 'name', label: 'Nombre' },
-            { key: 'phone', label: 'Teléfono' },
-            { key: 'order_count', label: 'Pedidos' },
-            { key: 'total_spent', label: 'Total gastado' },
-            { key: 'created_at', label: 'Registro' },
-          ])}
+          onClick={() =>
+            exportToCSV(customers as unknown as Record<string, unknown>[], 'clientes', [
+              { key: 'name', label: 'Nombre' },
+              { key: 'phone', label: 'Teléfono' },
+              { key: 'order_count', label: 'Pedidos' },
+              { key: 'total_spent', label: 'Total gastado' },
+              { key: 'created_at', label: 'Registro' },
+            ])
+          }
           className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
         >
           <Icon name="ArrowDownTrayIcon" size={16} />

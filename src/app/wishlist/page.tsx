@@ -28,39 +28,47 @@ export default function WishlistPage() {
     <main className="min-h-screen bg-[#FAF9F7]">
       <Header />
 
-      {/* Page header */}
-      <section className="relative border-b border-[#DDD9D3] overflow-hidden pt-[72px]">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-24 left-1/4 w-[500px] h-[300px] bg-[#EFEDE9] rounded-full blur-[120px]" />
-        </div>
-        <div className="max-w-[1440px] mx-auto px-6 lg:px-14 py-12 lg:py-16 relative">
+      {/* Hero */}
+      <section className="relative -mt-[72px] pt-[72px] h-48 lg:h-64 overflow-hidden flex items-end">
+        {/* Gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-800 to-blue-900" />
+        {/* Subtle texture overlay */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(37,99,235,0.3),transparent_60%)]" />
+
+        {/* Content */}
+        <div className="relative w-full max-w-[1440px] mx-auto px-6 lg:px-14 pb-8 lg:pb-12">
           <div className="flex items-end justify-between gap-4">
             <div>
               <motion.p
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="text-[10px] font-black uppercase tracking-[0.22em] text-[#2563EB] mb-3"
+                transition={{ duration: 0.45 }}
+                className="text-[10px] font-black uppercase tracking-[0.28em] text-white/70 mb-2"
               >
-                Mi colección
+                Productos que te gustan
               </motion.p>
               <motion.h1
-                initial={{ opacity: 0, y: 14 }}
+                initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.55, delay: 0.06, ease: [0.16, 1, 0.3, 1] }}
-                className="font-display italic font-900 text-5xl lg:text-7xl tracking-editorial text-[#1C1C1C] leading-none"
+                transition={{ duration: 0.55, delay: 0.07, ease: [0.16, 1, 0.3, 1] }}
+                className="font-display italic font-900 text-5xl lg:text-7xl tracking-editorial text-white leading-none"
               >
-                Wishlist
+                Mi Wishlist
               </motion.h1>
             </div>
-            <motion.p
+
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="hidden sm:block text-[#8A8A8A] text-[10px] font-bold uppercase tracking-[0.18em]"
+              transition={{ delay: 0.22, duration: 0.5 }}
+              className="hidden sm:flex items-center gap-2 text-sm font-medium text-white pb-1"
             >
-              {items.length} {items.length === 1 ? 'producto' : 'productos'}
-            </motion.p>
+              <Link href="/homepage" className="hover:text-white/80 transition-colors duration-200">
+                INICIO
+              </Link>
+              <span className="text-white/50">{'>'}</span>
+              <span>WISHLIST</span>
+            </motion.div>
           </div>
         </div>
       </section>

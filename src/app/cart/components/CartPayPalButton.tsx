@@ -17,7 +17,7 @@ export default function CartPayPalButton({ items, grandTotal, onSuccess }: CartP
     <div className="px-8 pb-8">
       <PayPalProvider>
         <PayPalButtons
-          style={{ layout: 'vertical', shape: 'rect', label: 'pay' }}
+          style={{ layout: 'vertical', shape: 'rect', label: 'pay', tagline: false }}
           disabled={items.length === 0}
           createOrder={async () => {
             const res = await fetch('/api/paypal/create-order', {

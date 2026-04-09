@@ -1,15 +1,18 @@
-'use client'
-import { motion } from 'framer-motion'
+'use client';
+import { motion } from 'framer-motion';
 
 interface AdminLoaderProps {
-  message?: string
-  fullScreen?: boolean
+  message?: string;
+  fullScreen?: boolean;
 }
 
-export default function AdminLoader({ message = 'Cargando...', fullScreen = false }: AdminLoaderProps) {
+export default function AdminLoader({
+  message = 'Cargando...',
+  fullScreen = false,
+}: AdminLoaderProps) {
   const containerClass = fullScreen
     ? 'fixed inset-0 z-50 flex items-center justify-center bg-gray-950/80 backdrop-blur-sm'
-    : 'flex items-center justify-center py-20'
+    : 'flex items-center justify-center py-20';
 
   return (
     <div className={containerClass}>
@@ -92,11 +95,7 @@ export default function AdminLoader({ message = 'Cargando...', fullScreen = fals
         {/* Texto con animación de puntos */}
         <div className="flex items-center gap-1">
           <span className="text-sm font-medium text-gray-400">{message}</span>
-          <motion.span
-            className="flex gap-0.5"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
+          <motion.span className="flex gap-0.5" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             {[0, 1, 2].map((i) => (
               <motion.span
                 key={i}
@@ -119,5 +118,5 @@ export default function AdminLoader({ message = 'Cargando...', fullScreen = fals
         </div>
       </motion.div>
     </div>
-  )
+  );
 }

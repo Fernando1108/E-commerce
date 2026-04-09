@@ -433,6 +433,17 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 - [x] Paginación server-side conectada en admin (clientes, proveedores, empleados, compras)
 - [x] Manejo de 429 (rate limiting) en contacto y newsletter con toast amigable
 - [x] Enums de estado de pedido unificados en constants/index.ts (7 estados: pending, processing, paid, shipped, delivered, completed, cancelled)
+- [x] Flechas carousel productos destacados rediseñadas estilo Netflix (bg-black/50, backdrop-blur, rounded-full, aparecen en hover, centradas verticalmente)
+- [x] Reseñas — modal con estrellas interactivas + comentario opcional, POST /api/reviews, toast.success (código frontend completo; pendiente fix backend verifyAuth para usuarios normales)
+- [x] Hero del carrito extendido detrás del header (-mt-[72px] pt-[72px], h-56/h-72, imagen de fondo)
+- [x] "HOME" agregado al header como primer link de navegación (href="/homepage")
+- [x] Hero de wishlist con gradiente slate-800 a blue-900, breadcrumb INICIO > WISHLIST, tipografía editorial blanca
+- [x] Descripciones dinámicas por categoría en /products (Accesorios, Audio, Electrónica, Gaming, Hogar, Wearables + default)
+- [x] Rol badge arriba del avatar en profile (rounded-full, color según rol, uppercase, icono ShieldCheck)
+- [x] Quitado "Powered by PayPal" del carrito (tagline: false en PayPalButtons)
+- [x] Modal "Mis pedidos" en profile — fetch /api/orders, lista con badge de estado, expandir para ver ítems, botón "Ver todos"
+- [x] Modal "Wishlist" en profile — fetch /api/wishlist, grid 2 col con imagen/precio, botón Quitar con DELETE + toast
+- [x] Modal "Mis reseñas" en profile — consulta Supabase por user_id, StarRating readOnly, eliminar reseña con DELETE /api/reviews/[id] + toast
 
 **Backend (Anderson):**
 - [x] GET/POST `/api/products` + Zod + verificación admin
