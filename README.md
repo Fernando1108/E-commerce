@@ -470,6 +470,10 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 - [x] Logging estructurado con `logger.ts` (JSON entries, reemplaza console.error)
 - [x] Enums de estado de pedido centralizados en `lib/constants/order-status.ts`
 - [x] RLS policies en Supabase (11 tablas: products, categories, orders, order_items, reviews, wishlist, cart_items, coupons, product_images, product_variants, newsletter_subscribers)
+- [x] Sprint 1 Admin: estados de pedido unificados (7 estados), endpoint PUT/DELETE categorías, role en empleados, toast errors, logger en endpoints admin
+- [x] Sprint 2 Admin: paginación en orders/invoices/inventory, modales confirmación (proveedores, empleados), AppImage, skeleton shimmer
+- [x] Sprint 3 Admin: exportar CSV en 8 tablas, búsqueda en empleados/proveedores/compras/facturas, breadcrumbs dinámicos, UI crear compras
+- [x] Fix: foreign key orders → profiles para JOIN en admin pedidos
 
 ### 🚧 Pendiente
 
