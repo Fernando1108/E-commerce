@@ -5,6 +5,7 @@ import DataTable, { Column } from '../components/DataTable';
 import Icon from '@/components/ui/AppIcon';
 import { toast } from 'sonner';
 import { formatPrice } from '@/lib/utils';
+import { exportToCSV } from '@/lib/export-csv';
 
 const LIMIT = 20;
 
@@ -116,13 +117,28 @@ export default function AdminClientes() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-          Clientes
-        </h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          {total} usuarios registrados
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            Clientes
+          </h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            {total} usuarios registrados
+          </p>
+        </div>
+        <button
+          onClick={() => exportToCSV(customers as unknown as Record<string, unknown>[], 'clientes', [
+            { key: 'name', label: 'Nombre' },
+            { key: 'phone', label: 'Teléfono' },
+            { key: 'order_count', label: 'Pedidos' },
+            { key: 'total_spent', label: 'Total gastado' },
+            { key: 'created_at', label: 'Registro' },
+          ])}
+          className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+        >
+          <Icon name="ArrowDownTrayIcon" size={16} />
+          Exportar
+        </button>
       </div>
 
       <div className="relative max-w-sm">

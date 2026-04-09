@@ -7,6 +7,7 @@ import AdminModal from '../components/AdminModal';
 import Icon from '@/components/ui/AppIcon';
 import { toast } from 'sonner';
 import { formatPrice } from '@/lib/utils';
+import { exportToCSV } from '@/lib/export-csv';
 import type { Employee } from '@/types';
 
 const LIMIT = 20;
@@ -59,6 +60,7 @@ export default function AdminEmpleados() {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [form, setForm] = useState({
     name: '',
     position: '',
@@ -295,19 +297,55 @@ export default function AdminEmpleados() {
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{total} empleados</p>
         </div>
-        <motion.button
-          whileTap={{ scale: 0.97 }}
-          onClick={openCreate}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-sm shadow-blue-600/20"
-        >
-          <Icon name="PlusIcon" size={16} />
-          Nuevo empleado
-        </motion.button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => exportToCSV(employees as unknown as Record<string, unknown>[], 'empleados', [
+              { key: 'name', label: 'Nombre' },
+              { key: 'position', label: 'Cargo' },
+              { key: 'department', label: 'Departamento' },
+              { key: 'email', label: 'Email' },
+              { key: 'phone', label: 'Teléfono' },
+              { key: 'status', label: 'Estado' },
+              { key: 'salary', label: 'Salario' },
+            ])}
+            className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+          >
+            <Icon name="ArrowDownTrayIcon" size={16} />
+            Exportar
+          </button>
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            onClick={openCreate}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-sm shadow-blue-600/20"
+          >
+            <Icon name="PlusIcon" size={16} />
+            Nuevo empleado
+          </motion.button>
+        </div>
+      </div>
+
+      <div className="relative max-w-sm">
+        <Icon
+          name="MagnifyingGlassIcon"
+          size={16}
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+        />
+        <input
+          type="text"
+          placeholder="Buscar empleado..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full h-10 pl-9 pr-4 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
+        />
       </div>
 
       <DataTable
         columns={columns}
-        data={employees}
+        data={employees.filter(e => {
+          if (!searchTerm) return true;
+          const term = searchTerm.toLowerCase();
+          return (e.name || '').toLowerCase().includes(term) || (e.email || '').toLowerCase().includes(term);
+        })}
         loading={loading}
         pageSize={LIMIT}
         emptyMessage="No hay empleados"

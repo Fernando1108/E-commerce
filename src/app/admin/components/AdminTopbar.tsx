@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
@@ -13,18 +14,20 @@ interface AdminTopbarProps {
   onToggleDark: () => void;
 }
 
-const breadcrumbMap: Record<string, string> = {
-  '/admin': 'Dashboard',
-  '/admin/productos': 'Productos',
-  '/admin/productos/nuevo': 'Nuevo Producto',
-  '/admin/pedidos': 'Pedidos',
-  '/admin/inventario': 'Inventario',
-  '/admin/proveedores': 'Proveedores',
-  '/admin/proveedores/compras': 'Compras',
-  '/admin/empleados': 'Empleados',
-  '/admin/facturacion': 'Facturación',
-  '/admin/facturacion/reportes': 'Reportes',
-  '/admin/clientes': 'Clientes',
+const pathLabels: Record<string, string> = {
+  admin: 'Dashboard',
+  productos: 'Productos',
+  pedidos: 'Pedidos',
+  categorias: 'Categorías',
+  inventario: 'Inventario',
+  proveedores: 'Proveedores',
+  compras: 'Compras',
+  empleados: 'Empleados',
+  facturacion: 'Facturación',
+  reportes: 'Reportes',
+  clientes: 'Clientes',
+  nuevo: 'Nuevo',
+  editar: 'Editar',
 };
 
 export default function AdminTopbar({ onMenuToggle, darkMode, onToggleDark }: AdminTopbarProps) {
@@ -32,26 +35,13 @@ export default function AdminTopbar({ onMenuToggle, darkMode, onToggleDark }: Ad
   const router = useRouter();
   const { user, signOut } = useAuth();
 
-  const getBreadcrumbs = () => {
+  const generateBreadcrumbs = () => {
     const parts = pathname.split('/').filter(Boolean);
-    const crumbs: { label: string; path: string }[] = [];
-    let currentPath = '';
-    for (const part of parts) {
-      currentPath += `/${part}`;
-      const label = breadcrumbMap[currentPath];
-      if (label) {
-        crumbs.push({ label, path: currentPath });
-      }
-    }
-    if (crumbs.length === 0 || crumbs[crumbs.length - 1].path !== pathname) {
-      const closestParent = Object.keys(breadcrumbMap)
-        .filter((key) => pathname.startsWith(key))
-        .sort((a, b) => b.length - a.length)[0];
-      if (closestParent && !crumbs.find((c) => c.path === closestParent)) {
-        crumbs.push({ label: breadcrumbMap[closestParent], path: closestParent });
-      }
-    }
-    return crumbs;
+    return parts.map((part, index) => ({
+      label: pathLabels[part] || (part.length > 8 ? `#${part.slice(0, 8).toUpperCase()}` : part),
+      href: '/' + parts.slice(0, index + 1).join('/'),
+      isLast: index === parts.length - 1,
+    }));
   };
 
   const handleLogout = async () => {
@@ -60,7 +50,7 @@ export default function AdminTopbar({ onMenuToggle, darkMode, onToggleDark }: Ad
     router.push('/auth/login');
   };
 
-  const breadcrumbs = getBreadcrumbs();
+  const breadcrumbs = generateBreadcrumbs();
 
   return (
     <header className="sticky top-0 z-20 h-16 bg-white/80 dark:bg-slate-900/90 backdrop-blur-xl border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-4 lg:px-8 transition-colors duration-300">
@@ -76,23 +66,27 @@ export default function AdminTopbar({ onMenuToggle, darkMode, onToggleDark }: Ad
 
         {/* Breadcrumb */}
         <nav className="flex items-center gap-1.5 text-sm">
-          <span className="text-slate-400 dark:text-slate-500">Admin</span>
           {breadcrumbs.map((crumb, i) => (
-            <React.Fragment key={crumb.path}>
-              <Icon
-                name="ChevronRightIcon"
-                size={12}
-                className="text-slate-300 dark:text-slate-600"
-              />
-              <span
-                className={
-                  i === breadcrumbs.length - 1
-                    ? 'text-slate-900 dark:text-slate-100 font-semibold'
-                    : 'text-slate-400 dark:text-slate-500'
-                }
-              >
-                {crumb.label}
-              </span>
+            <React.Fragment key={crumb.href}>
+              {i > 0 && (
+                <Icon
+                  name="ChevronRightIcon"
+                  size={12}
+                  className="text-slate-300 dark:text-slate-600"
+                />
+              )}
+              {crumb.isLast ? (
+                <span className="text-slate-900 dark:text-slate-100 font-semibold">
+                  {crumb.label}
+                </span>
+              ) : (
+                <Link
+                  href={crumb.href}
+                  className="text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
+                >
+                  {crumb.label}
+                </Link>
+              )}
             </React.Fragment>
           ))}
         </nav>

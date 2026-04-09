@@ -7,6 +7,7 @@ import AdminModal from '../components/AdminModal';
 import Icon from '@/components/ui/AppIcon';
 import AppImage from '@/components/ui/AppImage';
 import { toast } from 'sonner';
+import { exportToCSV } from '@/lib/export-csv';
 
 interface StockItem {
   id: string;
@@ -203,14 +204,29 @@ export default function AdminInventario() {
             Gestión de stock y movimientos
           </p>
         </div>
-        <motion.button
-          whileTap={{ scale: 0.97 }}
-          onClick={() => setModalOpen(true)}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-sm shadow-blue-600/20"
-        >
-          <Icon name="PlusIcon" size={16} />
-          Registrar movimiento
-        </motion.button>
+        <div className="flex gap-2">
+          {view === 'stock' && (
+            <button
+              onClick={() => exportToCSV(stockData as unknown as Record<string, unknown>[], 'inventario', [
+                { key: 'name', label: 'Producto' },
+                { key: 'stock', label: 'Stock' },
+                { key: 'price', label: 'Precio' },
+              ])}
+              className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+            >
+              <Icon name="ArrowDownTrayIcon" size={16} />
+              Exportar
+            </button>
+          )}
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            onClick={() => setModalOpen(true)}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-sm shadow-blue-600/20"
+          >
+            <Icon name="PlusIcon" size={16} />
+            Registrar movimiento
+          </motion.button>
+        </div>
       </div>
 
       {/* View toggle */}

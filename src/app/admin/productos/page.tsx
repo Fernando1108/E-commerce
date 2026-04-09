@@ -9,6 +9,7 @@ import AdminModal from '../components/AdminModal';
 import Icon from '@/components/ui/AppIcon';
 import AppImage from '@/components/ui/AppImage';
 import { formatPrice } from '@/lib/utils';
+import { exportToCSV } from '@/lib/export-csv';
 import type { Product, Category } from '@/types';
 
 interface ProductFormValues {
@@ -492,14 +493,29 @@ export default function AdminProductos() {
             {products.length} productos en total
           </p>
         </div>
-        <motion.button
-          whileTap={{ scale: 0.97 }}
-          onClick={() => setProductModal({ open: true, editProduct: null })}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-sm shadow-blue-600/20"
-        >
-          <Icon name="PlusIcon" size={16} />
-          Nuevo producto
-        </motion.button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => exportToCSV(products as unknown as Record<string, unknown>[], 'productos', [
+              { key: 'name', label: 'Nombre' },
+              { key: 'price', label: 'Precio' },
+              { key: 'stock', label: 'Stock' },
+              { key: 'featured', label: 'Destacado' },
+              { key: 'created_at', label: 'Fecha' },
+            ])}
+            className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+          >
+            <Icon name="ArrowDownTrayIcon" size={16} />
+            Exportar
+          </button>
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            onClick={() => setProductModal({ open: true, editProduct: null })}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-sm shadow-blue-600/20"
+          >
+            <Icon name="PlusIcon" size={16} />
+            Nuevo producto
+          </motion.button>
+        </div>
       </div>
 
       {/* Filters */}

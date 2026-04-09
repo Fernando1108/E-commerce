@@ -6,6 +6,7 @@ import DataTable, { Column } from '../components/DataTable';
 import Icon from '@/components/ui/AppIcon';
 import { toast } from 'sonner';
 import { formatPrice } from '@/lib/utils';
+import { exportToCSV } from '@/lib/export-csv';
 
 interface InvoiceRow {
   id: string;
@@ -39,6 +40,7 @@ export default function AdminFacturacion() {
   const [invoices, setInvoices] = useState<InvoiceRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetch('/api/admin/invoices?limit=100')
@@ -130,17 +132,49 @@ export default function AdminFacturacion() {
             {total} facturas
           </p>
         </div>
-        <Link
-          href="/admin/facturacion/reportes"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 dark:bg-slate-700 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 dark:hover:bg-slate-600 transition-colors"
-        >
-          <Icon name="ChartBarIcon" size={16} />
-          Ver reportes
-        </Link>
+        <div className="flex gap-2">
+          <button
+            onClick={() => exportToCSV(invoices as unknown as Record<string, unknown>[], 'facturas', [
+              { key: 'id', label: 'ID' },
+              { key: 'total', label: 'Total' },
+              { key: 'status', label: 'Estado' },
+              { key: 'created_at', label: 'Fecha' },
+            ])}
+            className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+          >
+            <Icon name="ArrowDownTrayIcon" size={16} />
+            Exportar
+          </button>
+          <Link
+            href="/admin/facturacion/reportes"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 dark:bg-slate-700 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 dark:hover:bg-slate-600 transition-colors"
+          >
+            <Icon name="ChartBarIcon" size={16} />
+            Ver reportes
+          </Link>
+        </div>
+      </div>
+
+      <div className="relative max-w-sm">
+        <Icon
+          name="MagnifyingGlassIcon"
+          size={16}
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+        />
+        <input
+          type="text"
+          placeholder="Buscar factura..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full h-10 pl-9 pr-4 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
+        />
       </div>
       <DataTable
         columns={columns}
-        data={invoices}
+        data={invoices.filter(i => {
+          if (!searchTerm) return true;
+          return (i.id || '').toLowerCase().includes(searchTerm.toLowerCase());
+        })}
         loading={loading}
         pageSize={15}
         emptyMessage="No hay facturas"

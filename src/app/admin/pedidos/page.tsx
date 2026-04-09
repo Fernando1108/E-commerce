@@ -7,6 +7,7 @@ import DataTable, { Column } from '../components/DataTable';
 import Icon from '@/components/ui/AppIcon';
 import { statusColors, statusLabels } from '@/constants';
 import { formatPrice } from '@/lib/utils';
+import { exportToCSV } from '@/lib/export-csv';
 
 const statusFilters = [
   'all',
@@ -113,11 +114,25 @@ export default function AdminPedidos() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-          Pedidos
-        </h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{orders.length} pedidos</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            Pedidos
+          </h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{orders.length} pedidos</p>
+        </div>
+        <button
+          onClick={() => exportToCSV(orders as unknown as Record<string, unknown>[], 'pedidos', [
+            { key: 'id', label: 'ID' },
+            { key: 'total', label: 'Total' },
+            { key: 'status', label: 'Estado' },
+            { key: 'created_at', label: 'Fecha' },
+          ])}
+          className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+        >
+          <Icon name="ArrowDownTrayIcon" size={16} />
+          Exportar
+        </button>
       </div>
 
       {/* Status filters */}
