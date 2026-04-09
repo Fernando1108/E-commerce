@@ -12,11 +12,18 @@ function ProductsContent() {
   const initialSort = searchParams.get('sort') || 'featured';
   const initialBadge = searchParams.get('badge') || '';
   const initialCategory = searchParams.get('category') || 'all';
+  const view = searchParams.get('view') || '';
   const [searchQuery, setSearchQuery] = useState('');
 
   return (
     <>
-      <ProductsHeroSection onSearch={setSearchQuery} />
+      <ProductsHeroSection
+        onSearch={setSearchQuery}
+        categoryId={initialCategory}
+        sort={initialSort}
+        badge={initialBadge}
+        view={view}
+      />
       <ProductGridSection
         searchQuery={searchQuery}
         initialCategory={initialCategory}

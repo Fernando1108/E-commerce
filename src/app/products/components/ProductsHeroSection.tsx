@@ -1,22 +1,60 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Icon from '@/components/ui/AppIcon';
 
-const breadcrumbs = [
-  { label: 'Inicio', href: '/homepage' },
-  { label: 'Tienda', href: '/products' },
-];
-
 interface ProductsHeroSectionProps {
   onSearch?: (query: string) => void;
+  categoryId?: string;
+  sort?: string;
+  badge?: string;
+  view?: string;
 }
 
-export default function ProductsHeroSection({ onSearch }: ProductsHeroSectionProps) {
+export default function ProductsHeroSection({
+  onSearch,
+  categoryId,
+  sort,
+  badge,
+  view,
+}: ProductsHeroSectionProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
+  const [categoryName, setCategoryName] = useState('');
+
+  // Fetch category name when a specific category is selected
+  const hasCategory = Boolean(categoryId && categoryId !== 'all');
+  useEffect(() => {
+    if (!hasCategory) {
+      setCategoryName('');
+      return;
+    }
+    fetch('/api/categories')
+      .then((r) => r.json())
+      .then((data: { id: string; name: string }[]) => {
+        const match = Array.isArray(data) ? data.find((c) => c.id === categoryId) : null;
+        setCategoryName(match?.name ?? '');
+      })
+      .catch(() => setCategoryName(''));
+  }, [categoryId, hasCategory]);
+
+  // Derive page title from active filter
+  let pageTitle = 'Tienda';
+  if (view === 'categories') pageTitle = 'Categorías';
+  else if (sort === 'newest') pageTitle = 'Novedades';
+  else if (badge?.toLowerCase() === 'oferta') pageTitle = 'Ofertas';
+  else if (hasCategory && categoryName) pageTitle = categoryName;
+
+  const isFiltered = pageTitle !== 'Tienda';
+
+  // Build breadcrumb items: always Inicio > Tienda, + active filter as last item
+  const breadcrumbItems: { label: string; href: string | null }[] = [
+    { label: 'Inicio', href: '/homepage' },
+    { label: 'Tienda', href: isFiltered ? '/products' : null },
+    ...(isFiltered ? [{ label: pageTitle.toUpperCase(), href: null }] : []),
+  ];
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +65,6 @@ export default function ProductsHeroSection({ onSearch }: ProductsHeroSectionPro
     <section className="pt-[72px] bg-[#F2F0EC] relative overflow-hidden">
       {/* Background texture layers */}
       <div className="absolute inset-0 pointer-events-none">
-        {/* Subtle dot pattern */}
         <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
@@ -36,11 +73,8 @@ export default function ProductsHeroSection({ onSearch }: ProductsHeroSectionPro
             backgroundSize: '40px 40px',
           }}
         />
-        {/* Warm glow — top right */}
         <div className="absolute -top-32 -right-32 w-[600px] h-[600px] rounded-full bg-[#E8E5DF] opacity-80 blur-[120px]" />
-        {/* Very subtle blue accent — bottom left */}
         <div className="absolute -bottom-20 -left-20 w-[400px] h-[400px] rounded-full bg-[#2563EB] opacity-[0.04] blur-[100px]" />
-        {/* Vertical accent lines */}
         <div className="absolute top-0 right-[18%] w-px h-full bg-gradient-to-b from-transparent via-[#DDD9D3]/60 to-transparent" />
         <div className="absolute top-0 right-[36%] w-px h-full bg-gradient-to-b from-transparent via-[#DDD9D3]/30 to-transparent" />
       </div>
@@ -54,8 +88,8 @@ export default function ProductsHeroSection({ onSearch }: ProductsHeroSectionPro
           aria-label="Breadcrumb"
           className="flex items-center gap-2 pt-10 mb-12"
         >
-          {breadcrumbs.map((crumb, i) => (
-            <React.Fragment key={crumb.href}>
+          {breadcrumbItems.map((crumb, i) => (
+            <React.Fragment key={i}>
               {i > 0 && (
                 <Icon
                   name="ChevronRightIcon"
@@ -64,16 +98,18 @@ export default function ProductsHeroSection({ onSearch }: ProductsHeroSectionPro
                   className="text-[#8A8A8A]"
                 />
               )}
-              <Link
-                href={crumb.href}
-                className={`text-[10px] font-700 uppercase tracking-widest transition-colors ${
-                  i === breadcrumbs.length - 1
-                    ? 'text-[#1C1C1C]'
-                    : 'text-[#8A8A8A] hover:text-[#5A5A5A]'
-                }`}
-              >
-                {crumb.label}
-              </Link>
+              {crumb.href ? (
+                <Link
+                  href={crumb.href}
+                  className="text-[10px] font-700 uppercase tracking-widest text-[#8A8A8A] hover:text-[#5A5A5A] transition-colors"
+                >
+                  {crumb.label}
+                </Link>
+              ) : (
+                <span className="text-[10px] font-700 uppercase tracking-widest text-[#1C1C1C]">
+                  {crumb.label}
+                </span>
+              )}
             </React.Fragment>
           ))}
         </motion.nav>
@@ -84,6 +120,7 @@ export default function ProductsHeroSection({ onSearch }: ProductsHeroSectionPro
           <div>
             {/* Eyebrow */}
             <motion.div
+              key={pageTitle}
               initial={{ opacity: 0, x: -16 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
@@ -91,32 +128,51 @@ export default function ProductsHeroSection({ onSearch }: ProductsHeroSectionPro
             >
               <div className="w-8 h-px bg-[#2563EB]" />
               <span className="text-[10px] font-800 uppercase tracking-[0.2em] text-[#2563EB]">
-                Colección 2026
+                {isFiltered ? pageTitle : 'Colección 2026'}
               </span>
             </motion.div>
 
             {/* Main headline */}
             <motion.h1
+              key={pageTitle + '-h1'}
               initial={{ opacity: 0, y: 28 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
               className="font-display font-900 italic uppercase text-[#1C1C1C] leading-[0.9] tracking-editorial mb-6"
               style={{ fontSize: 'clamp(3rem, 7vw, 7rem)' }}
             >
-              Diseñado
-              <br />
-              para{' '}
-              <span
-                className="relative inline-block"
-                style={{
-                  WebkitTextStroke: '1px rgba(28,28,28,0.25)',
-                  color: 'transparent',
-                }}
-              >
-                Exigir
-              </span>
-              <br />
-              <span className="text-[#2563EB]">lo Mejor.</span>
+              {isFiltered ? (
+                <>
+                  {pageTitle.split(' ').length > 1 ? (
+                    <>
+                      {pageTitle.split(' ').slice(0, -1).join(' ')}
+                      <br />
+                      <span className="text-[#2563EB]">{pageTitle.split(' ').slice(-1)[0]}.</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-[#2563EB]">{pageTitle}.</span>
+                    </>
+                  )}
+                </>
+              ) : (
+                <>
+                  Diseñado
+                  <br />
+                  para{' '}
+                  <span
+                    className="relative inline-block"
+                    style={{
+                      WebkitTextStroke: '1px rgba(28,28,28,0.25)',
+                      color: 'transparent',
+                    }}
+                  >
+                    Exigir
+                  </span>
+                  <br />
+                  <span className="text-[#2563EB]">lo Mejor.</span>
+                </>
+              )}
             </motion.h1>
 
             {/* Supporting text */}

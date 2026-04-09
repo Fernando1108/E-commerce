@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useLayoutEffect } from 'react';
 import Link from 'next/link';
-import { motion, AnimatePresence, useInView } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
 import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
 import StarRating from '@/components/ui/StarRating';
@@ -25,14 +25,12 @@ function ProductCard({
   onAddToCart,
   onToggleWishlist,
   isWishlisted,
-  carousel = false,
 }: {
   product: Product;
   index: number;
   onAddToCart: (product: Product) => void;
   onToggleWishlist: (id: string) => void;
   isWishlisted: boolean;
-  carousel?: boolean;
 }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-60px' });
@@ -47,10 +45,7 @@ function ProductCard({
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.7, delay: (index % 4) * 0.1, ease: [0.16, 1, 0.3, 1] }}
       whileHover={{ y: -4, transition: { type: 'spring', stiffness: 300, damping: 24 } }}
-      className={`group relative bg-white border border-[#DDD9D3] overflow-hidden transition-[border-color,box-shadow] duration-500 hover:border-[#1C1C1C] hover:shadow-nova-xl ${
-        carousel ? 'flex-shrink-0 w-full sm:w-1/2 lg:w-1/4 scroll-snap-align-start' : ''
-      }`}
-      style={carousel ? { scrollSnapAlign: 'start' } : {}}
+      className="group relative bg-white border border-[#DDD9D3] overflow-hidden transition-[border-color,box-shadow] duration-500 hover:border-[#1C1C1C] hover:shadow-nova-xl"
     >
       {/* Image area */}
       <div className="relative overflow-hidden bg-[#EFEDE9]" style={{ aspectRatio: '4/5' }}>
@@ -182,20 +177,55 @@ function SkeletonCard() {
   );
 }
 
-const slideVariants = {
-  enter: (dir: number) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 }),
-  center: { x: 0, opacity: 1 },
-  exit: (dir: number) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0 }),
-};
+const GAP = 12;
 
 export default function FeaturedProductsSection() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [direction, setDirection] = useState<1 | -1>(1);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const { addItem } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
+
+  useLayoutEffect(() => {
+    const el = wrapperRef.current;
+    if (!el) return;
+    setContainerWidth(el.getBoundingClientRect().width);
+    const obs = new ResizeObserver(([entry]) => setContainerWidth(entry.contentRect.width));
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  useEffect(() => {
+    getFeaturedProducts(8)
+      .then((data) => {
+        setProducts(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const cardsInView = containerWidth >= 1024 ? 4.2 : containerWidth >= 640 ? 2.2 : 1.2;
+  const cardWidth =
+    containerWidth > 0 ? (containerWidth - GAP * (Math.ceil(cardsInView) - 1)) / cardsInView : 0;
+
+  const updateScrollState = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 1);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+  }, []);
+
+  useEffect(() => {
+    if (!loading && products.length > 0) {
+      requestAnimationFrame(updateScrollState);
+    }
+  }, [loading, products, containerWidth, updateScrollState]);
 
   const handleAddToCart = useCallback(
     (product: Product) => {
@@ -212,26 +242,12 @@ export default function FeaturedProductsSection() {
     [toggleWishlist]
   );
 
-  useEffect(() => {
-    getFeaturedProducts(8)
-      .then((data) => {
-        setProducts(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
-
-  const totalPages = Math.ceil(products.length / 4);
-  const canPrev = currentPage > 0;
-  const canNext = currentPage < totalPages - 1;
-
-  const changePage = (dir: 1 | -1) => {
-    setDirection(dir);
-    setCurrentPage((prev) => Math.max(0, Math.min(totalPages - 1, prev + dir)));
+  const scrollLeft = () => {
+    scrollRef.current?.scrollBy({ left: -(cardWidth + GAP), behavior: 'smooth' });
   };
-
-  const pageProducts = products.slice(currentPage * 4, (currentPage + 1) * 4);
-  const useCarousel = products.length > 4;
+  const scrollRight = () => {
+    scrollRef.current?.scrollBy({ left: cardWidth + GAP, behavior: 'smooth' });
+  };
 
   return (
     <section className="py-14 lg:py-20 bg-[#F2F0EC]">
@@ -270,100 +286,67 @@ export default function FeaturedProductsSection() {
           </div>
         </div>
 
-        {loading ? (
-          /* Skeleton grid */
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <SkeletonCard key={i} />
-            ))}
-          </div>
-        ) : useCarousel ? (
-          /* ── Carousel mode ── */
-          <div className="relative">
-            {/* Left arrow */}
-            <motion.button
-              onClick={() => changePage(-1)}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              aria-label="Anterior"
-              className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-5 z-10 size-12 rounded-full bg-white/80 backdrop-blur-sm border border-[#DDD9D3] shadow-nova-md flex items-center justify-center text-[#1C1C1C] transition-all duration-200 ${
-                canPrev ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-              }`}
-            >
-              <Icon name="ChevronLeftIcon" size={20} variant="outline" />
-            </motion.button>
+        {/* Carousel wrapper — ref needed for ResizeObserver */}
+        <div ref={wrapperRef}>
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <SkeletonCard key={i} />
+              ))}
+            </div>
+          ) : (
+            <div className="group/carousel relative">
+              {/* Left arrow */}
+              <button
+                onClick={scrollLeft}
+                aria-label="Anterior"
+                className={`absolute left-0 top-[40%] -translate-y-1/2 -translate-x-5 z-10 size-12 rounded-full bg-white/90 backdrop-blur-sm border border-[#DDD9D3] shadow-nova-md flex items-center justify-center text-[#1C1C1C] transition-all duration-300 opacity-0 group-hover/carousel:opacity-100 ${
+                  !canScrollLeft ? 'pointer-events-none !opacity-0' : ''
+                }`}
+              >
+                <Icon name="ChevronLeftIcon" size={20} variant="outline" />
+              </button>
 
-            {/* AnimatePresence carousel */}
-            <div className="overflow-hidden">
-              <AnimatePresence mode="wait" custom={direction}>
-                <motion.div
-                  key={currentPage}
-                  custom={direction}
-                  variants={slideVariants}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                  transition={{ type: 'spring', stiffness: 260, damping: 26 }}
-                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4"
-                >
-                  {pageProducts.map((product, i) => (
+              {/* Native scroll track */}
+              <div
+                ref={scrollRef}
+                onScroll={updateScrollState}
+                className="flex overflow-x-auto [&::-webkit-scrollbar]:hidden"
+                style={{
+                  gap: GAP,
+                  scrollSnapType: 'x mandatory',
+                  scrollbarWidth: 'none',
+                }}
+              >
+                {products.map((product, i) => (
+                  <div
+                    key={product.id}
+                    style={{ width: cardWidth, flexShrink: 0, scrollSnapAlign: 'start' }}
+                  >
                     <ProductCard
-                      key={product.id}
                       product={product}
                       index={i}
                       onAddToCart={handleAddToCart}
                       onToggleWishlist={handleToggleWishlist}
                       isWishlisted={isInWishlist(product.id)}
                     />
-                  ))}
-                </motion.div>
-              </AnimatePresence>
-            </div>
+                  </div>
+                ))}
+              </div>
 
-            {/* Right arrow */}
-            <motion.button
-              onClick={() => changePage(1)}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              aria-label="Siguiente"
-              className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-5 z-10 size-12 rounded-full bg-white/80 backdrop-blur-sm border border-[#DDD9D3] shadow-nova-md flex items-center justify-center text-[#1C1C1C] transition-all duration-200 ${
-                canNext ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-              }`}
-            >
-              <Icon name="ChevronRightIcon" size={20} variant="outline" />
-            </motion.button>
-
-            {/* Dot indicators */}
-            <div className="flex justify-center gap-1.5 mt-6">
-              {Array.from({ length: totalPages }).map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => {
-                    setDirection(i > currentPage ? 1 : -1);
-                    setCurrentPage(i);
-                  }}
-                  className="h-1 rounded-full transition-all duration-300 bg-[#1C1C1C]/20 hover:bg-[#1C1C1C]/40"
-                  style={{ width: i === currentPage ? '24px' : '8px' }}
-                  aria-label={`Página ${i + 1}`}
-                />
-              ))}
+              {/* Right arrow */}
+              <button
+                onClick={scrollRight}
+                aria-label="Siguiente"
+                className={`absolute right-0 top-[40%] -translate-y-1/2 translate-x-5 z-10 size-12 rounded-full bg-white/90 backdrop-blur-sm border border-[#DDD9D3] shadow-nova-md flex items-center justify-center text-[#1C1C1C] transition-all duration-300 opacity-0 group-hover/carousel:opacity-100 ${
+                  !canScrollRight ? 'pointer-events-none !opacity-0' : ''
+                }`}
+              >
+                <Icon name="ChevronRightIcon" size={20} variant="outline" />
+              </button>
             </div>
-          </div>
-        ) : (
-          /* ── Regular grid (≤ 4 products) ── */
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
-            {products.map((product, i) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                index={i}
-                onAddToCart={handleAddToCart}
-                onToggleWishlist={handleToggleWishlist}
-                isWishlisted={isInWishlist(product.id)}
-              />
-            ))}
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Mobile CTA */}
         <div className="mt-10 flex justify-center md:hidden">

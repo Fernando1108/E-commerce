@@ -12,6 +12,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useWishlist } from '@/hooks/useWishlist';
 import { useProfile } from '@/hooks/useProfile';
 import { toast } from 'sonner';
+import type { Category } from '@/types';
 
 // ─── Nav Links ────────────────────────────────────────────────────────────────
 const navLinks = [
@@ -45,8 +46,118 @@ function getIsActive(
   return true;
 }
 
+// ─── Category icon helper ─────────────────────────────────────────────────────
+function getCategoryIcon(name: string): Parameters<typeof Icon>[0]['name'] {
+  const lower = name.toLowerCase();
+  if (lower.includes('electr')) return 'DevicePhoneMobileIcon';
+  if (lower.includes('audio') || lower.includes('sonido')) return 'SpeakerWaveIcon';
+  if (lower.includes('gaming') || lower.includes('juego')) return 'PuzzlePieceIcon';
+  if (lower.includes('accesorio')) return 'ShoppingBagIcon';
+  if (lower.includes('hogar') || lower.includes('casa')) return 'HomeModernIcon';
+  if (lower.includes('wearable') || lower.includes('reloj')) return 'ClockIcon';
+  return 'TagIcon';
+}
+
+// ─── Categories dropdown ──────────────────────────────────────────────────────
+function CategoriesDropdown({
+  categories,
+  isTransparent,
+}: {
+  categories: Category[];
+  isTransparent: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, []);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className={`relative text-[11px] font-bold uppercase tracking-widest transition-colors duration-200 group pb-0.5 flex items-center gap-1 ${
+          open
+            ? 'text-[#2563EB]'
+            : isTransparent
+              ? 'text-white/90 hover:text-white'
+              : 'text-[#5A5A5A] hover:text-[#1C1C1C]'
+        }`}
+      >
+        Categorías
+        <Icon
+          name="ChevronDownIcon"
+          size={10}
+          variant="outline"
+          className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+        />
+        <span
+          className={`absolute -bottom-0.5 left-1/2 h-[1.5px] bg-[#2563EB] -translate-x-1/2 transition-all duration-300 ${
+            open ? 'w-full' : 'w-0 group-hover:w-full'
+          }`}
+        />
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 6 }}
+            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-52 bg-white border border-[#DDD9D3] shadow-[0_8px_32px_rgba(0,0,0,0.1)] z-50 overflow-hidden py-1"
+          >
+            {categories.length === 0 ? (
+              <p className="px-4 py-3 text-[12px] text-[#8A8A8A]">Sin categorías</p>
+            ) : (
+              categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => {
+                    router.push(`/products?category=${cat.id}`);
+                    setOpen(false);
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-[#F8F7F5] transition-colors text-left"
+                >
+                  <Icon
+                    name={getCategoryIcon(cat.name)}
+                    size={14}
+                    style={{ color: cat.accent_color }}
+                  />
+                  <span className="text-[12px] font-600 text-[#1C1C1C]">{cat.name}</span>
+                </button>
+              ))
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 // ─── Desktop Nav (needs useSearchParams → must be Suspense-wrapped) ───────────
-function DesktopNavLinks({ onLinkClick }: { onLinkClick?: () => void }) {
+function DesktopNavLinks({
+  onLinkClick,
+  categories,
+  isTransparent,
+}: {
+  onLinkClick?: () => void;
+  categories: Category[];
+  isTransparent: boolean;
+}) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -55,6 +166,15 @@ function DesktopNavLinks({ onLinkClick }: { onLinkClick?: () => void }) {
   return (
     <>
       {navLinks.map((link) => {
+        if (link.label === 'Categorías') {
+          return (
+            <CategoriesDropdown
+              key="categories"
+              categories={categories}
+              isTransparent={isTransparent}
+            />
+          );
+        }
         const active = isActive(link.href);
         return (
           <Link
@@ -62,7 +182,11 @@ function DesktopNavLinks({ onLinkClick }: { onLinkClick?: () => void }) {
             href={link.href}
             onClick={onLinkClick}
             className={`relative text-[11px] font-bold uppercase tracking-widest transition-colors duration-200 group pb-0.5 ${
-              active ? 'text-[#2563EB]' : 'text-[#5A5A5A] hover:text-[#1C1C1C]'
+              active
+                ? 'text-[#2563EB]'
+                : isTransparent
+                  ? 'text-white/90 hover:text-white'
+                  : 'text-[#5A5A5A] hover:text-[#1C1C1C]'
             }`}
           >
             {link.label}
@@ -425,14 +549,24 @@ function UserDropdown({ user, isAdmin, onSignOut, onClose }: UserDropdownProps) 
 export default function Header() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
+  const isTransparent = pathname === '/homepage' && !scrolled;
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const { itemCount } = useCart();
   const { user, signOut } = useAuth();
   const { itemCount: wishlistCount } = useWishlist();
   const { isAdmin } = useProfile();
+
+  // Fetch categories for dropdown
+  useEffect(() => {
+    fetch('/api/categories')
+      .then((r) => r.json())
+      .then((data) => setCategories(Array.isArray(data) ? data : []))
+      .catch(() => {});
+  }, []);
 
   // Scroll → glass effect
   useEffect(() => {
@@ -474,15 +608,17 @@ export default function Header() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          scrolled
-            ? 'bg-[#F8F7F5]/97 backdrop-blur-xl shadow-[0_1px_0_0_#DDD9D3]'
-            : 'bg-[#F8F7F5]/90 backdrop-blur-md'
+          isTransparent
+            ? 'bg-transparent'
+            : scrolled
+              ? 'bg-[#F8F7F5]/97 backdrop-blur-xl shadow-[0_1px_0_0_#DDD9D3]'
+              : 'bg-[#F8F7F5]/90 backdrop-blur-md'
         }`}
       >
         {/* Animated bottom highlight line on scroll */}
         <div
           className={`absolute bottom-0 left-0 right-0 h-px header-gradient-line transition-opacity duration-500 ${
-            scrolled ? 'opacity-100' : 'opacity-0'
+            scrolled && !isTransparent ? 'opacity-100' : 'opacity-0'
           }`}
         />
 
@@ -493,7 +629,15 @@ export default function Header() {
             className="flex items-center gap-2.5 shrink-0 z-10 transition-transform duration-300 hover:scale-[1.02]"
             aria-label="NovaStore — Inicio"
           >
-            <AppLogo size={137} />
+            <AppImage
+              src="/logo/novastore-logo.png"
+              width={320}
+              height={90}
+              priority
+              unoptimized
+              className={`w-[160px] h-auto transition-all duration-300 ${isTransparent ? 'brightness-0 invert' : ''}`}
+              alt="NovaStore"
+            />
           </Link>
 
           {/* CENTER: Nav links (desktop) */}
@@ -516,7 +660,7 @@ export default function Header() {
                 </>
               }
             >
-              <DesktopNavLinks />
+              <DesktopNavLinks categories={categories} isTransparent={isTransparent} />
             </Suspense>
           </nav>
 
@@ -534,7 +678,11 @@ export default function Header() {
                 aria-label="Buscar productos"
                 onClick={handleSearchToggle}
                 className={`ml-1 flex size-9 items-center justify-center transition-colors duration-200 ${
-                  searchOpen ? 'text-[#2563EB]' : 'text-[#8A8A8A] hover:text-[#1C1C1C]'
+                  searchOpen
+                    ? 'text-[#2563EB]'
+                    : isTransparent
+                      ? 'text-white/80 hover:text-white'
+                      : 'text-[#8A8A8A] hover:text-[#1C1C1C]'
                 }`}
               >
                 <Icon
@@ -549,7 +697,7 @@ export default function Header() {
             <Link
               aria-label="Lista de deseos"
               href="/wishlist"
-              className="relative hidden sm:flex size-9 items-center justify-center text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors duration-200"
+              className={`relative hidden sm:flex size-9 items-center justify-center transition-colors duration-200 ${isTransparent ? 'text-white/80 hover:text-white' : 'text-[#8A8A8A] hover:text-[#1C1C1C]'}`}
             >
               <Icon name="HeartIcon" size={20} variant="outline" />
               <AnimatePresence>
@@ -571,7 +719,7 @@ export default function Header() {
             <Link
               aria-label="Ver carrito"
               href="/cart"
-              className="relative flex size-9 items-center justify-center text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors duration-200"
+              className={`relative flex size-9 items-center justify-center transition-colors duration-200 ${isTransparent ? 'text-white/80 hover:text-white' : 'text-[#8A8A8A] hover:text-[#1C1C1C]'}`}
             >
               <Icon name="ShoppingBagIcon" size={20} variant="outline" />
               <AnimatePresence>
@@ -598,7 +746,11 @@ export default function Header() {
                     aria-expanded={userDropdownOpen}
                     onClick={handleUserToggle}
                     className={`flex size-9 items-center justify-center transition-colors duration-200 ${
-                      userDropdownOpen ? 'text-[#2563EB]' : 'text-[#8A8A8A] hover:text-[#1C1C1C]'
+                      userDropdownOpen
+                        ? 'text-[#2563EB]'
+                        : isTransparent
+                          ? 'text-white/80 hover:text-white'
+                          : 'text-[#8A8A8A] hover:text-[#1C1C1C]'
                     }`}
                   >
                     <Icon name="UserCircleIcon" size={22} variant="outline" />
@@ -619,7 +771,7 @@ export default function Header() {
                 <Link
                   href="/auth/login"
                   aria-label="Iniciar sesión"
-                  className="flex size-9 items-center justify-center text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors duration-200"
+                  className={`flex size-9 items-center justify-center transition-colors duration-200 ${isTransparent ? 'text-white/80 hover:text-white' : 'text-[#8A8A8A] hover:text-[#1C1C1C]'}`}
                 >
                   <Icon name="UserIcon" size={20} variant="outline" />
                 </Link>
@@ -629,7 +781,7 @@ export default function Header() {
             {/* ── Mobile hamburger ── */}
             <button
               aria-label={mobileOpen ? 'Cerrar menú' : 'Abrir menú'}
-              className="lg:hidden flex size-9 items-center justify-center text-[#1C1C1C]"
+              className={`lg:hidden flex size-9 items-center justify-center transition-colors duration-300 ${isTransparent ? 'text-white' : 'text-[#1C1C1C]'}`}
               onClick={() => setMobileOpen((v) => !v)}
             >
               <Icon name={mobileOpen ? 'XMarkIcon' : 'Bars3Icon'} size={22} variant="outline" />

@@ -21,18 +21,143 @@ const badgeConfig: Record<string, { label: string; textColor: string; bg: string
   top: { label: 'Top Ventas', textColor: '#FFFFFF', bg: '#2C2C2C' },
 };
 
+// ─── Quick View Modal ─────────────────────────────────────────────────────────
+function ProductQuickViewModal({
+  product,
+  onClose,
+  onAddToCart,
+}: {
+  product: Product;
+  onClose: () => void;
+  onAddToCart: (product: Product) => void;
+}) {
+  // Close on Escape
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [onClose]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+
+      {/* Modal */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+        className="relative bg-white max-w-2xl w-full grid grid-cols-1 sm:grid-cols-2 overflow-hidden shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Close */}
+        <button
+          onClick={onClose}
+          aria-label="Cerrar vista rápida"
+          className="absolute top-3 right-3 z-10 size-8 flex items-center justify-center bg-white/80 backdrop-blur-sm hover:bg-[#F8F7F5] transition-colors"
+        >
+          <Icon name="XMarkIcon" size={18} variant="outline" />
+        </button>
+
+        {/* Image */}
+        <div className="relative aspect-square bg-[#EFEDE9]">
+          <AppImage
+            src={product.image_url || '/assets/images/no_image.png'}
+            alt={product.name}
+            fill
+            className="object-cover"
+          />
+          {product.badge && badgeConfig[product.badge.toLowerCase()] && (
+            <div
+              className="absolute top-3 left-3 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest"
+              style={{
+                backgroundColor: badgeConfig[product.badge.toLowerCase()].bg,
+                color: badgeConfig[product.badge.toLowerCase()].textColor,
+              }}
+            >
+              {badgeConfig[product.badge.toLowerCase()].label}
+            </div>
+          )}
+        </div>
+
+        {/* Info */}
+        <div className="p-6 flex flex-col gap-4">
+          <div>
+            <h2 className="font-700 text-[#1C1C1C] text-xl leading-tight mb-2">{product.name}</h2>
+            <p className="text-[13px] text-[#5A5A5A] leading-relaxed line-clamp-4">
+              {product.description}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-2xl font-900 text-[#1C1C1C] font-display">
+              {formatPrice(product.price)}
+            </span>
+            {product.original_price && (
+              <span className="text-sm text-[#8A8A8A] line-through">
+                {formatPrice(product.original_price)}
+              </span>
+            )}
+          </div>
+
+          <p className="text-[12px] text-[#5A5A5A]">
+            Stock:{' '}
+            <span className={`font-700 ${product.stock > 0 ? 'text-[#1C1C1C]' : 'text-red-500'}`}>
+              {product.stock > 0 ? `${product.stock} unidades` : 'Agotado'}
+            </span>
+          </p>
+
+          <div className="flex flex-col gap-3 mt-auto pt-2">
+            <button
+              disabled={product.stock === 0}
+              onClick={() => {
+                onAddToCart(product);
+                onClose();
+              }}
+              className="w-full py-3 bg-[#1C1C1C] text-white text-[11px] font-black uppercase tracking-widest hover:bg-[#2563EB] transition-colors inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Icon name="ShoppingBagIcon" size={14} variant="outline" />
+              Añadir al carrito
+            </button>
+            <Link
+              href={`/product/${product.id}`}
+              className="w-full py-3 border border-[#DDD9D3] text-[#1C1C1C] text-[11px] font-black uppercase tracking-widest hover:bg-[#F8F7F5] transition-colors text-center"
+            >
+              Ver detalle completo
+            </Link>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+// ─── Product Card ─────────────────────────────────────────────────────────────
 function ProductCard({
   product,
   index,
   onAddToCart,
   onToggleWishlist,
   isWishlisted,
+  onQuickView,
 }: {
   product: Product;
   index: number;
   onAddToCart: (product: Product) => void;
   onToggleWishlist: (id: string) => void;
   isWishlisted: boolean;
+  onQuickView: (product: Product) => void;
 }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-40px' });
@@ -106,14 +231,17 @@ function ProductCard({
                 className={isWishlisted ? 'text-red-500' : ''}
               />
             </button>
-            <Link
-              href={`/product/${product.id}`}
+            <button
               aria-label={`Vista rápida de ${product.name}`}
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onQuickView(product);
+              }}
               className="size-10 bg-white shadow-nova-md flex items-center justify-center hover:bg-[#1C1C1C] hover:text-white transition-colors"
             >
               <Icon name="EyeIcon" size={16} variant="outline" />
-            </Link>
+            </button>
           </div>
         </div>
       </Link>
@@ -194,6 +322,8 @@ export default function ProductGridSection({
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
   const [offset, setOffset] = useState(0);
+
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const { addItem } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
@@ -277,6 +407,17 @@ export default function ProductGridSection({
 
   return (
     <>
+      {/* Quick View Modal */}
+      <AnimatePresence>
+        {selectedProduct && (
+          <ProductQuickViewModal
+            product={selectedProduct}
+            onClose={() => setSelectedProduct(null)}
+            onAddToCart={handleAddToCart}
+          />
+        )}
+      </AnimatePresence>
+
       <ProductFiltersSection
         activeCategory={activeCategory}
         onCategoryChange={(cat) => {
@@ -324,6 +465,7 @@ export default function ProductGridSection({
                     onAddToCart={handleAddToCart}
                     onToggleWishlist={handleToggleWishlist}
                     isWishlisted={isInWishlist(product.id)}
+                    onQuickView={setSelectedProduct}
                   />
                 ))}
               </motion.div>

@@ -33,7 +33,8 @@ function ReviewsTab({
   user: { id?: string; email?: string | null } | null;
 }) {
   const [selectedStar, setSelectedStar] = useState(0);
-  const [comment, setComment] = useState('');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalComment, setModalComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loadingReviews, setLoadingReviews] = useState(true);
@@ -56,9 +57,7 @@ function ReviewsTab({
     fetchReviews();
   }, [fetchReviews]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedStar || !comment.trim()) return;
+  const submitReview = async (withComment: boolean) => {
     setSubmitting(true);
     try {
       const res = await fetch('/api/reviews', {
@@ -67,7 +66,7 @@ function ReviewsTab({
         body: JSON.stringify({
           product_id: product.id,
           rating: selectedStar,
-          comment: comment.trim(),
+          comment: withComment ? modalComment.trim() : '',
         }),
       });
       if (!res.ok) {
@@ -75,7 +74,8 @@ function ReviewsTab({
         throw new Error(data.error || 'Error al publicar reseña');
       }
       toast.success('Reseña publicada');
-      setComment('');
+      setModalOpen(false);
+      setModalComment('');
       setSelectedStar(0);
       fetchReviews();
     } catch (error: unknown) {
@@ -161,7 +161,7 @@ function ReviewsTab({
         )}
       </div>
 
-      {/* Review form */}
+      {/* Star selector — click opens modal */}
       <div>
         <p className="label-eyebrow text-[#8A8A8A] mb-6">Deja tu reseña</p>
         {!user ? (
@@ -181,43 +181,104 @@ function ReviewsTab({
             </Link>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Star selector */}
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#5A5A5A] mb-3">
-                Tu puntuación
-              </p>
-              <StarRating
-                rating={selectedStar}
-                onChange={setSelectedStar}
-                size="lg"
-                readOnly={false}
-              />
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-black uppercase tracking-[0.22em] text-[#5A5A5A] mb-2">
-                Comentario
-              </label>
-              <textarea
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="Comparte tu experiencia con este producto..."
-                rows={4}
-                className="w-full border border-[#DDD9D3] bg-[#FCFBF9] focus:border-[#1C1C1C] focus:bg-white px-4 py-3 text-[14px] text-[#1C1C1C] outline-none transition resize-none"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={!selectedStar || !comment.trim() || submitting}
-              className="inline-flex h-12 items-center justify-center px-8 bg-[#1C1C1C] text-white text-[10px] font-black uppercase tracking-[0.22em] hover:bg-[#2563EB] disabled:bg-[#8A8A8A] disabled:cursor-not-allowed transition-colors"
-            >
-              {submitting ? 'Enviando...' : 'Publicar reseña'}
-            </button>
-          </form>
+          <div className="space-y-3">
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#5A5A5A]">
+              Tu puntuación
+            </p>
+            <StarRating
+              rating={selectedStar}
+              onChange={(r) => {
+                setSelectedStar(r);
+                setModalOpen(true);
+              }}
+              size="lg"
+              readOnly={false}
+            />
+            <p className="text-[12px] text-[#8A8A8A]">
+              Haz click en una estrella para dejar tu valoración
+            </p>
+          </div>
         )}
       </div>
+
+      {/* Review modal */}
+      <AnimatePresence>
+        {modalOpen && (
+          <>
+            <motion.div
+              key="backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 z-50"
+              onClick={() => setModalOpen(false)}
+            />
+            <motion.div
+              key="modal"
+              initial={{ opacity: 0, scale: 0.96, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 16 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
+            >
+              <div className="bg-white w-full max-w-md shadow-xl pointer-events-auto">
+                {/* Header */}
+                <div className="flex items-center justify-between px-6 py-5 border-b border-[#E6E1DA]">
+                  <h3 className="text-base font-display font-900 italic uppercase text-[#1C1C1C]">
+                    ¿Quieres dejar un comentario?
+                  </h3>
+                  <button
+                    onClick={() => setModalOpen(false)}
+                    className="size-8 flex items-center justify-center text-[#8A8A8A] hover:text-[#1C1C1C] hover:bg-[#F2F0EC] transition-colors rounded"
+                  >
+                    <Icon name="XMarkIcon" size={16} variant="outline" />
+                  </button>
+                </div>
+
+                {/* Content */}
+                <div className="px-6 py-6 space-y-5">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#8A8A8A] mb-3">
+                      Tu puntuación
+                    </p>
+                    <StarRating rating={selectedStar} size="lg" readOnly />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black uppercase tracking-[0.22em] text-[#8A8A8A] mb-2">
+                      Comentario (opcional)
+                    </label>
+                    <textarea
+                      value={modalComment}
+                      onChange={(e) => setModalComment(e.target.value)}
+                      placeholder="Comparte tu experiencia con este producto..."
+                      rows={4}
+                      className="w-full border border-[#DDD9D3] bg-[#FCFBF9] focus:border-[#1C1C1C] focus:bg-white px-4 py-3 text-[14px] text-[#1C1C1C] outline-none transition resize-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="px-6 pb-6 flex gap-3">
+                  <button
+                    onClick={() => submitReview(false)}
+                    disabled={submitting}
+                    className="flex-1 h-11 border border-[#DDD9D3] text-[#5A5A5A] text-[10px] font-black uppercase tracking-[0.18em] hover:bg-[#F8F7F5] disabled:opacity-50 transition-colors"
+                  >
+                    {submitting ? '...' : 'Enviar sin comentario'}
+                  </button>
+                  <button
+                    onClick={() => submitReview(true)}
+                    disabled={submitting || !modalComment.trim()}
+                    className="flex-1 h-11 bg-[#1C1C1C] text-white text-[10px] font-black uppercase tracking-[0.18em] hover:bg-[#2563EB] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {submitting ? 'Enviando...' : 'Enviar con comentario'}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -7,10 +7,13 @@ import AppImage from './AppImage';
 interface AppLogoProps {
   src?: string; // Image source (optional)
   iconName?: string; // Icon name when no image
-  size?: number; // Size for icon/image
-  className?: string; // Additional classes
-  onClick?: () => void; // Click handler
+  size?: number; // Rendered width in px
+  className?: string;
+  onClick?: () => void;
 }
+
+// Aspect ratio of the default logo (2618 × 735)
+const LOGO_RATIO = 735 / 2618;
 
 const AppLogo = memo(function AppLogo({
   src = '/logo/novastore-logo.png',
@@ -19,7 +22,6 @@ const AppLogo = memo(function AppLogo({
   className = '',
   onClick,
 }: AppLogoProps) {
-  // Memoize className calculation
   const containerClassName = useMemo(() => {
     const classes = ['flex items-center'];
     if (onClick) classes.push('cursor-pointer hover:opacity-80 transition-opacity');
@@ -27,18 +29,20 @@ const AppLogo = memo(function AppLogo({
     return classes.join(' ');
   }, [onClick, className]);
 
+  // For the default logo use real aspect ratio; for other images keep square.
+  const intrinsicHeight = src === '/logo/novastore-logo.png' ? Math.round(size * LOGO_RATIO) : size;
+
   return (
     <div className={containerClassName} onClick={onClick}>
-      {/* Show image if src provided, otherwise show icon */}
       {src ? (
         <AppImage
           src={src}
-          alt="Logo"
+          alt="NovaStore"
           width={size}
-          height={size}
-          className="flex-shrink-0"
+          height={intrinsicHeight}
+          className="flex-shrink-0 h-auto"
           priority={true}
-          unoptimized={src.endsWith('.svg')}
+          unoptimized={true}
         />
       ) : (
         <AppIcon name={iconName} size={size} className="flex-shrink-0" />
