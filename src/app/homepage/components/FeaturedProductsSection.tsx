@@ -119,12 +119,14 @@ function ProductCard({
 
       {/* Content */}
       <div className="p-6 space-y-4">
-        <div className="flex items-center gap-2">
-          <StarRating rating={rating} size="sm" />
-          <span className="text-[11px] text-[#8A8A8A] dark:text-slate-400 font-500">
-            ({reviewCount})
-          </span>
-        </div>
+        {reviewCount > 0 && (
+          <div className="flex items-center gap-2">
+            <StarRating rating={rating} size="sm" />
+            <span className="text-[11px] text-[#8A8A8A] dark:text-slate-400 font-500">
+              ({reviewCount})
+            </span>
+          </div>
+        )}
 
         <div>
           <h3 className="font-700 text-[#1C1C1C] dark:text-slate-100 text-base leading-tight mb-1.5 group-hover:text-[#2563EB] transition-colors duration-300">
@@ -147,7 +149,7 @@ function ProductCard({
             )}
           </div>
           <Link
-            href={`/product/${product.id}`}
+            href={`/product/${product.slug || product.id}`}
             className="size-10 flex items-center justify-center border border-[#DDD9D3] text-[#5A5A5A] hover:bg-[#1C1C1C] hover:text-white hover:border-[#1C1C1C] transition-all duration-200 group/arrow"
             aria-label={`Ver ${product.name}`}
           >

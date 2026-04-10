@@ -144,7 +144,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         transition={{ duration: 0.2, delay: i * 0.04 }}
                       >
                         <Link
-                          href={`/product/${product.id}`}
+                          href={`/product/${product.slug || product.id}`}
                           onClick={handleResultClick}
                           className="flex items-center gap-4 px-5 py-3.5 hover:bg-[#F8F7F5] dark:hover:bg-slate-700 transition-colors border-b border-[#EFEDE9] dark:border-slate-700 last:border-0 group"
                         >

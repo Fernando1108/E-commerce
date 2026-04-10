@@ -38,7 +38,7 @@ export default function ProductFiltersSection({
     getCategories()
       .then((data) => setCategories(data))
       .catch(() => {
-        toast.error('Error al cargar filtros');
+        toast.error('Error al cargar categorías');
       });
   }, []);
 

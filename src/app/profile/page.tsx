@@ -1041,11 +1041,7 @@ export default function ProfilePage() {
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 <InfoCard icon="CalendarIcon" label="Miembro desde" value={memberSince} />
-                <InfoCard
-                  icon="ShoppingBagIcon"
-                  label="Pedidos"
-                  value={orderCount !== null ? String(orderCount) : undefined}
-                />
+                <InfoCard icon="ShoppingBagIcon" label="Pedidos" value={String(orderCount ?? 0)} />
                 <InfoCard icon="HeartIcon" label="Wishlist" value={String(wishlistCount)} />
                 <InfoCard icon="DevicePhoneMobileIcon" label="Teléfono" value={meta.phone} />
                 <InfoCard icon="HomeModernIcon" label="Ciudad" value={meta.city} />

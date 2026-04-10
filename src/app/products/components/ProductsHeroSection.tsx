@@ -193,6 +193,7 @@ export default function ProductsHeroSection({
                 <span className="text-[10px] text-[#8A8A8A] font-500 uppercase tracking-wider">
                   Popular:
                 </span>
+                {/* Términos editoriales — actualizar según catálogo real */}
                 {['Monitor 4K', 'Teclado mecánico', 'Auriculares ANC'].map((term) => (
                   <button
                     key={term}
@@ -214,6 +215,7 @@ export default function ProductsHeroSection({
             transition={{ duration: 0.7, delay: 0.35, ease: [0.4, 0, 0.2, 1] }}
             className="hidden lg:flex flex-col gap-0 border-l border-[#DDD9D3] pl-12 pb-2"
           >
+            {/* Valores editoriales — actualizar manualmente según catálogo real */}
             {[
               { value: '500+', label: 'Productos', sub: 'en catálogo' },
               { value: '12', label: 'Categorías', sub: 'especializadas' },

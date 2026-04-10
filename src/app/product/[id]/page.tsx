@@ -82,34 +82,58 @@ export default function ProductDetailPage() {
   useEffect(() => {
     if (!productId) return;
     setLoading(true);
-    Promise.all([getProductById(productId), getProductImages(productId)])
-      .then(([prod, images]) => {
-        if (!prod) {
-          setNotFound(true);
-          setLoading(false);
-          return;
+
+    const load = async () => {
+      // Try UUID lookup first
+      let prod: Product | null = null;
+      try {
+        prod = await getProductById(productId);
+      } catch {
+        /* continue to slug fallback */
+      }
+
+      // Slug fallback: search API for a product whose slug matches exactly
+      if (!prod) {
+        try {
+          const res = await fetch(`/api/products?search=${encodeURIComponent(productId)}&limit=10`);
+          const data: Product[] = await res.json();
+          prod = Array.isArray(data) ? (data.find((p) => p.slug === productId) ?? null) : null;
+        } catch {
+          /* continue */
         }
-        setProduct(prod);
-        const gallery: { src: string; alt: string }[] = prod.image_url
-          ? [{ src: prod.image_url, alt: prod.name }]
-          : [];
-        images.forEach((img) => gallery.push({ src: img.url, alt: img.alt || prod.name }));
-        setGalleryImages(
-          gallery.length > 0 ? gallery : [{ src: '/assets/images/no_image.png', alt: prod.name }]
-        );
-        getProducts({ categoryId: prod.category_id, limit: 4 })
-          .then((related) =>
-            setRelatedProducts(related.filter((r) => r.id !== prod.id).slice(0, 4))
-          )
-          .catch(() => {
-            /* silencioso ok, productos relacionados son opcionales */
-          });
-        setLoading(false);
-      })
-      .catch(() => {
+      }
+
+      if (!prod) {
         setNotFound(true);
         setLoading(false);
-      });
+        return;
+      }
+
+      // Use prod.id (not productId) so image fetch always uses the UUID
+      const images = await getProductImages(prod.id).catch(() => []);
+      setProduct(prod);
+      const gallery: { src: string; alt: string }[] = prod.image_url
+        ? [{ src: prod.image_url, alt: prod.name }]
+        : [];
+      images.forEach((img) => gallery.push({ src: img.url, alt: img.alt || prod!.name }));
+      setGalleryImages(
+        gallery.length > 0 ? gallery : [{ src: '/assets/images/no_image.png', alt: prod.name }]
+      );
+      const resolvedProd = prod;
+      getProducts({ categoryId: resolvedProd.category_id, limit: 4 })
+        .then((related) =>
+          setRelatedProducts(related.filter((r) => r.id !== resolvedProd.id).slice(0, 4))
+        )
+        .catch(() => {
+          /* productos relacionados opcionales */
+        });
+      setLoading(false);
+    };
+
+    load().catch(() => {
+      setNotFound(true);
+      setLoading(false);
+    });
   }, [productId]);
 
   const handleAddToCart = () => {

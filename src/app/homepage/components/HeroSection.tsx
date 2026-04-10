@@ -108,7 +108,7 @@ export default function HeroSection() {
               que no aceptan lo ordinario.
             </motion.p>
 
-            {/* Stats row */}
+            {/* Stats row — Marketing — valores fijos para demo/portafolio */}
             <motion.div
               variants={fadeUp}
               initial="hidden"

@@ -930,6 +930,11 @@ export default function ProfileModal({ open, onClose }: { open: boolean; onClose
                           title="Mis reseñas"
                           onClick={() => setSubModal('reviews')}
                         />
+                        <ActionIcon
+                          icon="PencilSquareIcon"
+                          title="Editar perfil"
+                          onClick={() => setEditMode('personal')}
+                        />
                         <Link
                           href="/profile"
                           onClick={onClose}

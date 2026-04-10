@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import Header from '@/components/Header';
@@ -9,12 +10,20 @@ import Icon from '@/components/ui/AppIcon';
 import { formatPrice } from '@/lib/utils';
 import { useCart } from '@/hooks/useCart';
 import { useWishlist } from '@/hooks/useWishlist';
+import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import type { Product } from '@/types';
 
 export default function WishlistPage() {
   const { items, loading, removeFromWishlist } = useWishlist();
   const { addItem } = useCart();
+  const { user } = useAuth();
+
+  // Diagnostic: log auth state and wishlist sync
+  React.useEffect(() => {
+    console.info('[Wishlist] auth user:', user?.id ?? 'not authenticated');
+    console.info('[Wishlist] loading:', loading, '| items:', items.length);
+  }, [user, loading, items]);
 
   const handleAddToCart = (
     product: Pick<Product, 'id' | 'name' | 'price' | 'image_url' | 'stock'> & Partial<Product>
@@ -146,7 +155,7 @@ export default function WishlistPage() {
 
                     {/* Image */}
                     <Link
-                      href={`/product/${product.id}`}
+                      href={`/product/${product.slug || product.id}`}
                       className="block relative overflow-hidden bg-[#F4F2EF]"
                       style={{ aspectRatio: '4/5' }}
                     >
@@ -161,7 +170,7 @@ export default function WishlistPage() {
 
                     {/* Info */}
                     <div className="p-5 space-y-3">
-                      <Link href={`/product/${product.id}`}>
+                      <Link href={`/product/${product.slug || product.id}`}>
                         <h3 className="font-700 text-[#1C1C1C] dark:text-slate-100 text-[14px] leading-tight group-hover:text-[#2563EB] transition-colors line-clamp-2">
                           {product.name}
                         </h3>

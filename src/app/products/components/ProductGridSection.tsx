@@ -131,7 +131,7 @@ function ProductQuickViewModal({
               Añadir al carrito
             </button>
             <Link
-              href={`/product/${product.id}`}
+              href={`/product/${product.slug || product.id}`}
               className="w-full py-3 border border-[#DDD9D3] text-[#1C1C1C] text-[11px] font-black uppercase tracking-widest hover:bg-[#F8F7F5] transition-colors text-center"
             >
               Ver detalle completo
@@ -175,7 +175,7 @@ function ProductCard({
       className="product-card group"
     >
       {/* Image */}
-      <Link href={`/product/${product.id}`} className="block">
+      <Link href={`/product/${product.slug || product.id}`} className="block">
         <div className="product-card-image aspect-square">
           <AppImage
             src={product.image_url || '/assets/images/no_image.png'}
@@ -254,7 +254,7 @@ function ProductCard({
         </div>
 
         <div>
-          <Link href={`/product/${product.id}`}>
+          <Link href={`/product/${product.slug || product.id}`}>
             <h3 className="font-700 text-[#1C1C1C] text-[15px] leading-tight mb-1 group-hover:text-[#2563EB] transition-colors line-clamp-1">
               {product.name}
             </h3>
@@ -319,6 +319,7 @@ export default function ProductGridSection({
   const [activeBadge] = useState(initialBadge);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [productsError, setProductsError] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
   const [offset, setOffset] = useState(0);
@@ -343,14 +344,14 @@ export default function ProductGridSection({
     [toggleWishlist]
   );
 
-  // Reset and fetch on filter/search change
-  useEffect(() => {
+  const fetchProducts = useCallback((category: string, search: string) => {
     setLoading(true);
+    setProductsError(false);
     setOffset(0);
     setProducts([]);
     const params = new URLSearchParams({ limit: String(PAGE_SIZE), offset: '0' });
-    if (activeCategory !== 'all') params.set('category', activeCategory);
-    if (searchQuery.trim()) params.set('search', searchQuery.trim());
+    if (category !== 'all') params.set('category', category);
+    if (search.trim()) params.set('search', search.trim());
     fetch(`/api/products?${params}`)
       .then((r) => r.json())
       .then((data: Product[]) => {
@@ -359,10 +360,15 @@ export default function ProductGridSection({
         setLoading(false);
       })
       .catch(() => {
-        toast.error('Error al cargar productos');
+        setProductsError(true);
         setLoading(false);
       });
-  }, [activeCategory, searchQuery]);
+  }, []);
+
+  // Reset and fetch on filter/search change
+  useEffect(() => {
+    fetchProducts(activeCategory, searchQuery);
+  }, [activeCategory, searchQuery, fetchProducts]);
 
   const handleLoadMore = async () => {
     const nextOffset = offset + PAGE_SIZE;
@@ -435,7 +441,35 @@ export default function ProductGridSection({
 
           {/* Product grid */}
           <AnimatePresence mode="wait">
-            {loading ? (
+            {productsError ? (
+              <motion.div
+                key="error"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex flex-col items-center justify-center py-24 gap-6"
+              >
+                <div className="size-16 bg-[#EFEDE9] flex items-center justify-center">
+                  <Icon
+                    name="ExclamationTriangleIcon"
+                    size={28}
+                    variant="outline"
+                    className="text-[#8A8A8A]"
+                  />
+                </div>
+                <div className="text-center">
+                  <p className="font-700 text-[#1C1C1C] text-xl mb-2">Error al cargar productos</p>
+                  <p className="text-[#5A5A5A] text-sm">
+                    No se pudieron cargar los productos. Inténtalo de nuevo.
+                  </p>
+                </div>
+                <button
+                  onClick={() => fetchProducts(activeCategory, searchQuery)}
+                  className="px-8 py-3 bg-[#1C1C1C] text-white text-[11px] font-bold uppercase tracking-widest hover:bg-[#2563EB] transition-colors"
+                >
+                  Reintentar
+                </button>
+              </motion.div>
+            ) : loading ? (
               <motion.div
                 key="loading"
                 initial={{ opacity: 0 }}

@@ -139,9 +139,9 @@ export default function NewsletterSection() {
                     href="/privacidad"
                     className="underline transition-colors hover:text-white/60"
                   >
-                    politica de privacidad
+                    política de privacidad
                   </Link>
-                  . Más de <strong className="text-white/50">8.000 profesionales</strong> ya están
+                  . Más de <strong className="text-white/50">8,000 profesionales</strong> ya están
                   suscritos.
                 </p>
 
@@ -163,7 +163,7 @@ export default function NewsletterSection() {
                     ))}
                   </div>
                   <p className="text-[12px] text-white/30">
-                    <strong className="text-white/50">+8.000</strong> profesionales suscritos
+                    <strong className="text-white/50">+8,000</strong> profesionales suscritos
                   </p>
                 </div>
               </form>

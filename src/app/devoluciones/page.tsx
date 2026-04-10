@@ -107,7 +107,7 @@ export default function DevolucionesPage() {
               <div className="inline-flex items-center gap-3 border border-[#DDD9D3] bg-white/70 px-5 py-2.5 backdrop-blur-sm">
                 <span className="size-1.5 rounded-full bg-[#2563EB]" />
                 <span className="text-[11px] font-black uppercase tracking-[0.28em] text-[#2563EB]">
-                  Politicas de devoluciones
+                  Políticas de devoluciones
                 </span>
               </div>
 
@@ -131,7 +131,7 @@ export default function DevolucionesPage() {
               </h1>
 
               <p className="mt-6 max-w-xl text-base leading-relaxed text-[#5A5A5A] lg:text-lg">
-                Esta pagina explica como NovaStore gestiona solicitudes de devolucion, cambios y
+                Esta página explica cómo NovaStore gestiona solicitudes de devolución, cambios y
                 revisiones posteriores a la entrega. La meta es ofrecer reglas claras y expectativas
                 realistas.
               </p>
@@ -162,7 +162,7 @@ export default function DevolucionesPage() {
                 <div className="flex items-start justify-between gap-4 border-b border-[#E6E1DA] pb-6">
                   <div>
                     <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#8A8A8A]">
-                      Politica base
+                      Política base
                     </p>
                     <h2 className="mt-3 text-3xl font-display font-900 uppercase italic text-[#1C1C1C]">
                       Lo esencial
@@ -201,14 +201,14 @@ export default function DevolucionesPage() {
         <div className="mx-auto grid max-w-[1440px] gap-8 px-6 py-14 lg:grid-cols-[0.9fr_1.1fr] lg:px-12 lg:py-20">
           <div className="max-w-xl">
             <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#2563EB]">
-              Flujo de devolucion
+              Flujo de devolución
             </p>
             <h2 className="mt-4 text-4xl font-display font-900 uppercase italic text-[#1C1C1C]">
               Un proceso ordenado desde la solicitud hasta el cierre.
             </h2>
             <p className="mt-5 text-base leading-relaxed text-[#5A5A5A]">
-              La experiencia de devolucion debe ser comprensible y trazable. Por eso estructuramos
-              cada caso con pasos claros y puntos de validacion concretos.
+              La experiencia de devolución debe ser comprensible y trazable. Por eso estructuramos
+              cada caso con pasos claros y puntos de validación concretos.
             </p>
           </div>
 
@@ -237,11 +237,11 @@ export default function DevolucionesPage() {
               Preguntas frecuentes
             </p>
             <h2 className="mt-4 text-4xl font-display font-900 uppercase italic text-[#1C1C1C]">
-              Lo que conviene saber antes de solicitar una devolucion.
+              Lo que conviene saber antes de solicitar una devolución.
             </h2>
             <p className="mt-5 max-w-lg text-base leading-relaxed text-[#5A5A5A]">
               Respuestas cortas para anticipar dudas comunes sobre plazos, estado del producto y
-              validacion del caso.
+              validación del caso.
             </p>
           </div>
 
@@ -258,10 +258,10 @@ export default function DevolucionesPage() {
                 Soporte NovaStore
               </p>
               <h3 className="mt-3 text-2xl font-display font-900 uppercase italic">
-                Necesitas revisar una devolucion puntual?
+                ¿Necesitas revisar una devolución puntual?
               </h3>
               <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/75">
-                Si tu caso requiere confirmacion previa, evidencia adicional o acompanamiento antes
+                Si tu caso requiere confirmación previa, evidencia adicional o acompañamiento antes
                 de enviar el producto, soporte puede ayudarte a encaminarlo.
               </p>
               <div className="mt-6 flex flex-wrap gap-4">
@@ -275,7 +275,7 @@ export default function DevolucionesPage() {
                   href="/envios"
                   className="inline-flex items-center gap-2 border border-white/20 px-5 py-3 text-[11px] font-black uppercase tracking-[0.24em] text-white transition hover:border-white hover:bg-white/5"
                 >
-                  Ver envios
+                  Ver envíos
                 </Link>
               </div>
             </div>

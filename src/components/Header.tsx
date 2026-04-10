@@ -64,9 +64,13 @@ function getCategoryIcon(name: string): Parameters<typeof Icon>[0]['name'] {
 function CategoriesDropdown({
   categories,
   isTransparent,
+  hasError,
+  onRetry,
 }: {
   categories: Category[];
   isTransparent: boolean;
+  hasError?: boolean;
+  onRetry?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
@@ -122,7 +126,17 @@ function CategoriesDropdown({
             transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
             className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-52 bg-white dark:bg-slate-800 border border-[#DDD9D3] dark:border-slate-700 shadow-[0_8px_32px_rgba(0,0,0,0.1)] z-50 overflow-hidden py-1"
           >
-            {categories.length === 0 ? (
+            {hasError ? (
+              <div className="px-4 py-3 flex flex-col gap-2">
+                <p className="text-[12px] text-red-500">Error al cargar</p>
+                <button
+                  onClick={onRetry}
+                  className="text-[11px] font-bold uppercase tracking-widest text-[#2563EB] hover:underline text-left"
+                >
+                  Reintentar
+                </button>
+              </div>
+            ) : categories.length === 0 ? (
               <p className="px-4 py-3 text-[12px] text-[#8A8A8A]">Sin categorías</p>
             ) : (
               categories.map((cat) => (
@@ -157,10 +171,14 @@ function DesktopNavLinks({
   onLinkClick,
   categories,
   isTransparent,
+  categoriesError,
+  onCategoriesRetry,
 }: {
   onLinkClick?: () => void;
   categories: Category[];
   isTransparent: boolean;
+  categoriesError?: boolean;
+  onCategoriesRetry?: () => void;
 }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -176,6 +194,8 @@ function DesktopNavLinks({
               key="categories"
               categories={categories}
               isTransparent={isTransparent}
+              hasError={categoriesError}
+              onRetry={onCategoriesRetry}
             />
           );
         }
@@ -569,6 +589,7 @@ export default function Header() {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [categoriesError, setCategoriesError] = useState(false);
 
   const { itemCount } = useCart();
   const { user, signOut } = useAuth();
@@ -576,12 +597,20 @@ export default function Header() {
   const { isAdmin } = useProfile();
 
   // Fetch categories for dropdown
-  useEffect(() => {
+  const fetchCategories = useCallback(() => {
+    setCategoriesError(false);
     fetch('/api/categories')
       .then((r) => r.json())
       .then((data) => setCategories(Array.isArray(data) ? data : []))
-      .catch(() => setCategories([]));
+      .catch(() => {
+        setCategories([]);
+        setCategoriesError(true);
+      });
   }, []);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
   // Scroll → glass effect
   useEffect(() => {
@@ -675,7 +704,12 @@ export default function Header() {
                 </>
               }
             >
-              <DesktopNavLinks categories={categories} isTransparent={isTransparent} />
+              <DesktopNavLinks
+                categories={categories}
+                isTransparent={isTransparent}
+                categoriesError={categoriesError}
+                onCategoriesRetry={fetchCategories}
+              />
             </Suspense>
           </nav>
 

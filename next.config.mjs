@@ -17,6 +17,9 @@ const nextConfig = {
         destination: '/homepage',
         permanent: false,
       },
+      { source: '/login', destination: '/auth/login', permanent: true },
+      { source: '/register', destination: '/auth/register', permanent: true },
+      { source: '/orders', destination: '/profile/orders', permanent: true },
     ];
   }
 };

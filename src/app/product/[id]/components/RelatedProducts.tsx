@@ -39,7 +39,7 @@ function RelatedProductCard({
       whileHover={{ y: -4, transition: { type: 'spring', stiffness: 300, damping: 24 } }}
       className="group relative bg-white border border-[#E8E5E0] overflow-hidden hover:border-[#0F0F0F] hover:shadow-nova-xl transition-[border-color,box-shadow] duration-500"
     >
-      <Link href={`/product/${product.id}`} className="block">
+      <Link href={`/product/${product.slug || product.id}`} className="block">
         <div className="relative overflow-hidden bg-[#F4F2EF]" style={{ aspectRatio: '4/5' }}>
           <AppImage
             src={product.image_url || '/assets/images/no_image.png'}

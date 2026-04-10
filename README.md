@@ -496,7 +496,28 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 
 **Diego (Frontend):**
 
-✅ Frontend completo — integración backend cerrada
+✅ Frontend completo — QA cerrado
+
+- [x] F-01/F-12 — Hydration mismatch: `suppressHydrationWarning` agregado al `<html>` en `layout.tsx`
+- [x] F-02 — /products mostraba "0 PRODUCTOS": fetch de categorías y productos desacoplados con `try/catch` independientes; error state con botón Reintentar en ProductGridSection; toast "Error al cargar categorías" en ProductFiltersSection; retry en dropdown Header
+- [x] F-03 — /checkout en blanco: `redirect('/cart')` en Server Component verificado y funcional
+- [x] F-04 — Wishlist no sincroniza: `useAuth` + `console.info` diagnóstico agregados en `wishlist/page.tsx` para verificar timing de autenticación
+- [x] F-05 — Redirect /login → /auth/login y /register → /auth/register (permanent) en `next.config.mjs`
+- [x] F-06 — Redirect /orders → /profile/orders (permanent) en `next.config.mjs`; `/profile/orders/page.tsx` confirmado existente
+- [x] F-07 — Perfil mostraba "Sin completar" en pedidos: `value={String(orderCount ?? 0)}` — siempre muestra un número
+- [x] F-08 — Estadísticas hardcodeadas: comentarios `// Valores editoriales` en `ProductsHeroSection.tsx` y `// Marketing — valores fijos para demo/portafolio` en `HeroSection.tsx`
+- [x] F-09 — Newsletter texto truncado: corregido `politica` → `política`, `8.000` → `8,000` en `NewsletterSection.tsx`; link ya apuntaba a `/privacidad`
+- [x] F-10 — URLs con slug: todos los `href=/product/${id}` → `href=/product/${slug || id}` en FeaturedProductsSection, SearchModal, RelatedProducts, ProductGridSection (×3), wishlist (×2); `product/[id]/page.tsx` con fallback slug via `/api/products?search=`
+- [x] F-11 — Acciones rápidas del ProfileModal: añadida acción "Editar perfil" (`PencilSquareIcon` → `setEditMode('personal')`); 5 acciones completas: Pedidos, Wishlist, Reseñas, Editar perfil, Ver perfil
+- [x] F-13 — Reviews (0) ocultos en homepage: `FeaturedProductsSection.tsx` envuelve estrellas + contador en `{reviewCount > 0 && (...)}`
+- [x] F-14 — Fallback de imagen: `AppImage.tsx` con estado `doubleFailed`; cuando imagen original y fallback fallan → div gris con icono SVG de imagen rota (fill y non-fill)
+- [x] F-15 — Categorías dropdown vacío: `Header.tsx` con `categoriesError` state + `fetchCategories` callback; dropdown muestra "Error al cargar" + botón Reintentar
+- [x] F-16 — Redirect / → /homepage ya existía en `next.config.mjs`; confirmado
+- [x] F-17 — Dev overlay "1 Issue": resuelto por F-01 (`suppressHydrationWarning` en `<html>`)
+- [x] F-18 — Tildes en /devoluciones: 10 correcciones (`página`, `cómo`, `devolución` ×4, `política` ×2, `validación` ×2, `acompañamiento`, `¿Necesitas`, `envíos`)
+- [x] F-19 — Búsquedas populares: comentario `// Términos editoriales — actualizar según catálogo real` en `ProductsHeroSection.tsx`; valores mantenidos
+- [x] F-20 — Instagram: mantenido como demo (`href="https://instagram.com/kodexasolutions"`)
+- [x] F-21 — Variantes de producto: `ProductVariants.tsx:18` ya tenía `if (variants.length === 0) return null`; confirmado correcto
 
 **Anderson (Backend):**
 ✅ Todas las tareas de backend completadas.
