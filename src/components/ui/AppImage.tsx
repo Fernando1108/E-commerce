@@ -71,7 +71,7 @@ const AppImage = memo(function AppImage({
   }, [className, isLoading, onClick]);
 
   const imageProps = useMemo(() => {
-    const baseProps: any = {
+    const baseProps: React.ComponentPropsWithoutRef<typeof Image> = {
       src: imageSrc,
       alt,
       className: imageClassName,
@@ -81,12 +81,14 @@ const AppImage = memo(function AppImage({
       onError: handleError,
       onLoad: handleLoad,
       onClick,
+      width: undefined,
+      height: undefined,
     };
 
     if (priority) {
-      baseProps.priority = true;
+      (baseProps as Record<string, unknown>).priority = true;
     } else {
-      baseProps.loading = loading;
+      (baseProps as Record<string, unknown>).loading = loading;
     }
 
     if (blurDataURL && placeholder === 'blur') {

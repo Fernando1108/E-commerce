@@ -13,12 +13,13 @@ import { useWishlist } from '@/hooks/useWishlist';
 import { useProfile } from '@/hooks/useProfile';
 import { toast } from 'sonner';
 import type { Category } from '@/types';
+import ProfileModal from '@/components/ProfileModal';
 
 // ─── Nav Links ────────────────────────────────────────────────────────────────
 const navLinks = [
   { label: 'Home', href: '/homepage' },
   { label: 'Tienda', href: '/products' },
-  { label: 'Categorías', href: '/products?view=categories' },
+  { label: 'Categorías', href: '/products' },
   { label: 'Novedades', href: '/products?sort=newest' },
   { label: 'Ofertas', href: '/products?badge=oferta' },
   { label: 'Soporte', href: '/contacto' },
@@ -96,7 +97,7 @@ function CategoriesDropdown({
             ? 'text-[#2563EB]'
             : isTransparent
               ? 'text-white/90 hover:text-white'
-              : 'text-[#5A5A5A] hover:text-[#1C1C1C]'
+              : 'text-[#5A5A5A] dark:text-slate-400 hover:text-[#1C1C1C] dark:hover:text-white'
         }`}
       >
         Categorías
@@ -119,7 +120,7 @@ function CategoriesDropdown({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 6 }}
             transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-52 bg-white border border-[#DDD9D3] shadow-[0_8px_32px_rgba(0,0,0,0.1)] z-50 overflow-hidden py-1"
+            className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-52 bg-white dark:bg-slate-800 border border-[#DDD9D3] dark:border-slate-700 shadow-[0_8px_32px_rgba(0,0,0,0.1)] z-50 overflow-hidden py-1"
           >
             {categories.length === 0 ? (
               <p className="px-4 py-3 text-[12px] text-[#8A8A8A]">Sin categorías</p>
@@ -131,14 +132,16 @@ function CategoriesDropdown({
                     router.push(`/products?category=${cat.id}`);
                     setOpen(false);
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-[#F8F7F5] transition-colors text-left"
+                  className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-[#F8F7F5] dark:hover:bg-slate-700 transition-colors text-left"
                 >
                   <Icon
                     name={getCategoryIcon(cat.name)}
                     size={14}
                     style={{ color: cat.accent_color }}
                   />
-                  <span className="text-[12px] font-600 text-[#1C1C1C]">{cat.name}</span>
+                  <span className="text-[12px] font-600 text-[#1C1C1C] dark:text-slate-200">
+                    {cat.name}
+                  </span>
                 </button>
               ))
             )}
@@ -187,7 +190,7 @@ function DesktopNavLinks({
                 ? 'text-[#2563EB]'
                 : isTransparent
                   ? 'text-white/90 hover:text-white'
-                  : 'text-[#5A5A5A] hover:text-[#1C1C1C]'
+                  : 'text-[#5A5A5A] dark:text-slate-400 hover:text-[#1C1C1C] dark:hover:text-white'
             }`}
           >
             {link.label}
@@ -226,8 +229,10 @@ function MobileNavLinkList({ onClose }: { onClose: () => void }) {
           <Link
             href={link.href}
             onClick={onClose}
-            className={`mobile-nav-link block py-4 text-3xl font-display font-900 italic tracking-editorial border-b border-[#DDD9D3] transition-colors ${
-              isActive(link.href) ? 'text-[#2563EB]' : 'text-[#1C1C1C] hover:text-[#2563EB]'
+            className={`mobile-nav-link block py-4 text-3xl font-display font-900 italic tracking-editorial border-b border-[#DDD9D3] dark:border-slate-700 transition-colors ${
+              isActive(link.href)
+                ? 'text-[#2563EB]'
+                : 'text-[#1C1C1C] dark:text-slate-100 hover:text-[#2563EB]'
             }`}
           >
             {link.label}
@@ -332,7 +337,7 @@ function InlineSearch({ onClose }: { onClose: () => void }) {
           onChange={handleChange}
           placeholder="Buscar productos..."
           aria-label="Buscar productos"
-          className="w-[220px] sm:w-[280px] border border-[#DDD9D3] bg-white px-4 py-2 text-[13px] text-[#1C1C1C] placeholder-[#8A8A8A] outline-none focus:border-[#2563EB] transition-colors duration-200"
+          className="w-[220px] sm:w-[280px] border border-[#DDD9D3] dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-2 text-[13px] text-[#1C1C1C] dark:text-slate-100 placeholder-[#8A8A8A] dark:placeholder-slate-400 outline-none focus:border-[#2563EB] transition-colors duration-200"
         />
         {/* Loading spinner / clear */}
         <div className="absolute right-2 top-1/2 -translate-y-1/2 size-5 flex items-center justify-center">
@@ -361,7 +366,7 @@ function InlineSearch({ onClose }: { onClose: () => void }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 4 }}
             transition={{ duration: 0.15 }}
-            className="absolute top-full right-0 left-0 mt-1 bg-white border border-[#DDD9D3] shadow-[0_8px_32px_rgba(0,0,0,0.08)] z-50 overflow-hidden"
+            className="absolute top-full right-0 left-0 mt-1 bg-white dark:bg-slate-800 border border-[#DDD9D3] dark:border-slate-700 shadow-[0_8px_32px_rgba(0,0,0,0.08)] z-50 overflow-hidden"
           >
             {results.length === 0 && !loading ? (
               <p className="px-4 py-3 text-[12px] text-[#8A8A8A]">
@@ -373,10 +378,10 @@ function InlineSearch({ onClose }: { onClose: () => void }) {
                   <li key={item.id}>
                     <button
                       onClick={() => handleResultClick(item.id)}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-[#F8F7F5] transition-colors text-left"
+                      className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-[#F8F7F5] dark:hover:bg-slate-700 transition-colors text-left"
                     >
                       {/* Thumbnail */}
-                      <div className="size-9 bg-[#EFEDE9] flex-shrink-0 overflow-hidden">
+                      <div className="size-9 bg-[#EFEDE9] dark:bg-slate-700 flex-shrink-0 overflow-hidden">
                         {item.image_url ? (
                           <AppImage
                             src={item.image_url}
@@ -392,7 +397,9 @@ function InlineSearch({ onClose }: { onClose: () => void }) {
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-[13px] font-600 text-[#1C1C1C] truncate">{item.name}</p>
+                        <p className="text-[13px] font-600 text-[#1C1C1C] dark:text-slate-100 truncate">
+                          {item.name}
+                        </p>
                         <p className="text-[11px] text-[#2563EB] font-700">
                           {formatPrice(item.price)}
                         </p>
@@ -406,13 +413,13 @@ function InlineSearch({ onClose }: { onClose: () => void }) {
                   </li>
                 ))}
                 {results.length > 0 && (
-                  <li className="border-t border-[#DDD9D3]">
+                  <li className="border-t border-[#DDD9D3] dark:border-slate-700">
                     <button
                       onClick={() => {
                         onClose();
                         router.push(`/products?search=${encodeURIComponent(query)}`);
                       }}
-                      className="w-full px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-[#2563EB] hover:bg-[#EFF6FF] transition-colors text-center"
+                      className="w-full px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-[#2563EB] hover:bg-[#EFF6FF] dark:hover:bg-blue-900/30 transition-colors text-center"
                     >
                       Ver todos los resultados →
                     </button>
@@ -433,9 +440,10 @@ interface UserDropdownProps {
   isAdmin: boolean;
   onSignOut: () => void;
   onClose: () => void;
+  onOpenProfile: () => void;
 }
 
-function UserDropdown({ user, isAdmin, onSignOut, onClose }: UserDropdownProps) {
+function UserDropdown({ user, isAdmin, onSignOut, onClose, onOpenProfile }: UserDropdownProps) {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -464,14 +472,16 @@ function UserDropdown({ user, isAdmin, onSignOut, onClose }: UserDropdownProps) 
       exit={{ opacity: 0, y: 6, scale: 0.97 }}
       transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
       role="menu"
-      className="absolute top-full right-0 mt-2 w-52 bg-white border border-[#DDD9D3] shadow-[0_8px_32px_rgba(0,0,0,0.1)] z-50 overflow-hidden"
+      className="absolute top-full right-0 mt-2 w-56 bg-white dark:bg-slate-800 border border-[#DDD9D3] dark:border-slate-700 shadow-[0_8px_32px_rgba(0,0,0,0.1)] z-50 overflow-hidden"
     >
       {/* Email header */}
-      <div className="px-4 py-3 border-b border-[#DDD9D3]">
-        <p className="text-[9px] font-black uppercase tracking-widest text-[#8A8A8A]">
+      <div className="px-4 py-3 border-b border-[#DDD9D3] dark:border-slate-700">
+        <p className="text-[9px] font-black uppercase tracking-widest text-[#8A8A8A] dark:text-slate-400">
           Sesión activa
         </p>
-        <p className="text-[12px] font-600 text-[#1C1C1C] mt-0.5 truncate">{user?.email}</p>
+        <p className="text-[12px] font-600 text-[#1C1C1C] dark:text-slate-200 mt-0.5 truncate">
+          {user?.email}
+        </p>
       </div>
 
       <div className="py-1">
@@ -482,48 +492,50 @@ function UserDropdown({ user, isAdmin, onSignOut, onClose }: UserDropdownProps) 
               href="/admin"
               onClick={onClose}
               role="menuitem"
-              className="flex items-center gap-3 px-4 py-2.5 text-[12px] font-700 text-[#2563EB] hover:bg-[#EFF6FF] transition-colors"
+              className="flex items-center gap-3 px-4 py-2.5 text-[12px] font-700 text-[#2563EB] hover:bg-[#EFF6FF] dark:hover:bg-blue-900/30 transition-colors"
             >
               <div className="size-5 bg-[#2563EB] flex items-center justify-center flex-shrink-0">
                 <Icon name="Squares2X2Icon" size={12} variant="solid" className="text-white" />
               </div>
               Dashboard Admin
             </Link>
-            <div className="my-1 border-t border-[#DDD9D3]" />
+            <div className="my-1 border-t border-[#DDD9D3] dark:border-slate-700" />
           </>
         )}
 
-        <Link
-          href="/profile"
-          onClick={onClose}
+        <button
+          onClick={() => {
+            onOpenProfile();
+            onClose();
+          }}
           role="menuitem"
-          className="flex items-center gap-3 px-4 py-2.5 text-[12px] font-600 text-[#1C1C1C] hover:bg-[#F8F7F5] transition-colors"
+          className="w-full flex items-center gap-3 px-4 py-2.5 text-[12px] font-600 text-[#1C1C1C] dark:text-slate-200 hover:bg-[#F8F7F5] dark:hover:bg-slate-700 transition-colors"
         >
           <Icon
             name="UserIcon"
             size={15}
             variant="outline"
-            className="text-[#5A5A5A] flex-shrink-0"
+            className="text-[#5A5A5A] dark:text-slate-400 flex-shrink-0"
           />
           Mi perfil
-        </Link>
+        </button>
 
         <Link
           href="/profile/orders"
           onClick={onClose}
           role="menuitem"
-          className="flex items-center gap-3 px-4 py-2.5 text-[12px] font-600 text-[#1C1C1C] hover:bg-[#F8F7F5] transition-colors"
+          className="flex items-center gap-3 px-4 py-2.5 text-[12px] font-600 text-[#1C1C1C] dark:text-slate-200 hover:bg-[#F8F7F5] dark:hover:bg-slate-700 transition-colors"
         >
           <Icon
             name="ShoppingBagIcon"
             size={15}
             variant="outline"
-            className="text-[#5A5A5A] flex-shrink-0"
+            className="text-[#5A5A5A] dark:text-slate-400 flex-shrink-0"
           />
           Mis pedidos
         </Link>
 
-        <div className="my-1 border-t border-[#DDD9D3]" />
+        <div className="my-1 border-t border-[#DDD9D3] dark:border-slate-700" />
 
         <button
           role="menuitem"
@@ -531,7 +543,7 @@ function UserDropdown({ user, isAdmin, onSignOut, onClose }: UserDropdownProps) 
             onSignOut();
             onClose();
           }}
-          className="w-full flex items-center gap-3 px-4 py-2.5 text-[12px] font-600 text-[#C33D2F] hover:bg-[#FFF7F5] transition-colors"
+          className="w-full flex items-center gap-3 px-4 py-2.5 text-[12px] font-600 text-[#C33D2F] hover:bg-[#FFF7F5] dark:hover:bg-red-900/20 transition-colors"
         >
           <Icon
             name="ArrowRightOnRectangleIcon"
@@ -550,10 +562,12 @@ function UserDropdown({ user, isAdmin, onSignOut, onClose }: UserDropdownProps) 
 export default function Header() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
-  const isTransparent = pathname === '/homepage' && !scrolled;
+  const isTransparent =
+    (pathname === '/homepage' || pathname === '/cart' || pathname === '/wishlist') && !scrolled;
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
 
   const { itemCount } = useCart();
@@ -566,7 +580,7 @@ export default function Header() {
     fetch('/api/categories')
       .then((r) => r.json())
       .then((data) => setCategories(Array.isArray(data) ? data : []))
-      .catch(() => {});
+      .catch(() => setCategories([]));
   }, []);
 
   // Scroll → glass effect
@@ -612,8 +626,8 @@ export default function Header() {
           isTransparent
             ? 'bg-transparent'
             : scrolled
-              ? 'bg-[#F8F7F5]/97 backdrop-blur-xl shadow-[0_1px_0_0_#DDD9D3]'
-              : 'bg-[#F8F7F5]/90 backdrop-blur-md'
+              ? 'bg-[#F8F7F5]/97 dark:bg-slate-900/97 backdrop-blur-xl shadow-[0_1px_0_0_#DDD9D3] dark:shadow-[0_1px_0_0_#334155]'
+              : 'bg-[#F8F7F5]/90 dark:bg-slate-900/90 backdrop-blur-md'
         }`}
       >
         {/* Animated bottom highlight line on scroll */}
@@ -764,6 +778,7 @@ export default function Header() {
                         isAdmin={isAdmin}
                         onSignOut={signOut}
                         onClose={() => setUserDropdownOpen(false)}
+                        onOpenProfile={() => setProfileOpen(true)}
                       />
                     )}
                   </AnimatePresence>
@@ -799,24 +814,24 @@ export default function Header() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: '100%' }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 z-40 bg-[#F8F7F5] flex flex-col"
+            className="fixed inset-0 z-40 bg-[#F8F7F5] dark:bg-slate-900 flex flex-col"
           >
             {/* Mobile header bar */}
-            <div className="flex items-center justify-between px-6 h-[72px] border-b border-[#DDD9D3]">
+            <div className="flex items-center justify-between px-6 h-[72px] border-b border-[#DDD9D3] dark:border-slate-700">
               <Link
                 href="/homepage"
                 className="flex items-center gap-2.5"
                 onClick={() => setMobileOpen(false)}
               >
                 <AppLogo size={32} />
-                <span className="font-display font-800 text-xl tracking-tightest text-[#1C1C1C]">
+                <span className="font-display font-800 text-xl tracking-tightest text-[#1C1C1C] dark:text-slate-100">
                   NovaStore
                 </span>
               </Link>
               <button
                 aria-label="Cerrar menú"
                 onClick={() => setMobileOpen(false)}
-                className="size-9 flex items-center justify-center text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
+                className="size-9 flex items-center justify-center text-[#8A8A8A] dark:text-slate-400 hover:text-[#1C1C1C] dark:hover:text-white transition-colors"
               >
                 <Icon name="XMarkIcon" size={22} variant="outline" />
               </button>
@@ -849,18 +864,20 @@ export default function Header() {
               <div className="flex flex-wrap gap-4">
                 {user ? (
                   <div className="flex items-center gap-4">
-                    <Link
-                      href="/profile"
-                      onClick={() => setMobileOpen(false)}
-                      className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
+                    <button
+                      onClick={() => {
+                        setMobileOpen(false);
+                        setProfileOpen(true);
+                      }}
+                      className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#8A8A8A] dark:text-slate-400 hover:text-[#1C1C1C] dark:hover:text-white transition-colors"
                     >
                       <Icon name="UserIcon" size={18} variant="outline" />
                       Mi Cuenta
-                    </Link>
+                    </button>
                     <Link
                       href="/profile/orders"
                       onClick={() => setMobileOpen(false)}
-                      className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
+                      className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#8A8A8A] dark:text-slate-400 hover:text-[#1C1C1C] dark:hover:text-white transition-colors"
                     >
                       <Icon name="ShoppingBagIcon" size={18} variant="outline" />
                       Pedidos
@@ -879,7 +896,7 @@ export default function Header() {
                   <Link
                     href="/auth/login"
                     onClick={() => setMobileOpen(false)}
-                    className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
+                    className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#8A8A8A] dark:text-slate-400 hover:text-[#1C1C1C] dark:hover:text-white transition-colors"
                   >
                     <Icon name="UserIcon" size={18} variant="outline" />
                     Iniciar sesión
@@ -888,7 +905,7 @@ export default function Header() {
                 <Link
                   href="/cart"
                   onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
+                  className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#8A8A8A] dark:text-slate-400 hover:text-[#1C1C1C] dark:hover:text-white transition-colors"
                 >
                   <Icon name="ShoppingBagIcon" size={18} variant="outline" />
                   Carrito{itemCount > 0 ? ` (${itemCount})` : ''}
@@ -907,6 +924,9 @@ export default function Header() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Profile modal */}
+      <ProfileModal open={profileOpen} onClose={() => setProfileOpen(false)} />
     </>
   );
 }

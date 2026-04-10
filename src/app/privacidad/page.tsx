@@ -1,4 +1,3 @@
-import React from 'react';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -11,35 +10,35 @@ const privacyHighlights = [
       'Los datos se tratan con criterio operativo, enfocados en mejorar la compra, el soporte y la trazabilidad del pedido.',
   },
   {
-    title: 'Minima exposicion',
+    title: 'Mínima exposición',
     description:
-      'Solo se solicita la informacion necesaria para procesar ordenes, atender requerimientos y mantener el servicio funcionando.',
+      'Solo se solicita la información necesaria para procesar órdenes, atender requerimientos y mantener el servicio funcionando.',
   },
   {
     title: 'Control informado',
     description:
-      'El usuario puede conocer como se recolecta y para que se usa su informacion dentro del ecosistema NovaStore.',
+      'El usuario puede conocer cómo se recolecta y para qué se usa su información dentro del ecosistema NovaStore.',
   },
 ];
 
 const privacyPolicies = [
   {
-    label: 'Recoleccion',
+    label: 'Recolección',
     title: 'Solicitamos datos para compra, contacto y soporte',
     description:
-      'NovaStore puede recopilar nombre, correo, telefono, direccion y detalles necesarios para procesar pedidos, responder solicitudes y mantener la operacion comercial.',
+      'NovaStore puede recopilar nombre, correo, teléfono, dirección y detalles necesarios para procesar pedidos, responder solicitudes y mantener la operación comercial.',
   },
   {
-    label: 'Uso de informacion',
+    label: 'Uso de información',
     title: 'Los datos se utilizan para fines operativos y de experiencia',
     description:
-      'La informacion se usa para confirmar compras, coordinar envios, gestionar devoluciones, brindar soporte y mejorar la experiencia general del cliente dentro de la tienda.',
+      'La información se usa para confirmar compras, coordinar envíos, gestionar devoluciones, brindar soporte y mejorar la experiencia general del cliente dentro de la tienda.',
   },
   {
-    label: 'Proteccion',
+    label: 'Protección',
     title: 'Aplicamos criterios razonables de seguridad y acceso',
     description:
-      'El acceso a la informacion se limita a contextos necesarios para la operacion. Tambien se adoptan medidas tecnicas y organizativas para reducir exposiciones indebidas.',
+      'El acceso a la información se limita a contextos necesarios para la operación. También se adoptan medidas técnicas y organizativas para reducir exposiciones indebidas.',
   },
 ];
 
@@ -47,50 +46,50 @@ const privacyPrinciples = [
   {
     title: 'Transparencia',
     description:
-      'Explicamos que datos se utilizan y por que intervienen en procesos como checkout, soporte o seguimiento del pedido.',
+      'Explicamos qué datos se utilizan y por qué intervienen en procesos como checkout, soporte o seguimiento del pedido.',
     icon: 'EyeIcon',
   },
   {
     title: 'Necesidad',
     description:
-      'Evitamos pedir informacion que no aporte al funcionamiento real del servicio o a la atencion del cliente.',
+      'Evitamos pedir información que no aporte al funcionamiento real del servicio o a la atención del cliente.',
     icon: 'DocumentTextIcon',
   },
   {
     title: 'Seguridad',
     description:
-      'Protegemos el acceso a la informacion con una aproximacion proporcional al tipo de dato y al flujo donde participa.',
+      'Protegemos el acceso a la información con una aproximación proporcional al tipo de dato y al flujo donde participa.',
     icon: 'ShieldCheckIcon',
   },
   {
     title: 'Trazabilidad',
     description:
-      'Relacionamos los datos con procesos concretos para que la operacion sea auditable y mas facil de explicar.',
+      'Relacionamos los datos con procesos concretos para que la operación sea auditable y más fácil de explicar.',
     icon: 'ClipboardDocumentCheckIcon',
   },
 ];
 
 const faqItems = [
   {
-    question: 'Que informacion personal recopila NovaStore?',
+    question: '¿Qué información personal recopila NovaStore?',
     answer:
-      'Normalmente datos de contacto, entrega y compra. Esto incluye informacion necesaria para confirmar pedidos, coordinar envios y responder solicitudes de soporte.',
+      'Normalmente datos de contacto, entrega y compra. Esto incluye información necesaria para confirmar pedidos, coordinar envíos y responder solicitudes de soporte.',
   },
   {
-    question: 'NovaStore comparte mis datos con terceros?',
+    question: '¿NovaStore comparte mis datos con terceros?',
     answer:
-      'Puede compartir informacion estrictamente necesaria con proveedores vinculados a pagos, logistica o soporte, siempre en el contexto operativo de la compra.',
+      'Puede compartir información estrictamente necesaria con proveedores vinculados a pagos, logística o soporte, siempre en el contexto operativo de la compra.',
   },
   {
-    question: 'Puedo solicitar aclaraciones sobre el uso de mis datos?',
+    question: '¿Puedo solicitar aclaraciones sobre el uso de mis datos?',
     answer:
-      'Si. El usuario puede contactar soporte para conocer mejor el alcance del tratamiento de su informacion y resolver dudas sobre procesos relacionados.',
+      'Sí. El usuario puede contactar soporte para conocer mejor el alcance del tratamiento de su información y resolver dudas sobre procesos relacionados.',
   },
 ];
 
 export default function PrivacidadPage() {
   return (
-    <main className="min-h-screen bg-[#FAF9F7]">
+    <main className="min-h-screen bg-[#FAF9F7] dark:bg-slate-900">
       <Header />
 
       <section className="relative overflow-hidden pt-[72px]">
@@ -108,7 +107,7 @@ export default function PrivacidadPage() {
         <div className="relative mx-auto max-w-[1440px] px-6 py-14 lg:px-12 lg:py-20">
           <div className="grid items-start gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
             <div className="max-w-2xl pt-4 lg:pt-10">
-              <div className="inline-flex items-center gap-3 border border-[#DDD9D3] bg-white/70 px-5 py-2.5 backdrop-blur-sm">
+              <div className="inline-flex items-center gap-3 border border-[#DDD9D3] dark:border-slate-700 bg-white/70 px-5 py-2.5 backdrop-blur-sm">
                 <span className="size-1.5 rounded-full bg-[#2563EB]" />
                 <span className="text-[11px] font-black uppercase tracking-[0.28em] text-[#2563EB]">
                   Politica de privacidad
@@ -116,7 +115,7 @@ export default function PrivacidadPage() {
               </div>
 
               <h1
-                className="mt-8 font-display font-900 italic uppercase leading-[0.88] tracking-[-0.04em] text-[#1C1C1C]"
+                className="mt-8 font-display font-900 italic uppercase leading-[0.88] tracking-[-0.04em] text-[#1C1C1C] dark:text-slate-100"
                 style={{ fontSize: 'clamp(3rem, 7vw, 6.5rem)' }}
               >
                 Tus datos,
@@ -134,24 +133,24 @@ export default function PrivacidadPage() {
                 criterio.
               </h1>
 
-              <p className="mt-6 max-w-xl text-base leading-relaxed text-[#5A5A5A] lg:text-lg">
-                Esta pagina explica como NovaStore recopila, utiliza y protege la informacion
-                personal dentro de la experiencia de compra, soporte y relacion con el cliente.
+              <p className="mt-6 max-w-xl text-base leading-relaxed text-[#5A5A5A] dark:text-slate-300 lg:text-lg">
+                Esta página explica cómo NovaStore recopila, utiliza y protege la información
+                personal dentro de la experiencia de compra, soporte y relación con el cliente.
               </p>
 
               <div className="mt-10 grid gap-4 sm:grid-cols-3">
                 {privacyHighlights.map((item, index) => (
                   <div
                     key={item.title}
-                    className="border border-[#DDD9D3] bg-white/75 px-5 py-5 backdrop-blur-sm"
+                    className="border border-[#DDD9D3] dark:border-slate-700 bg-white/75 px-5 py-5 backdrop-blur-sm"
                   >
-                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#8A8A8A]">
+                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#8A8A8A] dark:text-slate-400">
                       0{index + 1}
                     </p>
-                    <p className="mt-3 text-xl font-display font-900 text-[#1C1C1C]">
+                    <p className="mt-3 text-xl font-display font-900 text-[#1C1C1C] dark:text-slate-100">
                       {item.title}
                     </p>
-                    <p className="mt-3 text-sm leading-relaxed text-[#5A5A5A]">
+                    <p className="mt-3 text-sm leading-relaxed text-[#5A5A5A] dark:text-slate-300">
                       {item.description}
                     </p>
                   </div>
@@ -161,13 +160,13 @@ export default function PrivacidadPage() {
 
             <div className="relative">
               <div className="absolute -inset-px bg-gradient-to-br from-[#DDD9D3]/70 via-transparent to-transparent pointer-events-none" />
-              <div className="relative border border-[#DDD9D3] bg-white/90 p-6 shadow-[0_24px_80px_rgba(28,28,28,0.08)] backdrop-blur-xl sm:p-8 lg:p-10">
+              <div className="relative border border-[#DDD9D3] dark:border-slate-700 bg-white/90 p-6 shadow-[0_24px_80px_rgba(28,28,28,0.08)] backdrop-blur-xl sm:p-8 lg:p-10">
                 <div className="flex items-start justify-between gap-4 border-b border-[#E6E1DA] pb-6">
                   <div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#8A8A8A]">
+                    <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#8A8A8A] dark:text-slate-400">
                       Marco general
                     </p>
-                    <h2 className="mt-3 text-3xl font-display font-900 uppercase italic text-[#1C1C1C]">
+                    <h2 className="mt-3 text-3xl font-display font-900 uppercase italic text-[#1C1C1C] dark:text-slate-100">
                       Lo esencial
                     </h2>
                   </div>
@@ -180,15 +179,15 @@ export default function PrivacidadPage() {
                   {privacyPolicies.map((policy) => (
                     <article
                       key={policy.title}
-                      className="border border-[#E6E1DA] bg-[#FCFBF9] p-5"
+                      className="border border-[#E6E1DA] bg-[#FCFBF9] dark:bg-slate-700 p-5"
                     >
-                      <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[#8A8A8A]">
+                      <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[#8A8A8A] dark:text-slate-400">
                         {policy.label}
                       </p>
-                      <h3 className="mt-3 text-xl font-display font-900 text-[#1C1C1C]">
+                      <h3 className="mt-3 text-xl font-display font-900 text-[#1C1C1C] dark:text-slate-100">
                         {policy.title}
                       </h3>
-                      <p className="mt-3 text-sm leading-relaxed text-[#5A5A5A]">
+                      <p className="mt-3 text-sm leading-relaxed text-[#5A5A5A] dark:text-slate-300">
                         {policy.description}
                       </p>
                     </article>
@@ -200,17 +199,17 @@ export default function PrivacidadPage() {
         </div>
       </section>
 
-      <section className="border-y border-[#DDD9D3] bg-[#EFEDE9]">
+      <section className="border-y border-[#DDD9D3] dark:border-slate-700 bg-[#EFEDE9] dark:bg-slate-800">
         <div className="mx-auto grid max-w-[1440px] gap-8 px-6 py-14 lg:grid-cols-[0.9fr_1.1fr] lg:px-12 lg:py-20">
           <div className="max-w-xl">
             <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#2563EB]">
               Principios de privacidad
             </p>
-            <h2 className="mt-4 text-4xl font-display font-900 uppercase italic text-[#1C1C1C]">
+            <h2 className="mt-4 text-4xl font-display font-900 uppercase italic text-[#1C1C1C] dark:text-slate-100">
               Datos tratados con enfoque operativo y claridad.
             </h2>
-            <p className="mt-5 text-base leading-relaxed text-[#5A5A5A]">
-              La informacion personal no debe convertirse en ruido. Debe tener una finalidad
+            <p className="mt-5 text-base leading-relaxed text-[#5A5A5A] dark:text-slate-300">
+              La información personal no debe convertirse en ruido. Debe tener una finalidad
               concreta, ser gestionada con criterio y mantenerse vinculada al servicio que el
               cliente espera recibir.
             </p>
@@ -218,16 +217,21 @@ export default function PrivacidadPage() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             {privacyPrinciples.map((item) => (
-              <div key={item.title} className="border border-[#DDD9D3] bg-white p-6">
+              <div
+                key={item.title}
+                className="border border-[#DDD9D3] dark:border-slate-700 bg-white dark:bg-slate-800 p-6"
+              >
                 <div className="flex items-center gap-3">
                   <div className="flex size-11 items-center justify-center bg-[#EFF6FF] text-[#2563EB]">
                     <Icon name={item.icon} size={20} variant="outline" />
                   </div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#1C1C1C]">
+                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#1C1C1C] dark:text-slate-100">
                     {item.title}
                   </p>
                 </div>
-                <p className="mt-4 text-sm leading-relaxed text-[#5A5A5A]">{item.description}</p>
+                <p className="mt-4 text-sm leading-relaxed text-[#5A5A5A] dark:text-slate-300">
+                  {item.description}
+                </p>
               </div>
             ))}
           </div>
@@ -240,20 +244,27 @@ export default function PrivacidadPage() {
             <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#2563EB]">
               Preguntas frecuentes
             </p>
-            <h2 className="mt-4 text-4xl font-display font-900 uppercase italic text-[#1C1C1C]">
-              Aclaraciones clave sobre privacidad y uso de informacion.
+            <h2 className="mt-4 text-4xl font-display font-900 uppercase italic text-[#1C1C1C] dark:text-slate-100">
+              Aclaraciones clave sobre privacidad y uso de información.
             </h2>
-            <p className="mt-5 max-w-lg text-base leading-relaxed text-[#5A5A5A]">
-              Un resumen breve para resolver las dudas mas habituales sobre recopilacion,
-              intercambio y proteccion de datos dentro de NovaStore.
+            <p className="mt-5 max-w-lg text-base leading-relaxed text-[#5A5A5A] dark:text-slate-300">
+              Un resumen breve para resolver las dudas más habituales sobre recopilación,
+              intercambio y protección de datos dentro de NovaStore.
             </p>
           </div>
 
           <div className="space-y-4">
             {faqItems.map((item) => (
-              <article key={item.question} className="border border-[#DDD9D3] bg-white p-6">
-                <h3 className="text-lg font-display font-900 text-[#1C1C1C]">{item.question}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-[#5A5A5A]">{item.answer}</p>
+              <article
+                key={item.question}
+                className="border border-[#DDD9D3] dark:border-slate-700 bg-white dark:bg-slate-800 p-6"
+              >
+                <h3 className="text-lg font-display font-900 text-[#1C1C1C] dark:text-slate-100">
+                  {item.question}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-[#5A5A5A] dark:text-slate-300">
+                  {item.answer}
+                </p>
               </article>
             ))}
 
@@ -265,13 +276,13 @@ export default function PrivacidadPage() {
                 Necesitas una aclaracion puntual?
               </h3>
               <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/75">
-                Si necesitas resolver una duda relacionada con informacion personal, pedidos o uso
+                Si necesitas resolver una duda relacionada con información personal, pedidos o uso
                 de datos dentro del servicio, soporte puede orientarte.
               </p>
               <div className="mt-6 flex flex-wrap gap-4">
                 <Link
                   href="/contacto"
-                  className="inline-flex items-center gap-2 bg-white px-5 py-3 text-[11px] font-black uppercase tracking-[0.24em] text-[#1C1C1C] transition hover:bg-[#EFF6FF]"
+                  className="inline-flex items-center gap-2 bg-white px-5 py-3 text-[11px] font-black uppercase tracking-[0.24em] text-[#1C1C1C] dark:text-slate-100 transition hover:bg-[#EFF6FF]"
                 >
                   Ir a soporte
                 </Link>

@@ -48,7 +48,7 @@ export default function ProductFiltersSection({
   ];
 
   return (
-    <section className="bg-white border-b border-[#DDD9D3] sticky top-[72px] z-30">
+    <section className="bg-white dark:bg-slate-900 border-b border-[#DDD9D3] dark:border-slate-700 sticky top-[72px] z-30">
       <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 py-4">
           {/* Category tabs — horizontal scroll on mobile */}
@@ -112,7 +112,7 @@ export default function ProductFiltersSection({
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.2 }}
                   role="listbox"
-                  className="absolute right-0 top-full mt-1 bg-white border border-[#DDD9D3] shadow-nova-md z-50 min-w-[220px]"
+                  className="absolute right-0 top-full mt-1 bg-white dark:bg-slate-800 border border-[#DDD9D3] dark:border-slate-700 shadow-nova-md z-50 min-w-[220px]"
                 >
                   {sortOptions.map((opt) => (
                     <button

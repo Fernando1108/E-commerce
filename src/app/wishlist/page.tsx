@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import Header from '@/components/Header';
@@ -25,18 +24,25 @@ export default function WishlistPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#FAF9F7]">
+    <main className="min-h-screen bg-[#FAF9F7] dark:bg-slate-900 pt-[72px]">
       <Header />
 
       {/* Hero */}
-      <section className="relative -mt-[72px] pt-[72px] h-48 lg:h-64 overflow-hidden flex items-end">
-        {/* Gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-800 to-blue-900" />
-        {/* Subtle texture overlay */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(37,99,235,0.3),transparent_60%)]" />
+      <section className="relative -mt-[72px] pt-[72px] h-56 lg:h-72 overflow-hidden flex items-end">
+        {/* Background image */}
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: "url('/logo/Hero-wishlist.png')",
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+        {/* Dark overlay for legibility */}
+        <div className="absolute inset-0 bg-black/50" />
 
         {/* Content */}
-        <div className="relative w-full max-w-[1440px] mx-auto px-6 lg:px-14 pb-8 lg:pb-12">
+        <div className="relative w-full max-w-[1440px] mx-auto px-6 lg:px-14 pb-10 lg:pb-14">
           <div className="flex items-end justify-between gap-4">
             <div>
               <motion.p
@@ -51,7 +57,7 @@ export default function WishlistPage() {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.55, delay: 0.07, ease: [0.16, 1, 0.3, 1] }}
-                className="font-display italic font-900 text-5xl lg:text-7xl tracking-editorial text-white leading-none"
+                className="font-display italic font-900 text-6xl lg:text-8xl tracking-editorial text-white leading-none"
               >
                 Mi Wishlist
               </motion.h1>
@@ -66,7 +72,7 @@ export default function WishlistPage() {
               <Link href="/homepage" className="hover:text-white/80 transition-colors duration-200">
                 INICIO
               </Link>
-              <span className="text-white/50">{'>'}</span>
+              <span className="text-white/50">/</span>
               <span>WISHLIST</span>
             </motion.div>
           </div>
@@ -86,14 +92,19 @@ export default function WishlistPage() {
             transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-col items-center gap-7"
           >
-            <div className="size-28 rounded-full bg-[#EFEDE9] border border-[#DDD9D3] flex items-center justify-center">
-              <Icon name="HeartIcon" size={44} variant="outline" className="text-[#8A8A8A]" />
+            <div className="size-28 rounded-full bg-[#EFEDE9] border border-[#DDD9D3] dark:border-slate-700 flex items-center justify-center">
+              <Icon
+                name="HeartIcon"
+                size={44}
+                variant="outline"
+                className="text-[#8A8A8A] dark:text-slate-400 dark:text-slate-400"
+              />
             </div>
             <div>
-              <h2 className="font-display italic font-900 text-3xl text-[#1C1C1C] tracking-editorial mb-3">
+              <h2 className="font-display italic font-900 text-3xl text-[#1C1C1C] dark:text-slate-100 tracking-editorial mb-3">
                 Tu lista de deseos está vacía
               </h2>
-              <p className="text-[#5A5A5A] text-sm max-w-xs leading-relaxed">
+              <p className="text-[#5A5A5A] dark:text-slate-300 text-sm max-w-xs leading-relaxed">
                 Guarda los productos que te gusten para encontrarlos fácilmente más tarde.
               </p>
             </div>
@@ -122,13 +133,13 @@ export default function WishlistPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ duration: 0.45, delay: index * 0.06, ease: [0.16, 1, 0.3, 1] }}
-                    className="group relative bg-white border border-[#DDD9D3] hover:border-[#1C1C1C] overflow-hidden transition-all duration-500"
+                    className="group relative bg-white dark:bg-slate-800 border border-[#DDD9D3] dark:border-slate-700 hover:border-[#1C1C1C] overflow-hidden transition-all duration-500"
                   >
                     {/* Remove button */}
                     <button
                       onClick={() => removeFromWishlist(item.product_id)}
                       aria-label="Eliminar de wishlist"
-                      className="absolute top-3 right-3 z-10 size-8 bg-white/90 border border-[#DDD9D3] flex items-center justify-center hover:bg-red-50 hover:border-red-200 hover:text-red-500 text-[#8A8A8A] transition-all duration-200"
+                      className="absolute top-3 right-3 z-10 size-8 bg-white/90 border border-[#DDD9D3] dark:border-slate-700 flex items-center justify-center hover:bg-red-50 hover:border-red-200 hover:text-red-500 text-[#8A8A8A] dark:text-slate-400 transition-all duration-200"
                     >
                       <Icon name="HeartIcon" size={14} variant="solid" className="text-red-400" />
                     </button>
@@ -151,12 +162,12 @@ export default function WishlistPage() {
                     {/* Info */}
                     <div className="p-5 space-y-3">
                       <Link href={`/product/${product.id}`}>
-                        <h3 className="font-700 text-[#1C1C1C] text-[14px] leading-tight group-hover:text-[#2563EB] transition-colors line-clamp-2">
+                        <h3 className="font-700 text-[#1C1C1C] dark:text-slate-100 text-[14px] leading-tight group-hover:text-[#2563EB] transition-colors line-clamp-2">
                           {product.name}
                         </h3>
                       </Link>
                       <div className="flex items-center gap-2">
-                        <span className="text-xl font-display font-900 italic text-[#1C1C1C] tracking-editorial">
+                        <span className="text-xl font-display font-900 italic text-[#1C1C1C] dark:text-slate-100 tracking-editorial">
                           {formatPrice(product.price)}
                         </span>
                       </div>
@@ -171,7 +182,7 @@ export default function WishlistPage() {
                         </button>
                         <button
                           onClick={() => removeFromWishlist(item.product_id)}
-                          className="size-10 border border-[#DDD9D3] flex items-center justify-center text-[#8A8A8A] hover:text-red-500 hover:border-red-200 transition-all duration-200"
+                          className="size-10 border border-[#DDD9D3] dark:border-slate-700 flex items-center justify-center text-[#8A8A8A] dark:text-slate-400 hover:text-red-500 hover:border-red-200 transition-all duration-200"
                         >
                           <Icon name="TrashIcon" size={13} variant="outline" />
                         </button>

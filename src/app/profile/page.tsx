@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -72,19 +72,65 @@ const ROLE_BADGE: Record<string, { label: string; cls: string }> = {
   viewer: { label: 'Viewer', cls: 'bg-slate-100 text-slate-500 border-slate-200' },
 };
 
+// ─── Info card (Kodexa style) ─────────────────────────────────────────────────
+function InfoCard({
+  icon,
+  label,
+  value,
+}: {
+  icon: Parameters<typeof Icon>[0]['name'];
+  label: string;
+  value?: string;
+}) {
+  return (
+    <div className="rounded-xl bg-slate-50 dark:bg-slate-700/50 p-4">
+      <div className="flex items-center gap-2 mb-2">
+        <div className="bg-blue-50 dark:bg-blue-900/30 rounded-full p-1.5 flex-shrink-0">
+          <Icon
+            name={icon}
+            size={13}
+            variant="outline"
+            className="text-blue-600 dark:text-blue-400"
+          />
+        </div>
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          {label}
+        </p>
+      </div>
+      {value ? (
+        <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">{value}</p>
+      ) : (
+        <p className="text-sm text-slate-400 dark:text-slate-500 italic">Sin completar</p>
+      )}
+    </div>
+  );
+}
+
 // ─── Quick actions ─────────────────────────────────────────────────────────────
 const quickActions = [
   {
     icon: 'ShoppingBagIcon' as const,
     label: 'Mis pedidos',
     desc: 'Revisa el estado de tus compras',
-    href: '/profile/orders',
+    href: '#',
   },
   {
     icon: 'HeartIcon' as const,
     label: 'Wishlist',
     desc: 'Productos que te gustan',
     href: '/wishlist',
+  },
+  {
+    icon: 'StarIcon' as const,
+    label: 'Mis reseñas',
+    desc: 'Productos que has valorado',
+    href: '#',
+  },
+  {
+    icon: 'PencilSquareIcon' as const,
+    label: 'Editar perfil',
+    desc: 'Actualiza tus datos personales',
+    href: '#',
   },
   {
     icon: 'ChatBubbleLeftIcon' as const,
@@ -98,12 +144,6 @@ const quickActions = [
     desc: 'Explora nuestro catálogo',
     href: '/products',
   },
-  {
-    icon: 'StarIcon' as const,
-    label: 'Mis reseñas',
-    desc: 'Productos que has valorado',
-    href: '/products',
-  },
 ] satisfies {
   icon: Parameters<typeof Icon>[0]['name'];
   label: string;
@@ -112,62 +152,6 @@ const quickActions = [
 }[];
 
 // ─── Sub-components ────────────────────────────────────────────────────────────
-function InfoField({ label, value }: { label: string; value?: string }) {
-  return (
-    <div className="space-y-1">
-      <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#8A8A8A]">{label}</p>
-      {value ? (
-        <p className="text-[14px] font-500 text-[#1C1C1C] leading-snug">{value}</p>
-      ) : (
-        <p className="text-[13px] text-[#BDBAB5]">Sin completar</p>
-      )}
-    </div>
-  );
-}
-
-function InfoBadge({
-  icon,
-  label,
-  value,
-}: {
-  icon: Parameters<typeof Icon>[0]['name'];
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="flex items-center gap-3 px-4 py-3 border border-[#E6E1DA] bg-[#FAFAF8]">
-      <div className="size-7 bg-[#EFF6FF] flex items-center justify-center flex-shrink-0">
-        <Icon name={icon} size={14} variant="outline" className="text-[#2563EB]" />
-      </div>
-      <div>
-        <p className="text-[9px] font-black uppercase tracking-[0.22em] text-[#8A8A8A]">{label}</p>
-        <p className="text-[13px] font-700 text-[#1C1C1C]">{value}</p>
-      </div>
-    </div>
-  );
-}
-
-function RoleBadge({ role }: { role: string }) {
-  const config = ROLE_BADGE[role] ?? {
-    label: role,
-    cls: 'bg-slate-100 text-slate-500 border-slate-200',
-  };
-  return (
-    <div className="flex items-center gap-3 px-4 py-3 border border-[#E6E1DA] bg-[#FAFAF8]">
-      <div className="size-7 bg-[#F0FDF4] flex items-center justify-center flex-shrink-0">
-        <Icon name="ShieldCheckIcon" size={14} variant="outline" className="text-emerald-600" />
-      </div>
-      <div>
-        <p className="text-[9px] font-black uppercase tracking-[0.22em] text-[#8A8A8A]">Rol</p>
-        <span
-          className={`inline-block text-[10px] font-black uppercase tracking-wider px-2 py-0.5 border ${config.cls}`}
-        >
-          {config.label}
-        </span>
-      </div>
-    </div>
-  );
-}
 
 // ─── Modal: Personal form ──────────────────────────────────────────────────────
 function PersonalForm({ user, onSuccess }: { user: ModalUser; onSuccess: () => void }) {
@@ -922,10 +906,11 @@ function ReviewsModal({
 }
 
 // ─── Modal key map ─────────────────────────────────────────────────────────────
-const MODAL_MAP: Record<string, 'orders' | 'wishlist' | 'reviews'> = {
+const MODAL_MAP: Record<string, 'orders' | 'wishlist' | 'reviews' | 'edit'> = {
   'Mis pedidos': 'orders',
   Wishlist: 'wishlist',
   'Mis reseñas': 'reviews',
+  'Editar perfil': 'edit',
 };
 
 // ─── Main page ────────────────────────────────────────────────────────────────
@@ -969,230 +954,184 @@ export default function ProfilePage() {
   const meta = (user?.user_metadata ?? {}) as Record<string, string | undefined>;
   const role = (profile?.role ?? '') as string;
   const isStaff = role === 'admin' || role === 'employee';
-  const position = meta.position;
+
+  // Keep isAdmin reference to avoid unused-var error
+  void isAdmin;
 
   return (
-    <main className="min-h-screen bg-[#FAF9F7]">
+    <main className="min-h-screen bg-stone-50 dark:bg-slate-900">
       <Header />
 
       <div className="pt-[72px]">
-        <div className="max-w-2xl mx-auto px-6 py-12 space-y-6">
+        <div className="max-w-3xl mx-auto px-6 py-12 space-y-8">
           {/* ── Main profile card ── */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-            className="bg-white border border-[#E6E1DA] shadow-sm overflow-hidden"
+            className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 p-8"
           >
-            {/* Avatar + name */}
-            <div className="flex flex-col items-center py-10 px-8">
-              {/* Role badge above avatar */}
+            {/* Avatar + name — centrado */}
+            <div className="flex flex-col items-center text-center">
+              {/* Role badge */}
               {!loading && role && (
                 <span
                   className={`mb-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-[9px] font-black uppercase tracking-[0.22em] ${
-                    (
-                      ROLE_BADGE[role] ?? {
-                        cls: 'bg-slate-100 text-slate-500 border-slate-200',
-                      }
-                    ).cls
+                    (ROLE_BADGE[role] ?? { cls: 'bg-slate-100 text-slate-500 border-slate-200' })
+                      .cls
                   }`}
                 >
                   <Icon name="ShieldCheckIcon" size={10} variant="outline" />
                   {(ROLE_BADGE[role] ?? { label: role }).label}
                 </span>
               )}
-              <div className="size-24 rounded-full border-4 border-[#F2F0EC] bg-[#EFEDE9] flex items-center justify-center overflow-hidden shadow-sm">
+
+              {/* Avatar */}
+              <div className="w-20 h-20 rounded-full border-4 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-700 flex items-center justify-center overflow-hidden shadow-sm mb-4">
                 {user?.user_metadata?.avatar_url ? (
                   <AppImage
                     src={user.user_metadata.avatar_url as string}
                     alt={displayName}
-                    width={96}
-                    height={96}
+                    width={80}
+                    height={80}
                     className="w-full h-full object-cover"
                   />
                 ) : (
                   <Icon
                     name="UserCircleIcon"
-                    size={64}
-                    className="text-[#8A8A8A]"
+                    size={56}
+                    className="text-slate-400"
                     variant="solid"
                   />
                 )}
               </div>
 
+              {/* Name + email */}
               {loading ? (
-                <div className="mt-5 space-y-2 flex flex-col items-center">
-                  <div className="h-7 w-40 bg-[#EFEDE9] rounded animate-pulse" />
-                  <div className="h-4 w-56 bg-[#EFEDE9] rounded animate-pulse" />
+                <div className="space-y-2 flex flex-col items-center">
+                  <div className="h-8 w-48 bg-slate-100 rounded-lg animate-pulse" />
+                  <div className="h-4 w-56 bg-slate-100 rounded-lg animate-pulse" />
                 </div>
               ) : (
                 <>
-                  <h1 className="mt-5 text-3xl font-display font-900 italic text-[#1C1C1C] tracking-tight text-center">
+                  <h1 className="text-3xl font-display font-900 italic text-slate-900 dark:text-slate-50 tracking-tight">
                     {displayName}
                   </h1>
-                  <p className="text-sm text-[#8A8A8A] mt-1 text-center">{user?.email}</p>
+                  <p className="text-sm text-slate-400 mt-1">{user?.email}</p>
                 </>
               )}
             </div>
 
-            <div className="border-t border-[#E6E1DA]" />
+            {/* Divider */}
+            <div className="border-t border-slate-100 dark:border-slate-700 my-8" />
 
-            {/* Personal info grid */}
+            {/* Info grid 2x3 */}
             {loading ? (
-              <div className="px-8 py-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="space-y-1.5">
-                    <div className="h-2.5 w-20 bg-[#EFEDE9] rounded animate-pulse" />
-                    <div className="h-4 w-32 bg-[#EFEDE9] rounded animate-pulse" />
+                  <div
+                    key={i}
+                    className="rounded-xl bg-slate-50 dark:bg-slate-700/50 p-4 space-y-2"
+                  >
+                    <div className="h-3 w-20 bg-slate-200 rounded animate-pulse" />
+                    <div className="h-4 w-28 bg-slate-200 rounded animate-pulse" />
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="px-8 py-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <InfoField label="Nombre" value={displayName} />
-                <InfoField label="Email" value={user?.email} />
-                <InfoField label="Teléfono" value={meta.phone} />
-                <InfoField label="Dirección" value={meta.address} />
-                <InfoField label="Ciudad" value={meta.city} />
-                <InfoField label="País" value={meta.country} />
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <InfoCard icon="CalendarIcon" label="Miembro desde" value={memberSince} />
+                <InfoCard
+                  icon="ShoppingBagIcon"
+                  label="Pedidos"
+                  value={orderCount !== null ? String(orderCount) : undefined}
+                />
+                <InfoCard icon="HeartIcon" label="Wishlist" value={String(wishlistCount)} />
+                <InfoCard icon="DevicePhoneMobileIcon" label="Teléfono" value={meta.phone} />
+                <InfoCard icon="HomeModernIcon" label="Ciudad" value={meta.city} />
+                <InfoCard icon="MapIcon" label="País" value={meta.country} />
               </div>
             )}
-
-            <div className="border-t border-[#E6E1DA]" />
-
-            {/* Info badges */}
-            <div className="px-8 py-5 flex flex-wrap gap-3">
-              <InfoBadge
-                icon="CalendarIcon"
-                label="Miembro desde"
-                value={loading ? '—' : memberSince}
-              />
-              <InfoBadge
-                icon="ShoppingBagIcon"
-                label="Pedidos"
-                value={loading ? '—' : orderCount !== null ? String(orderCount) : '—'}
-              />
-              <InfoBadge icon="HeartIcon" label="Wishlist" value={String(wishlistCount)} />
-              {isStaff && position && (
-                <InfoBadge icon="BriefcaseIcon" label="Cargo" value={position} />
-              )}
-              {isStaff && role && <RoleBadge role={role} />}
-            </div>
-
-            <div className="border-t border-[#E6E1DA]" />
-
-            {/* Action buttons */}
-            <div className="px-8 py-5 flex flex-wrap gap-3">
-              <button
-                onClick={() => setEditOpen(true)}
-                className="inline-flex h-10 items-center gap-2 bg-[#1C1C1C] px-5 text-[10px] font-black uppercase tracking-[0.26em] text-white hover:bg-[#2563EB] transition-colors"
-              >
-                <Icon name="PencilSquareIcon" size={12} variant="outline" />
-                Editar perfil
-              </button>
-              <Link
-                href="/profile/orders"
-                className="inline-flex h-10 items-center gap-2 border border-[#DDD9D3] px-5 text-[10px] font-black uppercase tracking-[0.26em] text-[#5A5A5A] hover:border-[#1C1C1C] hover:text-[#1C1C1C] transition-colors"
-              >
-                <Icon name="ShoppingBagIcon" size={12} variant="outline" />
-                Mis pedidos
-              </Link>
-            </div>
           </motion.div>
 
           {/* ── Quick actions ── */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="size-7 bg-[#EFF6FF] flex items-center justify-center">
-                <Icon
-                  name="RectangleGroupIcon"
-                  size={14}
-                  variant="outline"
-                  className="text-[#2563EB]"
-                />
-              </div>
-              <h2 className="text-[12px] font-black uppercase tracking-[0.22em] text-[#1C1C1C]">
-                Acciones rápidas
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {quickActions.map((action, i) => (
-                <motion.div
-                  key={action.label}
-                  initial={{ opacity: 0, y: 14 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.15 + i * 0.06, ease: [0.16, 1, 0.3, 1] }}
-                  whileHover={{
-                    y: -2,
-                    transition: { type: 'spring', stiffness: 400, damping: 25 },
-                  }}
-                >
-                  {(() => {
-                    const modalKey = MODAL_MAP[action.label];
-                    const inner = (
-                      <>
-                        <div className="size-9 flex-shrink-0 bg-[#F2F0EC] group-hover:bg-[#EFF6FF] flex items-center justify-center transition-colors duration-300">
-                          <Icon
-                            name={action.icon}
-                            size={17}
-                            variant="outline"
-                            className="text-[#5A5A5A] group-hover:text-[#2563EB] transition-colors duration-300"
-                          />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-[12px] font-black uppercase tracking-[0.18em] text-[#1C1C1C] group-hover:text-[#2563EB] transition-colors duration-300 leading-tight">
-                            {action.label}
-                          </p>
-                          <p className="mt-1 text-[12px] text-[#8A8A8A] leading-snug">
-                            {action.desc}
-                          </p>
-                        </div>
-                        <Icon
-                          name="ChevronRightIcon"
-                          size={13}
-                          variant="outline"
-                          className="ml-auto flex-shrink-0 text-[#DDD9D3] group-hover:text-[#2563EB] group-hover:translate-x-0.5 transition-all duration-300 mt-0.5"
-                        />
-                      </>
-                    );
-                    return modalKey ? (
+          <div>
+            <p className="text-[11px] font-black uppercase tracking-[0.26em] text-slate-400 dark:text-slate-500 mb-4">
+              Acciones rápidas
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {quickActions.map((action, i) => {
+                const modalKey = MODAL_MAP[action.label];
+                const inner = (
+                  <>
+                    <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center mb-3 flex-shrink-0">
+                      <Icon
+                        name={action.icon}
+                        size={18}
+                        variant="outline"
+                        className="text-blue-600"
+                      />
+                    </div>
+                    <p className="font-bold text-slate-800 dark:text-slate-100 text-sm leading-tight">
+                      {action.label}
+                    </p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 leading-snug">
+                      {action.desc}
+                    </p>
+                  </>
+                );
+                return (
+                  <motion.div
+                    key={action.label}
+                    initial={{ opacity: 0, y: 14 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      duration: 0.4,
+                      delay: 0.15 + i * 0.06,
+                      ease: [0.16, 1, 0.3, 1],
+                    }}
+                    whileHover={{
+                      y: -2,
+                      transition: { type: 'spring', stiffness: 400, damping: 25 },
+                    }}
+                    className="h-full"
+                  >
+                    {modalKey ? (
                       <button
-                        onClick={() => setOpenModal(modalKey)}
-                        className="group flex items-start gap-4 bg-white border border-[#E6E1DA] p-5 shadow-sm hover:border-[#1C1C1C] hover:shadow-md transition-all duration-300 h-full w-full text-left"
+                        onClick={() => {
+                          if (modalKey === 'edit') setEditOpen(true);
+                          else setOpenModal(modalKey as 'orders' | 'wishlist' | 'reviews');
+                        }}
+                        className="w-full h-full bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 hover:shadow-md transition-all duration-300 text-left flex flex-col"
                       >
                         {inner}
                       </button>
                     ) : (
                       <Link
                         href={action.href}
-                        className="group flex items-start gap-4 bg-white border border-[#E6E1DA] p-5 shadow-sm hover:border-[#1C1C1C] hover:shadow-md transition-all duration-300 h-full"
+                        className="w-full h-full bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 hover:shadow-md transition-all duration-300 flex flex-col"
                       >
                         {inner}
                       </Link>
-                    );
-                  })()}
-                </motion.div>
-              ))}
+                    )}
+                  </motion.div>
+                );
+              })}
             </div>
-          </motion.div>
+          </div>
 
-          {/* ── Admin panel ── */}
-          {!loading && isAdmin && (
+          {/* ── Admin / Staff banner ── */}
+          {!loading && isStaff && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.1 }}
-              className="relative overflow-hidden border border-[#1C1C1C] bg-[#1C1C1C] p-6"
+              className="relative overflow-hidden border border-[#1C1C1C] bg-[#1C1C1C] p-6 rounded-2xl"
             >
               <div className="absolute top-0 right-0 h-[160px] w-[160px] rounded-full bg-[#2563EB] opacity-10 blur-[60px] pointer-events-none" />
               <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="flex items-start gap-4">
-                  <div className="flex size-11 flex-shrink-0 items-center justify-center bg-[#2563EB]">
+                  <div className="flex size-11 flex-shrink-0 items-center justify-center bg-[#2563EB] rounded-xl">
                     <Icon name="Squares2X2Icon" size={20} variant="solid" className="text-white" />
                   </div>
                   <div>
@@ -1209,7 +1148,7 @@ export default function ProfilePage() {
                 </div>
                 <Link
                   href="/admin"
-                  className="inline-flex flex-shrink-0 items-center gap-2 bg-[#2563EB] px-5 py-3 text-[11px] font-black uppercase tracking-[0.24em] text-white transition hover:bg-[#1D4ED8]"
+                  className="inline-flex flex-shrink-0 items-center gap-2 bg-[#2563EB] px-5 py-3 text-[11px] font-black uppercase tracking-[0.24em] text-white transition hover:bg-[#1D4ED8] rounded-lg"
                 >
                   <Icon name="ArrowRightIcon" size={13} variant="outline" />
                   Ir al Dashboard
@@ -1228,8 +1167,6 @@ export default function ProfilePage() {
         onClose={() => setOpenModal(null)}
         userId={user?.id ?? ''}
       />
-
-      {/* Edit profile modal */}
       <EditProfileModal open={editOpen} onClose={() => setEditOpen(false)} user={user} />
 
       <Footer />

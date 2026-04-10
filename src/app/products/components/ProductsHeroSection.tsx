@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import Link from 'next/link';
 import Icon from '@/components/ui/AppIcon';
 
 interface ProductsHeroSectionProps {
@@ -10,7 +9,6 @@ interface ProductsHeroSectionProps {
   categoryId?: string;
   sort?: string;
   badge?: string;
-  view?: string;
 }
 
 const categoryDescriptions: Record<string, string> = {
@@ -29,7 +27,6 @@ export default function ProductsHeroSection({
   categoryId,
   sort,
   badge,
-  view,
 }: ProductsHeroSectionProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
@@ -53,19 +50,11 @@ export default function ProductsHeroSection({
 
   // Derive page title from active filter
   let pageTitle = 'Tienda';
-  if (view === 'categories') pageTitle = 'Categorías';
-  else if (sort === 'newest') pageTitle = 'Novedades';
+  if (sort === 'newest') pageTitle = 'Novedades';
   else if (badge?.toLowerCase() === 'oferta') pageTitle = 'Ofertas';
   else if (hasCategory && categoryName) pageTitle = categoryName;
 
   const isFiltered = pageTitle !== 'Tienda';
-
-  // Build breadcrumb items: always Inicio > Tienda, + active filter as last item
-  const breadcrumbItems: { label: string; href: string | null }[] = [
-    { label: 'Inicio', href: '/homepage' },
-    { label: 'Tienda', href: isFiltered ? '/products' : null },
-    ...(isFiltered ? [{ label: pageTitle.toUpperCase(), href: null }] : []),
-  ];
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,58 +80,10 @@ export default function ProductsHeroSection({
       </div>
 
       <div className="max-w-[1440px] mx-auto px-6 lg:px-12 relative z-10">
-        {/* Breadcrumb */}
-        <motion.nav
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          aria-label="Breadcrumb"
-          className="flex items-center gap-2 pt-10 mb-12"
-        >
-          {breadcrumbItems.map((crumb, i) => (
-            <React.Fragment key={i}>
-              {i > 0 && (
-                <Icon
-                  name="ChevronRightIcon"
-                  size={11}
-                  variant="outline"
-                  className="text-[#8A8A8A]"
-                />
-              )}
-              {crumb.href ? (
-                <Link
-                  href={crumb.href}
-                  className="text-[10px] font-700 uppercase tracking-widest text-[#8A8A8A] hover:text-[#5A5A5A] transition-colors"
-                >
-                  {crumb.label}
-                </Link>
-              ) : (
-                <span className="text-[10px] font-700 uppercase tracking-widest text-[#1C1C1C]">
-                  {crumb.label}
-                </span>
-              )}
-            </React.Fragment>
-          ))}
-        </motion.nav>
-
         {/* Hero content */}
-        <div className="grid lg:grid-cols-[1fr_auto] gap-12 lg:gap-20 items-end pb-14">
+        <div className="grid lg:grid-cols-[1fr_auto] gap-12 lg:gap-20 items-end pt-10 pb-14">
           {/* Left — headline block */}
           <div>
-            {/* Eyebrow */}
-            <motion.div
-              key={pageTitle}
-              initial={{ opacity: 0, x: -16 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="flex items-center gap-3 mb-6"
-            >
-              <div className="w-8 h-px bg-[#2563EB]" />
-              <span className="text-[10px] font-800 uppercase tracking-[0.2em] text-[#2563EB]">
-                {isFiltered ? pageTitle : 'Colección 2026'}
-              </span>
-            </motion.div>
-
             {/* Main headline */}
             <motion.h1
               key={pageTitle + '-h1'}

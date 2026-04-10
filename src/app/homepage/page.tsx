@@ -1,4 +1,3 @@
-import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import HeroSection from './components/HeroSection';
@@ -11,7 +10,7 @@ import NewsletterSection from './components/NewsletterSection';
 
 export default function HomepagePage() {
   return (
-    <main className="min-h-screen bg-[#FAF9F7]">
+    <main className="min-h-screen bg-[#FAF9F7] dark:bg-slate-900">
       <Header />
       <HeroSection />
       <CategoryBannersSection />

@@ -9,7 +9,7 @@ import Icon from '@/components/ui/AppIcon';
 const footerColumns = [
   [
     { label: 'Tienda', href: '/products' },
-    { label: 'Categorías', href: '/products?view=categories' },
+    { label: 'Categorías', href: '/products' },
     { label: 'Novedades', href: '/products?sort=newest' },
   ],
   [
@@ -28,7 +28,7 @@ function FooterLink({ href, label }: { href: string; label: string }) {
   return (
     <Link
       href={href}
-      className="group inline-flex items-center gap-1 text-[13px] font-600 text-[#5A5A5A] hover:text-[#1C1C1C] transition-colors duration-200"
+      className="group inline-flex items-center gap-1 text-[13px] font-600 text-[#5A5A5A] dark:text-slate-400 hover:text-[#1C1C1C] dark:hover:text-white transition-colors duration-200"
     >
       <span className="transition-transform duration-200 group-hover:translate-x-1">{label}</span>
       <Icon
@@ -46,7 +46,10 @@ export default function Footer() {
   const inView = useInView(ref, { once: true, margin: '-60px' });
 
   return (
-    <footer ref={ref} className="border-t border-[#DDD9D3] bg-[#EFEDE9]">
+    <footer
+      ref={ref}
+      className="border-t border-[#DDD9D3] dark:border-slate-800 bg-[#EFEDE9] dark:bg-slate-950"
+    >
       <div className="max-w-[1440px] mx-auto px-6 lg:px-12 py-16 lg:py-20">
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-12">
           {/* Brand column */}
@@ -59,7 +62,7 @@ export default function Footer() {
             <Link href="/homepage" className="flex items-center gap-2.5">
               <AppLogo size={250} />
             </Link>
-            <p className="text-sm text-[#5A5A5A] leading-relaxed">
+            <p className="text-sm text-[#5A5A5A] dark:text-slate-400 leading-relaxed">
               Tecnologia premium seleccionada para profesionales y creadores.
             </p>
           </motion.div>
@@ -102,7 +105,7 @@ export default function Footer() {
             initial={{ opacity: 0 }}
             animate={inView ? { opacity: 1 } : {}}
             transition={{ duration: 0.5, delay: 0.6 }}
-            className="text-[12px] font-500 text-[#8A8A8A]"
+            className="text-[12px] font-500 text-[#8A8A8A] dark:text-slate-500"
           >
             Copyright 2026 NovaStore. Todos los derechos reservados.
           </motion.p>
@@ -149,14 +152,14 @@ export default function Footer() {
             <span className="mx-2 text-[#DDD9D3]">.</span>
             <Link
               href="/privacidad"
-              className="text-[12px] font-500 text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
+              className="text-[12px] font-500 text-[#8A8A8A] dark:text-slate-500 hover:text-[#1C1C1C] dark:hover:text-white transition-colors"
             >
               Privacidad
             </Link>
             <span className="text-[#DDD9D3]">.</span>
             <Link
               href="/terminos"
-              className="text-[12px] font-500 text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors"
+              className="text-[12px] font-500 text-[#8A8A8A] dark:text-slate-500 hover:text-[#1C1C1C] dark:hover:text-white transition-colors"
             >
               Términos
             </Link>
@@ -165,7 +168,7 @@ export default function Footer() {
               href="https://www.kodexasolutions.com/home"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-[12px] font-500 text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors duration-200 group/kodexa"
+              className="inline-flex items-center gap-1 text-[12px] font-500 text-[#8A8A8A] dark:text-slate-500 hover:text-[#1C1C1C] dark:hover:text-white transition-colors duration-200 group/kodexa"
             >
               Desarrollado por{' '}
               <span className="font-700 group-hover/kodexa:text-[#2563EB] transition-colors duration-200">

@@ -94,9 +94,9 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
             className="fixed top-20 left-1/2 -translate-x-1/2 z-50 w-full max-w-xl px-4"
           >
-            <div className="bg-white border border-[#DDD9D3] shadow-[0_24px_80px_rgba(28,28,28,0.18)] overflow-hidden">
+            <div className="bg-white dark:bg-slate-800 border border-[#DDD9D3] dark:border-slate-700 shadow-[0_24px_80px_rgba(28,28,28,0.18)] overflow-hidden">
               {/* Search input */}
-              <div className="flex items-center gap-3 px-5 py-4 border-b border-[#DDD9D3]">
+              <div className="flex items-center gap-3 px-5 py-4 border-b border-[#DDD9D3] dark:border-slate-700">
                 <Icon
                   name="MagnifyingGlassIcon"
                   size={18}
@@ -109,14 +109,14 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Buscar productos..."
-                  className="flex-1 bg-transparent text-[15px] text-[#1C1C1C] placeholder-[#8A8A8A] outline-none"
+                  className="flex-1 bg-transparent text-[15px] text-[#1C1C1C] dark:text-slate-100 placeholder-[#8A8A8A] dark:placeholder-slate-400 outline-none"
                 />
                 {loading && (
                   <div className="size-4 border-2 border-[#2563EB] border-t-transparent rounded-full animate-spin shrink-0" />
                 )}
                 <button
                   onClick={onClose}
-                  className="text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors shrink-0"
+                  className="text-[#8A8A8A] dark:text-slate-400 hover:text-[#1C1C1C] dark:hover:text-white transition-colors shrink-0"
                 >
                   <Icon name="XMarkIcon" size={18} variant="outline" />
                 </button>
@@ -133,7 +133,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                     transition={{ duration: 0.15 }}
                     className="max-h-[400px] overflow-y-auto"
                   >
-                    <p className="px-5 py-2.5 text-[9px] font-black uppercase tracking-[0.22em] text-[#8A8A8A] border-b border-[#EFEDE9]">
+                    <p className="px-5 py-2.5 text-[9px] font-black uppercase tracking-[0.22em] text-[#8A8A8A] dark:text-slate-400 border-b border-[#EFEDE9] dark:border-slate-700">
                       {results.length} resultado{results.length !== 1 ? 's' : ''}
                     </p>
                     {results.map((product, i) => (
@@ -146,9 +146,9 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         <Link
                           href={`/product/${product.id}`}
                           onClick={handleResultClick}
-                          className="flex items-center gap-4 px-5 py-3.5 hover:bg-[#F8F7F5] transition-colors border-b border-[#EFEDE9] last:border-0 group"
+                          className="flex items-center gap-4 px-5 py-3.5 hover:bg-[#F8F7F5] dark:hover:bg-slate-700 transition-colors border-b border-[#EFEDE9] dark:border-slate-700 last:border-0 group"
                         >
-                          <div className="size-12 bg-[#F4F2EF] overflow-hidden shrink-0">
+                          <div className="size-12 bg-[#F4F2EF] dark:bg-slate-700 overflow-hidden shrink-0">
                             <AppImage
                               src={product.image_url || '/assets/images/no_image.png'}
                               alt={product.name}
@@ -158,7 +158,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                             />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-[13px] font-bold text-[#1C1C1C] group-hover:text-[#2563EB] transition-colors line-clamp-1">
+                            <p className="text-[13px] font-bold text-[#1C1C1C] dark:text-slate-100 group-hover:text-[#2563EB] transition-colors line-clamp-1">
                               {product.name}
                             </p>
                             {product.category_name && (
@@ -168,7 +168,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                             )}
                           </div>
                           <div className="text-right shrink-0">
-                            <p className="text-[14px] font-display font-900 italic text-[#1C1C1C] tracking-editorial">
+                            <p className="text-[14px] font-display font-900 italic text-[#1C1C1C] dark:text-slate-100 tracking-editorial">
                               {formatPrice(product.price)}
                             </p>
                             {product.original_price && (
@@ -197,7 +197,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                       variant="outline"
                       className="text-[#DDD9D3] mx-auto mb-3"
                     />
-                    <p className="text-[#5A5A5A] text-sm">
+                    <p className="text-[#5A5A5A] dark:text-slate-400 text-sm">
                       Sin resultados para{' '}
                       <span className="font-bold">&ldquo;{debouncedQuery}&rdquo;</span>
                     </p>
@@ -210,7 +210,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="px-5 py-5 text-[11px] text-[#8A8A8A]"
+                    className="px-5 py-5 text-[11px] text-[#8A8A8A] dark:text-slate-400"
                   >
                     Escribe para buscar productos, categorías y más...
                   </motion.div>

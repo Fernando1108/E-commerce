@@ -58,7 +58,7 @@ function ProductQuickViewModal({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-        className="relative bg-white max-w-2xl w-full grid grid-cols-1 sm:grid-cols-2 overflow-hidden shadow-2xl"
+        className="relative bg-white dark:bg-slate-800 max-w-2xl w-full grid grid-cols-1 sm:grid-cols-2 overflow-hidden shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close */}
@@ -71,7 +71,7 @@ function ProductQuickViewModal({
         </button>
 
         {/* Image */}
-        <div className="relative aspect-square bg-[#EFEDE9]">
+        <div className="relative aspect-square bg-[#EFEDE9] dark:bg-slate-700">
           <AppImage
             src={product.image_url || '/assets/images/no_image.png'}
             alt={product.name}
@@ -291,13 +291,13 @@ function ProductCard({
 
 function SkeletonCard() {
   return (
-    <div className="skeleton-shimmer bg-white border border-[#DDD9D3] overflow-hidden">
-      <div className="bg-[#EFEDE9] aspect-square" />
+    <div className="skeleton-shimmer bg-white dark:bg-slate-800 border border-[#DDD9D3] dark:border-slate-700 overflow-hidden">
+      <div className="bg-[#EFEDE9] dark:bg-slate-700 aspect-square" />
       <div className="p-4 space-y-2.5">
-        <div className="h-3 bg-[#EFEDE9] rounded w-20" />
-        <div className="h-4 bg-[#EFEDE9] rounded w-3/4" />
-        <div className="h-3 bg-[#EFEDE9] rounded w-full" />
-        <div className="h-5 bg-[#EFEDE9] rounded w-16" />
+        <div className="h-3 bg-[#EFEDE9] dark:bg-slate-700 rounded w-20" />
+        <div className="h-4 bg-[#EFEDE9] dark:bg-slate-700 rounded w-3/4" />
+        <div className="h-3 bg-[#EFEDE9] dark:bg-slate-700 rounded w-full" />
+        <div className="h-5 bg-[#EFEDE9] dark:bg-slate-700 rounded w-16" />
       </div>
     </div>
   );
@@ -420,15 +420,13 @@ export default function ProductGridSection({
 
       <ProductFiltersSection
         activeCategory={activeCategory}
-        onCategoryChange={(cat) => {
-          setActiveCategory(cat);
-        }}
+        onCategoryChange={setActiveCategory}
         activeSort={activeSort}
         onSortChange={setActiveSort}
         productCount={totalShown}
       />
 
-      <section className="py-10 lg:py-16 bg-[#F8F7F5]">
+      <section className="py-10 lg:py-16 bg-[#F8F7F5] dark:bg-slate-900">
         <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
           {/* Count on mobile */}
           <div className="flex items-center justify-between mb-8 sm:hidden">

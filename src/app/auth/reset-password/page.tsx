@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -54,7 +54,7 @@ export default function ResetPasswordPage() {
   });
 
   return (
-    <main className="min-h-screen bg-[#FAF9F7]">
+    <main className="min-h-screen bg-[#FAF9F7] dark:bg-slate-900">
       <Header />
 
       <section className="relative overflow-hidden pt-[72px]">
@@ -73,14 +73,14 @@ export default function ResetPasswordPage() {
           <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 items-start">
             {/* Left */}
             <div className="max-w-2xl pt-4 lg:pt-10">
-              <div className="inline-flex items-center gap-3 px-5 py-2.5 border border-[#DDD9D3] bg-white/70 backdrop-blur-sm">
+              <div className="inline-flex items-center gap-3 px-5 py-2.5 border border-[#DDD9D3] dark:border-slate-700 bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm">
                 <span className="size-1.5 rounded-full bg-[#2563EB]" />
                 <span className="text-[11px] font-black uppercase tracking-[0.28em] text-[#2563EB]">
                   Nueva contraseña
                 </span>
               </div>
               <h1
-                className="mt-8 font-display font-900 italic uppercase leading-[0.88] tracking-[-0.04em] text-[#1C1C1C]"
+                className="mt-8 font-display font-900 italic uppercase leading-[0.88] tracking-[-0.04em] text-[#1C1C1C] dark:text-slate-100"
                 style={{ fontSize: 'clamp(3rem, 7vw, 6.5rem)' }}
               >
                 Elige una
@@ -94,7 +94,7 @@ export default function ResetPasswordPage() {
                 <br />
                 segura.
               </h1>
-              <p className="mt-6 max-w-xl text-base lg:text-lg leading-relaxed text-[#5A5A5A]">
+              <p className="mt-6 max-w-xl text-base lg:text-lg leading-relaxed text-[#5A5A5A] dark:text-slate-300">
                 Crea una nueva contraseña para tu cuenta NovaStore. Asegúrate de que tenga al menos
                 6 caracteres.
               </p>
@@ -103,13 +103,13 @@ export default function ResetPasswordPage() {
             {/* Right */}
             <div className="relative">
               <div className="absolute -inset-px bg-gradient-to-br from-[#DDD9D3]/70 via-transparent to-transparent pointer-events-none" />
-              <div className="relative border border-[#DDD9D3] bg-white/90 backdrop-blur-xl p-6 sm:p-8 lg:p-10 shadow-[0_24px_80px_rgba(28,28,28,0.08)]">
+              <div className="relative border border-[#DDD9D3] dark:border-slate-700 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl p-6 sm:p-8 lg:p-10 shadow-[0_24px_80px_rgba(28,28,28,0.08)]">
                 <div className="flex items-start justify-between gap-4 border-b border-[#E6E1DA] pb-6">
                   <div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#8A8A8A]">
+                    <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#8A8A8A] dark:text-slate-400">
                       Restablecer acceso
                     </p>
-                    <h2 className="mt-3 text-3xl font-display font-900 uppercase italic text-[#1C1C1C]">
+                    <h2 className="mt-3 text-3xl font-display font-900 uppercase italic text-[#1C1C1C] dark:text-slate-100">
                       Nueva contraseña
                     </h2>
                   </div>
@@ -145,7 +145,7 @@ export default function ResetPasswordPage() {
                     <div className="flex items-center justify-end gap-4 border-t border-[#E6E1DA] pt-6">
                       <Link
                         href="/auth/login"
-                        className="text-[11px] font-black uppercase tracking-[0.24em] text-[#8A8A8A] transition hover:text-[#1C1C1C]"
+                        className="text-[11px] font-black uppercase tracking-[0.24em] text-[#8A8A8A] dark:text-slate-400 transition hover:text-[#1C1C1C] dark:text-slate-100"
                       >
                         Volver al acceso
                       </Link>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
 import Icon from '@/components/ui/AppIcon';
@@ -75,7 +75,7 @@ export default function CartPage() {
   const shippingProgress = Math.min(100, (subtotal / SHIPPING_THRESHOLD) * 100);
 
   return (
-    <main className="min-h-screen bg-[#F8F7F5] pt-[72px]">
+    <main className="min-h-screen bg-[#F8F7F5] dark:bg-slate-900 pt-[72px]">
       <Header />
       <CartHeader itemCount={itemCount} />
       {items.length === 0 ? (
@@ -88,20 +88,20 @@ export default function CartPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.45 }}
-                className="flex items-center justify-between pb-5 border-b border-[#DDD9D3]"
+                className="flex items-center justify-between pb-5 border-b border-[#DDD9D3] dark:border-slate-700 dark:border-slate-700"
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#5A5A5A]">
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#5A5A5A] dark:text-slate-300 dark:text-slate-300">
                     {itemCount} {itemCount === 1 ? 'Artículo' : 'Artículos'}
                   </span>
                   <span className="w-px h-3 bg-[#DDD9D3]" />
-                  <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#8A8A8A]">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#8A8A8A] dark:text-slate-400 dark:text-slate-400">
                     en tu carrito
                   </span>
                 </div>
                 <button
                   onClick={clearCart}
-                  className="group flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#8A8A8A] hover:text-red-500 transition-colors duration-200"
+                  className="group flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#8A8A8A] dark:text-slate-400 hover:text-red-500 transition-colors duration-200"
                 >
                   <Icon
                     name="TrashIcon"
@@ -142,9 +142,9 @@ export default function CartPage() {
               <div className="flex items-center gap-4 pt-1">
                 <Link
                   href="/products"
-                  className="group inline-flex items-center gap-2.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#8A8A8A] hover:text-[#1C1C1C] transition-colors duration-200"
+                  className="group inline-flex items-center gap-2.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#8A8A8A] dark:text-slate-400 hover:text-[#1C1C1C] dark:text-slate-100 transition-colors duration-200"
                 >
-                  <span className="size-6 border border-[#DDD9D3] group-hover:border-[#1C1C1C] flex items-center justify-center transition-colors duration-200">
+                  <span className="size-6 border border-[#DDD9D3] dark:border-slate-700 group-hover:border-[#1C1C1C] flex items-center justify-center transition-colors duration-200">
                     <Icon name="ArrowLeftIcon" size={11} variant="outline" />
                   </span>
                   Seguir Comprando
@@ -156,7 +156,7 @@ export default function CartPage() {
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.55, delay: 0.18, ease: [0.16, 1, 0.3, 1] }}
-                className="bg-white border border-[#DDD9D3] overflow-hidden dark:bg-slate-800 dark:border-slate-700"
+                className="bg-white border border-[#DDD9D3] dark:border-slate-700 overflow-hidden dark:bg-slate-800 dark:border-slate-700"
               >
                 <CartSummary
                   itemCount={itemCount}
@@ -176,7 +176,7 @@ export default function CartPage() {
                     window.location.href = '/checkout/success';
                   }}
                 />
-                <div className="border-t border-[#DDD9D3] px-8 py-6 grid grid-cols-2 gap-4">
+                <div className="border-t border-[#DDD9D3] dark:border-slate-700 px-8 py-6 grid grid-cols-2 gap-4">
                   {[
                     { icon: 'LockClosedIcon', label: 'Pago 100% seguro' },
                     { icon: 'ArrowPathIcon', label: 'Devolución 30 días' },
@@ -192,21 +192,21 @@ export default function CartPage() {
                           className="text-[#2563EB]"
                         />
                       </div>
-                      <span className="text-[#5A5A5A] text-[10px] font-medium leading-tight">
+                      <span className="text-[#5A5A5A] dark:text-slate-300 text-[10px] font-medium leading-tight">
                         {trust.label}
                       </span>
                     </div>
                   ))}
                 </div>
-                <div className="border-t border-[#DDD9D3] px-8 py-5">
-                  <p className="text-[9px] font-black uppercase tracking-[0.22em] text-[#8A8A8A] mb-3">
+                <div className="border-t border-[#DDD9D3] dark:border-slate-700 px-8 py-5">
+                  <p className="text-[9px] font-black uppercase tracking-[0.22em] text-[#8A8A8A] dark:text-slate-400 mb-3">
                     Métodos de Pago Aceptados
                   </p>
                   <div className="flex items-center gap-2 flex-wrap">
                     {['Visa', 'MC', 'Amex', 'PayPal', 'Bizum'].map((m) => (
                       <span
                         key={m}
-                        className="px-2.5 py-1 border border-[#DDD9D3] text-[#8A8A8A] text-[9px] font-bold uppercase tracking-[0.15em]"
+                        className="px-2.5 py-1 border border-[#DDD9D3] dark:border-slate-700 text-[#8A8A8A] dark:text-slate-400 text-[9px] font-bold uppercase tracking-[0.15em]"
                       >
                         {m}
                       </span>
@@ -226,7 +226,7 @@ export default function CartPage() {
                   variant="outline"
                   className="text-[#2563EB]/50 shrink-0 mt-0.5"
                 />
-                <p className="text-[#8A8A8A] text-[10px] leading-relaxed">
+                <p className="text-[#8A8A8A] dark:text-slate-400 text-[10px] leading-relaxed">
                   Los precios incluyen IVA. El coste de envío se calcula en el siguiente paso según
                   tu dirección.
                 </p>

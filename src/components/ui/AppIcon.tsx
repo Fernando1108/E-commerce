@@ -26,7 +26,9 @@ function Icon({
   ...props
 }: IconProps) {
   const iconSet = variant === 'solid' ? HeroIconsSolid : HeroIcons;
-  const IconComponent = iconSet[name as keyof typeof iconSet] as React.ComponentType<any>;
+  const IconComponent = iconSet[name as keyof typeof iconSet] as React.ComponentType<
+    React.SVGProps<SVGSVGElement>
+  >;
 
   if (!IconComponent) {
     return (

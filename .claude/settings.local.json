@@ -7,7 +7,21 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(rm:*)",
-      "Bash(npx prettier:*)"
+      "Bash(npx prettier:*)",
+      "Bash(sed:*)",
+      "Bash(grep -v \"//.*any\\\\|node_modules\")",
+      "Bash(grep -rn \"fetch\\(\" src/app/products/components/ProductGridSection.tsx src/app/profile/orders/page.tsx src/app/profile/page.tsx src/app/product/[id]/components/ProductTabs.tsx)",
+      "Bash(/api/products\" src/app/products/components/ProductGridSection.tsx | head -25)",
+      "Bash(grep -n -A 8 \"fetch\\\\\\(`/api/products\" src/app/products/components/ProductGridSection.tsx | head -25)",
+      "Bash(grep -n \"useCallback\" src/app/product/[id]/components/RelatedProducts.tsx)",
+      "Bash(grep -n \"React\\\\b\" src/app/product/[id]/components/ProductInfo.tsx src/app/product/[id]/components/ProductGallery.tsx src/app/product/[id]/components/ProductActions.tsx src/app/product/[id]/components/ProductSpecs.tsx)",
+      "Bash(sed -i \"s/^import React from 'react';$//\" src/app/homepage/page.tsx src/app/wishlist/page.tsx src/app/terminos/page.tsx src/app/privacidad/page.tsx src/app/product/[id]/components/ProductInfo.tsx src/app/product/[id]/components/ProductActions.tsx src/app/product/[id]/components/ProductSpecs.tsx)",
+      "Bash(sed -i \"s/^import React, { useState, Suspense } from 'react';$/import { useState, Suspense } from 'react';/\" src/app/products/page.tsx)",
+      "Bash(sed -i \"s/^import React, { useState } from 'react';$/import { useState } from 'react';/\" src/app/cart/page.tsx)",
+      "Bash(sed -i \"s/^import React, { useState } from 'react';$/import { useState } from 'react';/\" src/app/contacto/page.tsx)",
+      "Bash(sed -i \"s/^import React, { useState } from 'react';$/import { useState } from 'react';/\" src/app/auth/register/page.tsx)",
+      "Bash(sed -i -e 's/procesar ordenes/procesar órdenes/g' -e 's/coordinar envios/coordinar envíos/g' src/app/privacidad/page.tsx)",
+      "Bash(sed -i -e 's/Estos terminos/Estos términos/g' -e s/envios/envíos/g -e s/Si. 'En/Sí. En/g' -e s/validacion/validación/g src/app/terminos/page.tsx)"
     ]
   }
 }

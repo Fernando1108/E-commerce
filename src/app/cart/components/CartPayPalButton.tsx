@@ -14,7 +14,7 @@ type CartPayPalButtonProps = {
 
 export default function CartPayPalButton({ items, grandTotal, onSuccess }: CartPayPalButtonProps) {
   return (
-    <div className="px-8 pb-8">
+    <div className="px-8 pb-8 paypal-wrapper">
       <PayPalProvider>
         <PayPalButtons
           style={{ layout: 'vertical', shape: 'rect', label: 'pay', tagline: false }}

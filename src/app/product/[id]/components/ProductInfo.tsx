@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { formatPrice } from '@/lib/utils';
 import type { Product } from '@/types';
 import StarRating from '@/components/ui/StarRating';

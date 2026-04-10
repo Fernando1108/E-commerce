@@ -45,10 +45,13 @@ function ProductCard({
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.7, delay: (index % 4) * 0.1, ease: [0.16, 1, 0.3, 1] }}
       whileHover={{ y: -4, transition: { type: 'spring', stiffness: 300, damping: 24 } }}
-      className="group relative bg-white border border-[#DDD9D3] overflow-hidden transition-[border-color,box-shadow] duration-500 hover:border-[#1C1C1C] hover:shadow-nova-xl"
+      className="group relative bg-white dark:bg-slate-800 border border-[#DDD9D3] dark:border-slate-700 overflow-hidden transition-[border-color,box-shadow] duration-500 hover:border-[#1C1C1C] dark:hover:border-slate-500 hover:shadow-nova-xl"
     >
       {/* Image area */}
-      <div className="relative overflow-hidden bg-[#EFEDE9]" style={{ aspectRatio: '4/5' }}>
+      <div
+        className="relative overflow-hidden bg-[#EFEDE9] dark:bg-slate-700"
+        style={{ aspectRatio: '4/5' }}
+      >
         <AppImage
           src={product.image_url || '/assets/images/no_image.png'}
           alt={product.name}
@@ -118,21 +121,23 @@ function ProductCard({
       <div className="p-6 space-y-4">
         <div className="flex items-center gap-2">
           <StarRating rating={rating} size="sm" />
-          <span className="text-[11px] text-[#8A8A8A] font-500">({reviewCount})</span>
+          <span className="text-[11px] text-[#8A8A8A] dark:text-slate-400 font-500">
+            ({reviewCount})
+          </span>
         </div>
 
         <div>
-          <h3 className="font-700 text-[#1C1C1C] text-base leading-tight mb-1.5 group-hover:text-[#2563EB] transition-colors duration-300">
+          <h3 className="font-700 text-[#1C1C1C] dark:text-slate-100 text-base leading-tight mb-1.5 group-hover:text-[#2563EB] transition-colors duration-300">
             {product.name}
           </h3>
-          <p className="text-[13px] text-[#5A5A5A] leading-relaxed line-clamp-2">
+          <p className="text-[13px] text-[#5A5A5A] dark:text-slate-400 leading-relaxed line-clamp-2">
             {product.description}
           </p>
         </div>
 
-        <div className="flex items-center justify-between pt-1 border-t border-[#EFEDE9]">
+        <div className="flex items-center justify-between pt-1 border-t border-[#EFEDE9] dark:border-slate-700">
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-900 text-[#1C1C1C] font-display tracking-tightest">
+            <span className="text-2xl font-900 text-[#1C1C1C] dark:text-slate-100 font-display tracking-tightest">
               {formatPrice(product.price)}
             </span>
             {product.original_price && (
@@ -163,15 +168,15 @@ function ProductCard({
 
 function SkeletonCard() {
   return (
-    <div className="skeleton-shimmer bg-white border border-[#DDD9D3] overflow-hidden">
-      <div className="bg-[#EFEDE9] aspect-[4/5]" />
+    <div className="skeleton-shimmer bg-white dark:bg-slate-800 border border-[#DDD9D3] dark:border-slate-700 overflow-hidden">
+      <div className="bg-[#EFEDE9] dark:bg-slate-700 aspect-[4/5]" />
       <div className="p-6 space-y-4">
-        <div className="h-3 bg-[#EFEDE9] rounded w-24" />
+        <div className="h-3 bg-[#EFEDE9] dark:bg-slate-700 rounded w-24" />
         <div className="space-y-2">
-          <div className="h-4 bg-[#EFEDE9] rounded w-3/4" />
-          <div className="h-3 bg-[#EFEDE9] rounded w-full" />
+          <div className="h-4 bg-[#EFEDE9] dark:bg-slate-700 rounded w-3/4" />
+          <div className="h-3 bg-[#EFEDE9] dark:bg-slate-700 rounded w-full" />
         </div>
-        <div className="h-6 bg-[#EFEDE9] rounded w-20" />
+        <div className="h-6 bg-[#EFEDE9] dark:bg-slate-700 rounded w-20" />
       </div>
     </div>
   );
@@ -250,14 +255,14 @@ export default function FeaturedProductsSection() {
   };
 
   return (
-    <section className="py-14 lg:py-20 bg-[#F2F0EC]">
+    <section className="py-14 lg:py-20 bg-[#F2F0EC] dark:bg-slate-900">
       <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
         {/* Header */}
         <div className="flex items-end justify-between mb-10">
           <div>
             <p className="label-eyebrow text-[#8A8A8A] mb-4">Selección editorial</p>
             <h2
-              className="font-display font-900 italic text-[#1C1C1C] uppercase leading-[0.88] tracking-[-0.04em]"
+              className="font-display font-900 italic text-[#1C1C1C] dark:text-slate-100 uppercase leading-[0.88] tracking-[-0.04em]"
               style={{ fontSize: 'clamp(2.2rem, 4.5vw, 4rem)' }}
             >
               Productos
@@ -268,7 +273,7 @@ export default function FeaturedProductsSection() {
           <div className="hidden md:flex flex-col items-end gap-3">
             <Link
               href="/products"
-              className="inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-[#5A5A5A] hover:text-[#1C1C1C] transition-colors group border-b border-transparent hover:border-[#1C1C1C] pb-0.5"
+              className="inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-[#5A5A5A] dark:text-slate-400 hover:text-[#1C1C1C] dark:hover:text-white transition-colors group border-b border-transparent hover:border-[#1C1C1C] dark:hover:border-white pb-0.5"
             >
               Ver catálogo completo
               <Icon

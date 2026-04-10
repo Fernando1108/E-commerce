@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
+import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -12,7 +12,6 @@ function ProductsContent() {
   const initialSort = searchParams.get('sort') || 'featured';
   const initialBadge = searchParams.get('badge') || '';
   const initialCategory = searchParams.get('category') || 'all';
-  const view = searchParams.get('view') || '';
   const [searchQuery, setSearchQuery] = useState('');
 
   return (
@@ -22,7 +21,6 @@ function ProductsContent() {
         categoryId={initialCategory}
         sort={initialSort}
         badge={initialBadge}
-        view={view}
       />
       <ProductGridSection
         searchQuery={searchQuery}
@@ -36,7 +34,7 @@ function ProductsContent() {
 
 export default function ProductsPage() {
   return (
-    <main className="min-h-screen bg-[#FAF9F7]">
+    <main className="min-h-screen bg-[#FAF9F7] dark:bg-slate-900">
       <Header />
       <Suspense fallback={null}>
         <ProductsContent />

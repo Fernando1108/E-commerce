@@ -141,7 +141,7 @@ export default function NewsletterSection() {
                   >
                     politica de privacidad
                   </Link>
-                  . Mas de <strong className="text-white/50">8.000 profesionales</strong> ya estan
+                  . Más de <strong className="text-white/50">8.000 profesionales</strong> ya están
                   suscritos.
                 </p>
 

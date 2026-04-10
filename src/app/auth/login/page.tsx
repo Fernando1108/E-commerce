@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Suspense, useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -113,7 +113,7 @@ function LoginContent() {
 
   // ── Render ───────────────────────────────────────────────────────────────────
   return (
-    <main className="min-h-screen bg-[#FAF9F7]">
+    <main className="min-h-screen bg-[#FAF9F7] dark:bg-slate-900">
       <Header />
 
       <section className="relative overflow-hidden pt-[72px]">
@@ -125,7 +125,7 @@ function LoginContent() {
           <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 items-start">
             {/* Left */}
             <div className="max-w-2xl pt-4 lg:pt-10">
-              <div className="inline-flex items-center gap-3 px-5 py-2.5 border border-[#DDD9D3] bg-white/70 backdrop-blur-sm">
+              <div className="inline-flex items-center gap-3 px-5 py-2.5 border border-[#DDD9D3] dark:border-slate-700 bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm">
                 <span className="size-1.5 rounded-full bg-[#2563EB]" />
                 <span className="text-[11px] font-black uppercase tracking-[0.28em] text-[#2563EB]">
                   Acceso NovaStore
@@ -133,7 +133,7 @@ function LoginContent() {
               </div>
 
               <h1
-                className="mt-8 font-display font-900 italic uppercase leading-[0.88] tracking-[-0.04em] text-[#1C1C1C]"
+                className="mt-8 font-display font-900 italic uppercase leading-[0.88] tracking-[-0.04em] text-[#1C1C1C] dark:text-slate-100"
                 style={{ fontSize: 'clamp(3rem, 7vw, 6.5rem)' }}
               >
                 Entra y
@@ -148,7 +148,7 @@ function LoginContent() {
                 tu compra.
               </h1>
 
-              <p className="mt-6 max-w-xl text-base lg:text-lg leading-relaxed text-[#5A5A5A]">
+              <p className="mt-6 max-w-xl text-base lg:text-lg leading-relaxed text-[#5A5A5A] dark:text-slate-300">
                 Accede con tu cuenta para retomar pedidos, revisar tu carrito y mantener una
                 experiencia consistente en todo el storefront.
               </p>
@@ -161,12 +161,14 @@ function LoginContent() {
                 ].map((f) => (
                   <div
                     key={f.label}
-                    className="border border-[#DDD9D3] bg-white/75 px-5 py-5 backdrop-blur-sm"
+                    className="border border-[#DDD9D3] dark:border-slate-700 bg-white/75 px-5 py-5 backdrop-blur-sm"
                   >
-                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#8A8A8A]">
+                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#8A8A8A] dark:text-slate-400">
                       {f.label}
                     </p>
-                    <p className="mt-3 text-2xl font-display font-900 text-[#1C1C1C]">{f.value}</p>
+                    <p className="mt-3 text-2xl font-display font-900 text-[#1C1C1C] dark:text-slate-100">
+                      {f.value}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -175,16 +177,16 @@ function LoginContent() {
             {/* Right */}
             <div className="relative">
               <div className="absolute -inset-px bg-gradient-to-br from-[#DDD9D3]/70 via-transparent to-transparent pointer-events-none" />
-              <div className="relative border border-[#DDD9D3] bg-white/90 backdrop-blur-xl p-6 sm:p-8 lg:p-10 shadow-[0_24px_80px_rgba(28,28,28,0.08)]">
+              <div className="relative border border-[#DDD9D3] dark:border-slate-700 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl p-6 sm:p-8 lg:p-10 shadow-[0_24px_80px_rgba(28,28,28,0.08)]">
                 {/* ── Active session banner ── */}
                 {sessionChecked && activeSession ? (
                   <div>
                     <div className="flex items-start justify-between gap-4 border-b border-[#E6E1DA] pb-6">
                       <div>
-                        <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#8A8A8A]">
+                        <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#8A8A8A] dark:text-slate-400">
                           Sesión activa
                         </p>
-                        <h2 className="mt-3 text-3xl font-display font-900 uppercase italic text-[#1C1C1C]">
+                        <h2 className="mt-3 text-3xl font-display font-900 uppercase italic text-[#1C1C1C] dark:text-slate-100">
                           Ya estás dentro
                         </h2>
                       </div>
@@ -195,10 +197,10 @@ function LoginContent() {
 
                     <div className="mt-8 space-y-4">
                       <div className="border border-[#E6E1DA] bg-[#FCFBF9] px-5 py-4">
-                        <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[#8A8A8A]">
+                        <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[#8A8A8A] dark:text-slate-400">
                           Ya tienes sesión activa como
                         </p>
-                        <p className="mt-2 text-[15px] font-600 text-[#1C1C1C] break-all">
+                        <p className="mt-2 text-[15px] font-600 text-[#1C1C1C] dark:text-slate-100 break-all">
                           {activeSession.email}
                         </p>
                       </div>
@@ -212,7 +214,7 @@ function LoginContent() {
 
                       <button
                         onClick={handleSignOutAndStay}
-                        className="inline-flex h-12 w-full items-center justify-center border border-[#DDD9D3] px-6 text-[11px] font-black uppercase tracking-[0.24em] text-[#5A5A5A] transition hover:border-[#1C1C1C] hover:text-[#1C1C1C]"
+                        className="inline-flex h-12 w-full items-center justify-center border border-[#DDD9D3] dark:border-slate-700 px-6 text-[11px] font-black uppercase tracking-[0.24em] text-[#5A5A5A] dark:text-slate-300 transition hover:border-[#1C1C1C] hover:text-[#1C1C1C] dark:text-slate-100"
                       >
                         Cerrar sesión e ingresar con otra cuenta
                       </button>
@@ -223,10 +225,10 @@ function LoginContent() {
                   <div>
                     <div className="flex items-start justify-between gap-4 border-b border-[#E6E1DA] pb-6">
                       <div>
-                        <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#8A8A8A]">
+                        <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#8A8A8A] dark:text-slate-400">
                           Formulario de acceso
                         </p>
-                        <h2 className="mt-3 text-3xl font-display font-900 uppercase italic text-[#1C1C1C]">
+                        <h2 className="mt-3 text-3xl font-display font-900 uppercase italic text-[#1C1C1C] dark:text-slate-100">
                           Inicia sesión
                         </h2>
                       </div>
@@ -270,7 +272,7 @@ function LoginContent() {
                             onChange={(e) => setRememberEmail(e.target.checked)}
                             className="size-4 accent-[#1C1C1C] cursor-pointer"
                           />
-                          <span className="text-[11px] font-600 text-[#5A5A5A]">
+                          <span className="text-[11px] font-600 text-[#5A5A5A] dark:text-slate-300">
                             Recordar email
                           </span>
                         </label>
@@ -278,13 +280,13 @@ function LoginContent() {
                         <div className="flex items-center justify-between gap-4 border-t border-[#E6E1DA] pt-6">
                           <Link
                             href="/auth/register"
-                            className="text-[11px] font-black uppercase tracking-[0.24em] text-[#1C1C1C] transition hover:text-[#2563EB]"
+                            className="text-[11px] font-black uppercase tracking-[0.24em] text-[#1C1C1C] dark:text-slate-100 transition hover:text-[#2563EB]"
                           >
                             Registrarse
                           </Link>
                           <Link
                             href="/auth/forgot-password"
-                            className="text-[11px] font-black uppercase tracking-[0.24em] text-[#8A8A8A] transition hover:text-[#1C1C1C]"
+                            className="text-[11px] font-black uppercase tracking-[0.24em] text-[#8A8A8A] dark:text-slate-400 transition hover:text-[#1C1C1C] dark:text-slate-100"
                           >
                             Olvidé contraseña
                           </Link>
@@ -308,7 +310,7 @@ function LoginContent() {
                         <button
                           type="button"
                           onClick={handleGoogle}
-                          className="inline-flex h-14 w-full items-center justify-center gap-3 border border-[#DDD9D3] bg-white px-6 text-[11px] font-black uppercase tracking-[0.28em] text-[#1C1C1C] transition hover:border-[#1C1C1C] hover:bg-[#F8F7F5]"
+                          className="inline-flex h-14 w-full items-center justify-center gap-3 border border-[#DDD9D3] dark:border-slate-700 bg-white dark:bg-slate-700 px-6 text-[11px] font-black uppercase tracking-[0.28em] text-[#1C1C1C] dark:text-slate-100 transition hover:border-[#1C1C1C] hover:bg-[#F8F7F5] dark:hover:bg-slate-600"
                         >
                           <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
                             <path
@@ -349,7 +351,7 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#FAF9F7] flex items-center justify-center">
+        <div className="min-h-screen bg-[#FAF9F7] dark:bg-slate-900 flex items-center justify-center">
           <div className="size-8 border-2 border-[#1C1C1C] border-t-transparent rounded-full animate-spin" />
         </div>
       }

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
@@ -54,7 +54,7 @@ const supportTopics = [
   {
     title: 'Cuenta y acceso',
     description:
-      'Ayuda con inicio de sesion, recuperacion de acceso o informacion relacionada con el perfil.',
+      'Ayuda con inicio de sesión, recuperación de acceso o información relacionada con el perfil.',
     icon: 'UserIcon',
   },
   {
@@ -127,7 +127,7 @@ export default function ContactoPage() {
   });
 
   return (
-    <main className="min-h-screen bg-[#FAF9F7]">
+    <main className="min-h-screen bg-[#FAF9F7] dark:bg-slate-900">
       <Header />
 
       <section className="relative overflow-hidden pt-[72px]">
@@ -138,7 +138,7 @@ export default function ContactoPage() {
         <div className="relative mx-auto max-w-[1440px] px-6 py-14 lg:px-12 lg:py-20">
           <div className="grid items-start gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
             <div className="max-w-2xl pt-4 lg:pt-10">
-              <div className="inline-flex items-center gap-3 border border-[#DDD9D3] bg-white/70 px-5 py-2.5 backdrop-blur-sm">
+              <div className="inline-flex items-center gap-3 border border-[#DDD9D3] dark:border-slate-700 bg-white/70 px-5 py-2.5 backdrop-blur-sm">
                 <span className="size-1.5 rounded-full bg-[#2563EB]" />
                 <span className="text-[11px] font-black uppercase tracking-[0.28em] text-[#2563EB]">
                   Contacto NovaStore
@@ -146,7 +146,7 @@ export default function ContactoPage() {
               </div>
 
               <h1
-                className="mt-8 font-display font-900 italic uppercase leading-[0.88] tracking-[-0.04em] text-[#1C1C1C]"
+                className="mt-8 font-display font-900 italic uppercase leading-[0.88] tracking-[-0.04em] text-[#1C1C1C] dark:text-slate-100"
                 style={{ fontSize: 'clamp(3rem, 7vw, 6.5rem)' }}
               >
                 Habla con
@@ -164,9 +164,9 @@ export default function ContactoPage() {
                 sin fricción.
               </h1>
 
-              <p className="mt-6 max-w-xl text-base leading-relaxed text-[#5A5A5A] lg:text-lg">
+              <p className="mt-6 max-w-xl text-base leading-relaxed text-[#5A5A5A] dark:text-slate-300 lg:text-lg">
                 Esta página está pensada para consultas comerciales, dudas operativas y
-                requerimientos relacionados con pedidos, soporte o informacion general sobre
+                requerimientos relacionados con pedidos, soporte o información general sobre
                 NovaStore.
               </p>
 
@@ -174,15 +174,15 @@ export default function ContactoPage() {
                 {contactHighlights.map((item, index) => (
                   <div
                     key={item.title}
-                    className="border border-[#DDD9D3] bg-white/75 px-5 py-5 backdrop-blur-sm"
+                    className="border border-[#DDD9D3] dark:border-slate-700 bg-white/75 px-5 py-5 backdrop-blur-sm"
                   >
-                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#8A8A8A]">
+                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#8A8A8A] dark:text-slate-400">
                       0{index + 1}
                     </p>
-                    <p className="mt-3 text-xl font-display font-900 text-[#1C1C1C]">
+                    <p className="mt-3 text-xl font-display font-900 text-[#1C1C1C] dark:text-slate-100">
                       {item.title}
                     </p>
-                    <p className="mt-3 text-sm leading-relaxed text-[#5A5A5A]">
+                    <p className="mt-3 text-sm leading-relaxed text-[#5A5A5A] dark:text-slate-300">
                       {item.description}
                     </p>
                   </div>
@@ -192,13 +192,13 @@ export default function ContactoPage() {
 
             <div className="relative">
               <div className="absolute -inset-px bg-gradient-to-br from-[#DDD9D3]/70 via-transparent to-transparent pointer-events-none" />
-              <div className="relative border border-[#DDD9D3] bg-white/90 p-6 shadow-[0_24px_80px_rgba(28,28,28,0.08)] backdrop-blur-xl sm:p-8 lg:p-10">
+              <div className="relative border border-[#DDD9D3] dark:border-slate-700 bg-white/90 p-6 shadow-[0_24px_80px_rgba(28,28,28,0.08)] backdrop-blur-xl sm:p-8 lg:p-10">
                 <div className="flex items-start justify-between gap-4 border-b border-[#E6E1DA] pb-6">
                   <div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#8A8A8A]">
+                    <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#8A8A8A] dark:text-slate-400">
                       Formulario de contacto
                     </p>
-                    <h2 className="mt-3 text-3xl font-display font-900 uppercase italic text-[#1C1C1C]">
+                    <h2 className="mt-3 text-3xl font-display font-900 uppercase italic text-[#1C1C1C] dark:text-slate-100">
                       Escríbenos
                     </h2>
                   </div>
@@ -243,10 +243,10 @@ export default function ContactoPage() {
                       type="tel"
                       placeholder="+57 300 000 0000"
                       registration={register('phone', {
-                        required: 'El telefono es obligatorio.',
+                        required: 'El teléfono es obligatorio.',
                         minLength: {
                           value: 7,
-                          message: 'Ingresa un telefono valido.',
+                          message: 'Ingresa un teléfono válido.',
                         },
                       })}
                       error={errors.phone}
@@ -268,7 +268,7 @@ export default function ContactoPage() {
                     />
 
                     <label className="block sm:col-span-2">
-                      <span className="mb-2 block text-[11px] font-black uppercase tracking-[0.24em] text-[#5A5A5A]">
+                      <span className="mb-2 block text-[11px] font-black uppercase tracking-[0.24em] text-[#5A5A5A] dark:text-slate-300">
                         Mensaje
                       </span>
                       <textarea
@@ -281,10 +281,10 @@ export default function ContactoPage() {
                             message: 'Agrega un poco mas de contexto.',
                           },
                         })}
-                        className={`w-full border px-4 py-4 text-[15px] text-[#1C1C1C] outline-none transition resize-none ${
+                        className={`w-full border px-4 py-4 text-[15px] text-[#1C1C1C] dark:text-slate-100 outline-none transition resize-none ${
                           errors.message
                             ? 'border-[#C33D2F] bg-[#FFF7F5] focus:border-[#C33D2F]'
-                            : 'border-[#DDD9D3] bg-[#FCFBF9] focus:border-[#1C1C1C] focus:bg-white'
+                            : 'border-[#DDD9D3] dark:border-slate-700 bg-[#FCFBF9] dark:bg-slate-700 focus:border-[#1C1C1C] focus:bg-white'
                         }`}
                       />
                       {errors.message && (
@@ -298,13 +298,13 @@ export default function ContactoPage() {
                   <div className="flex items-center justify-between gap-4 border-t border-[#E6E1DA] pt-6">
                     <Link
                       href="/envios"
-                      className="text-[11px] font-black uppercase tracking-[0.24em] text-[#1C1C1C] transition hover:text-[#2563EB]"
+                      className="text-[11px] font-black uppercase tracking-[0.24em] text-[#1C1C1C] dark:text-slate-100 transition hover:text-[#2563EB]"
                     >
                       Ver envios
                     </Link>
                     <Link
                       href="/devoluciones"
-                      className="text-[11px] font-black uppercase tracking-[0.24em] text-[#8A8A8A] transition hover:text-[#1C1C1C]"
+                      className="text-[11px] font-black uppercase tracking-[0.24em] text-[#8A8A8A] dark:text-slate-400 transition hover:text-[#1C1C1C] dark:text-slate-100"
                     >
                       Ver devoluciones
                     </Link>
@@ -323,7 +323,7 @@ export default function ContactoPage() {
                     {status === 'loading' ? 'Enviando mensaje...' : 'Enviar mensaje'}
                   </button>
 
-                  <p className="text-sm leading-relaxed text-[#8A8A8A]">
+                  <p className="text-sm leading-relaxed text-[#8A8A8A] dark:text-slate-400">
                     Tu mensaje será enviado directamente al equipo de NovaStore.
                   </p>
 
@@ -331,7 +331,7 @@ export default function ContactoPage() {
                     href="https://wa.me/50766449530"
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex h-14 w-full items-center justify-center gap-3 border border-[#25D366]/30 bg-[#EAFBF1] px-6 text-[11px] font-black uppercase tracking-[0.28em] text-[#1C1C1C] transition hover:border-[#25D366] hover:bg-[#DDF8E9]"
+                    className="inline-flex h-14 w-full items-center justify-center gap-3 border border-[#25D366]/30 bg-[#EAFBF1] px-6 text-[11px] font-black uppercase tracking-[0.28em] text-[#1C1C1C] dark:text-slate-100 transition hover:border-[#25D366] hover:bg-[#DDF8E9]"
                   >
                     <Icon
                       name="ChatBubbleLeftRightIcon"
@@ -348,16 +348,16 @@ export default function ContactoPage() {
         </div>
       </section>
 
-      <section className="border-y border-[#DDD9D3] bg-[#EFEDE9]">
+      <section className="border-y border-[#DDD9D3] dark:border-slate-700 bg-[#EFEDE9] dark:bg-slate-800">
         <div className="mx-auto grid max-w-[1440px] gap-8 px-6 py-14 lg:grid-cols-[0.9fr_1.1fr] lg:px-12 lg:py-20">
           <div className="max-w-xl">
             <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#2563EB]">
               Temas de soporte
             </p>
-            <h2 className="mt-4 text-4xl font-display font-900 uppercase italic text-[#1C1C1C]">
+            <h2 className="mt-4 text-4xl font-display font-900 uppercase italic text-[#1C1C1C] dark:text-slate-100">
               Elige el contexto correcto y la respuesta llega mejor.
             </h2>
-            <p className="mt-5 text-base leading-relaxed text-[#5A5A5A]">
+            <p className="mt-5 text-base leading-relaxed text-[#5A5A5A] dark:text-slate-300">
               Aunque el formulario es unico, estas son las areas mas frecuentes que atiende el
               equipo para organizar mejor cada mensaje.
             </p>
@@ -365,16 +365,21 @@ export default function ContactoPage() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             {supportTopics.map((topic) => (
-              <div key={topic.title} className="border border-[#DDD9D3] bg-white p-6">
+              <div
+                key={topic.title}
+                className="border border-[#DDD9D3] dark:border-slate-700 bg-white dark:bg-slate-800 p-6"
+              >
                 <div className="flex items-center gap-3">
                   <div className="flex size-11 items-center justify-center bg-[#EFF6FF] text-[#2563EB]">
                     <Icon name={topic.icon} size={20} variant="outline" />
                   </div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#1C1C1C]">
+                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#1C1C1C] dark:text-slate-100">
                     {topic.title}
                   </p>
                 </div>
-                <p className="mt-4 text-sm leading-relaxed text-[#5A5A5A]">{topic.description}</p>
+                <p className="mt-4 text-sm leading-relaxed text-[#5A5A5A] dark:text-slate-300">
+                  {topic.description}
+                </p>
               </div>
             ))}
           </div>
