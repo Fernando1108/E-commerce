@@ -36,39 +36,43 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 - **Supabase** — PostgreSQL, autenticación (email + Google OAuth), Row Level Security, Stored Procedures
 - **PayPal** — Checkout, captura de pagos, modo Sandbox para desarrollo
 - **Resend** — Emails transaccionales (confirmación de pedido, bienvenida, contacto)
-- **Google Analytics** — GA4 tracking (componente condicional)
+- **Google Analytics** — GA4 tracking (componente condicional, ignora placeholders)
 
 ---
 
 ## Estructura del Proyecto
 
 ```text
-├── middleware.ts                       # Protección de rutas (auth + admin)
+├── middleware.ts                       # Protección de rutas (auth + admin role check)
 ├── next.config.mjs                     # Config Next.js (redirects, images)
 ├── tailwind.config.js                  # Design system NovaStore
 ├── image-hosts.config.mjs             # Hosts de imágenes permitidos
 │
 └── src/
     ├── app/
-    │   ├── layout.tsx                  # Root layout (metadata, viewport, Toaster)
+    │   ├── layout.tsx                  # Root layout (metadata, viewport, AuthProvider, Toaster)
     │   ├── not-found.tsx               # Página 404 (español, animaciones)
     │   ├── robots.ts                   # robots.txt dinámico
     │   ├── sitemap.ts                  # sitemap.xml dinámico
     │   │
     │   ├── api/
     │   │   ├── auth/welcome/route.ts   # POST - Email de bienvenida
-    │   │   ├── categories/route.ts     # GET, POST categorías (+Zod +admin)
-    │   │   ├── contact/route.ts        # POST contacto (+Zod)
-    │   │   ├── newsletter/route.ts     # POST newsletter (+Zod)
+    │   │   ├── categories/
+    │   │   │   ├── route.ts            # GET, POST categorías (+Zod +admin)
+    │   │   │   └── [id]/route.ts       # PUT, DELETE categoría (+Zod +admin)
+    │   │   ├── contact/route.ts        # POST contacto (+Zod +rate-limit +XSS)
+    │   │   ├── newsletter/
+    │   │   │   ├── route.ts            # POST newsletter (+Zod +rate-limit)
+    │   │   │   └── subscribe/route.ts  # POST alias de /api/newsletter
     │   │   ├── orders/
-    │   │   │   ├── route.ts            # GET pedidos del usuario
+    │   │   │   ├── route.ts            # GET pedidos del usuario (+verifyAuth)
     │   │   │   └── [id]/status/route.ts # PUT cambiar estado (+Zod +admin)
     │   │   ├── paypal/
     │   │   │   ├── create-order/route.ts  # POST crear orden PayPal
     │   │   │   └── capture-order/route.ts # POST capturar pago + email
     │   │   ├── products/
-    │   │   │   ├── route.ts            # GET (filtros), POST (+Zod +admin)
-    │   │   │   └── [id]/route.ts       # GET, PUT (+Zod +admin), DELETE (+admin)
+    │   │   │   ├── route.ts            # GET (filtros+paginación+sort), POST (+Zod +admin)
+    │   │   │   └── [id]/route.ts       # GET (UUID o slug), PUT (+Zod +admin), DELETE (+admin)
     │   │   ├── reviews/
     │   │   │   ├── route.ts            # GET, POST (+Zod +auth)
     │   │   │   └── [id]/route.ts       # DELETE (+auth, owner-or-admin)
@@ -93,15 +97,17 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
     │   │       └── customers/route.ts  # GET clientes
     │   │
     │   ├── admin/
-    │   │   ├── layout.tsx              # Layout admin (sidebar + topbar)
+    │   │   ├── layout.tsx              # Layout admin (sidebar + topbar + AnimatePresence)
     │   │   ├── page.tsx                # Dashboard con stats y gráficas
     │   │   ├── components/
-    │   │   │   ├── AdminSidebar.tsx     # Sidebar colapsable
-    │   │   │   ├── AdminTopbar.tsx      # Topbar con breadcrumbs + usuario
+    │   │   │   ├── AdminLoader.tsx      # Loader premium SVG (anillos gradiente, barra progreso)
     │   │   │   ├── AdminModal.tsx       # Modal reutilizable
+    │   │   │   ├── AdminPageTransition.tsx # Framer Motion page transitions
+    │   │   │   ├── AdminSidebar.tsx     # Sidebar colapsable con hover animado
+    │   │   │   ├── AdminTopbar.tsx      # Topbar con breadcrumbs + usuario
     │   │   │   ├── ChartCard.tsx        # Wrapper para gráficas
     │   │   │   ├── DataTable.tsx        # Tabla genérica (sort, search, paginación)
-    │   │   │   └── StatCard.tsx         # Tarjeta de estadísticas
+    │   │   │   └── StatCard.tsx         # Tarjeta de estadísticas con count-up
     │   │   ├── productos/
     │   │   │   ├── page.tsx            # Lista productos + buscar + eliminar
     │   │   │   ├── nuevo/page.tsx      # Crear producto (react-hook-form)
@@ -109,7 +115,7 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
     │   │   ├── pedidos/
     │   │   │   ├── page.tsx            # Lista pedidos + filtro estado
     │   │   │   └── [id]/page.tsx       # Detalle pedido + cambiar estado
-    │   │   ├── categorias/page.tsx     # Lista + crear categorías
+    │   │   ├── categorias/page.tsx     # Lista + crear + editar + eliminar categorías
     │   │   ├── inventario/page.tsx     # Stock + movimientos
     │   │   ├── proveedores/
     │   │   │   ├── page.tsx            # CRUD proveedores
@@ -145,7 +151,7 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
     │   │       ├── ProductGridSection.tsx
     │   │       └── ProductFiltersSection.tsx
     │   │
-    │   ├── product/[id]/              # Detalle de producto
+    │   ├── product/[id]/              # Detalle de producto (acepta UUID o slug)
     │   │   ├── page.tsx
     │   │   └── components/
     │   │       ├── ProductActions.tsx
@@ -167,12 +173,12 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
     │   │       └── EmptyCart.tsx
     │   │
     │   ├── checkout/
-    │   │   ├── page.tsx                # Checkout (en construcción)
+    │   │   ├── page.tsx                # Redirige al carrito (Server Component)
     │   │   └── success/page.tsx        # Confirmación post-pago
     │   │
     │   ├── profile/
     │   │   ├── page.tsx                # Datos del perfil
-    │   │   ├── settings/page.tsx       # Editar perfil (nombre, contraseña)
+    │   │   ├── settings/page.tsx       # Editar perfil (nombre, contraseña, dirección)
     │   │   └── orders/page.tsx         # Historial de pedidos
     │   │
     │   ├── wishlist/page.tsx           # Lista de deseos
@@ -183,13 +189,15 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
     │   └── terminos/page.tsx           # Términos y condiciones
     │
     ├── components/
-    │   ├── Header.tsx                  # Header global (auth-aware, mobile menu)
-    │   ├── Footer.tsx                  # Footer global
-    │   ├── GoogleAnalytics.tsx         # GA4 tracking condicional
+    │   ├── Header.tsx                  # Header global (auth-aware, mobile menu, búsqueda)
+    │   ├── Footer.tsx                  # Footer global con redes sociales
+    │   ├── GoogleAnalytics.tsx         # GA4 tracking condicional (ignora placeholder)
+    │   ├── ProfileModal.tsx            # Modal de perfil inline (pedidos, wishlist, reseñas)
     │   ├── SearchModal.tsx             # Búsqueda global (debounced)
+    │   ├── SessionManager.tsx          # Detección de sesión activa + redirect
     │   └── ui/
-    │       ├── AppIcon.tsx             # Wrapper dinámico de Heroicons
-    │       ├── AppImage.tsx            # Wrapper next/image con fallback
+    │       ├── AppIcon.tsx             # Wrapper dinámico de Heroicons (tipado estricto)
+    │       ├── AppImage.tsx            # Wrapper next/image con fallback doble
     │       ├── AppLogo.tsx             # Logo del sitio
     │       ├── AuthField.tsx           # Input de formulario reutilizable
     │       ├── ScrollProgress.tsx      # Barra de progreso de scroll (fixed top)
@@ -203,15 +211,21 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
     ├── hooks/
     │   ├── useAuth.ts                  # Hook (sign in/up/out, Google OAuth)
     │   ├── useCart.ts                  # Hook wrapper del store
+    │   ├── useDebounce.ts             # Hook debounce genérico (usado en 5 búsquedas)
     │   ├── useProfile.ts              # Hook perfil + detección admin
     │   └── useWishlist.ts             # Hook wishlist (API-backed)
     │
     ├── lib/
-    │   ├── admin.ts                    # requireAdmin helper
     │   ├── email.ts                    # Servicio de emails (Resend)
+    │   ├── export-csv.ts              # Exportar tablas admin a CSV (8 tablas)
+    │   ├── logger.ts                  # Logger estructurado JSON (reemplaza console.error)
+    │   ├── pagination.ts              # Helper Zod para paginación (page, limit)
+    │   ├── rate-limit.ts              # In-memory rate limiter (Map con TTL)
     │   ├── utils.ts                    # Helpers (formatPrice USD)
     │   ├── auth/
-    │   │   └── verify-admin.ts         # verifyAdmin + verifyAuth helpers
+    │   │   └── verify-admin.ts         # verifyAdmin + verifyAuth + requireAdmin helpers
+    │   ├── constants/
+    │   │   └── order-status.ts         # ORDER_STATUSES enum (7 estados)
     │   ├── paypal/
     │   │   ├── api.ts                  # getAccessToken + createPayPalOrder
     │   │   └── PayPalProvider.tsx      # Provider de PayPal
@@ -221,16 +235,24 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
     │   │   ├── services.ts            # Funciones RPC (stored procedures)
     │   │   └── migrations/
     │   │       ├── admin-tables.sql   # Tablas admin (employees, suppliers, etc.)
-    │   │       ├── newsletter.sql     # Tabla newsletter
+    │   │       ├── fix-timestamps.sql # Dispersa created_at del seed para sort=newest
+    │   │       ├── newsletter.sql     # Tabla newsletter_subscribers
+    │   │       ├── rls-policies.sql   # RLS policies para 11 tablas
     │   │       └── seed-data.sql      # Datos de prueba
     │   └── validations/
     │       └── index.ts               # Esquemas Zod centralizados
+    │
+    ├── providers/
+    │   └── AuthProvider.tsx           # Contexto global de auth (un fetch, onAuthStateChange)
     │
     ├── store/
     │   └── cart-store.ts              # Zustand store (persist localStorage)
     │
     ├── types/
     │   └── index.ts                   # Interfaces TypeScript globales
+    │
+    ├── constants/
+    │   └── index.ts                   # statusColors, SHIPPING_THRESHOLD, badgeConfig
     │
     └── styles/
         ├── index.css
@@ -245,12 +267,13 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 
 | Método | Ruta | Función |
 |--------|------|---------|
-| GET | /api/products?limit&offset&category&search | Listar productos con filtros |
-| GET | /api/products/[id] | Obtener producto por ID |
-| GET | /api/categories | Listar categorías |
+| GET | /api/products?limit&offset&category&search&sort | Listar productos con filtros, paginación y metadata |
+| GET | /api/products/[id] | Obtener producto por UUID o slug |
+| GET | /api/categories | Listar categorías (cache 60s) |
 | GET | /api/reviews?product_id | Listar reseñas de un producto |
-| POST | /api/contact | Enviar formulario de contacto |
-| POST | /api/newsletter | Suscribirse a newsletter |
+| POST | /api/contact | Enviar formulario de contacto (+rate-limit 3/min) |
+| POST | /api/newsletter | Suscribirse a newsletter (+rate-limit 3/min) |
+| POST | /api/newsletter/subscribe | Alias de /api/newsletter |
 
 ### Autenticados (requieren sesión)
 
@@ -264,7 +287,7 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 | GET | /api/wishlist | Lista de deseos del usuario |
 | POST | /api/wishlist | Agregar a wishlist |
 | DELETE | /api/wishlist/[productId] | Eliminar de wishlist |
-| POST | /api/auth/welcome | Enviar email de bienvenida |
+| POST | /api/auth/welcome | Enviar email de bienvenida (+rate-limit 2/min) |
 
 ### Admin (requieren rol admin)
 
@@ -274,6 +297,8 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 | PUT | /api/products/[id] | Actualizar producto |
 | DELETE | /api/products/[id] | Eliminar producto |
 | POST | /api/categories | Crear categoría |
+| PUT | /api/categories/[id] | Editar categoría (+Zod) |
+| DELETE | /api/categories/[id] | Eliminar categoría (guard: falla si hay productos) |
 | PUT | /api/orders/[id]/status | Cambiar estado de pedido |
 | GET | /api/admin/stats | Estadísticas del dashboard |
 | GET | /api/admin/orders | Todos los pedidos |
@@ -336,6 +361,56 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 
 ---
 
+## Seguridad
+
+### Middleware (`middleware.ts`)
+- Protege `/profile/*`, `/checkout/*`, `/account/*` — redirige a `/auth/login` si no hay sesión
+- Protege `/admin/*` — verifica rol `admin` en tabla `profiles`; redirige a `/homepage` si el usuario autenticado no tiene rol admin
+- Si el usuario ya está autenticado como admin e intenta acceder a `/auth/login`, redirige a `/admin`
+
+### Row Level Security (Supabase)
+RLS activo en 11 tablas (`rls-policies.sql`):
+
+| Tabla | Lectura | Escritura |
+|-------|---------|-----------|
+| products | Pública | Solo admin |
+| categories | Pública | Solo admin |
+| orders | Owner + admin | Sistema (RPC) |
+| order_items | Owner + admin | Sistema (RPC) |
+| reviews | Pública | Owner autenticado |
+| wishlists | Owner | Owner |
+| cart_items | Owner | Owner |
+| coupons | Pública | Solo admin |
+| product_images | Pública | Solo admin |
+| product_variants | Pública | Solo admin |
+| newsletter_subscribers | — | Upsert por email |
+
+### Autenticación en API
+- `verifyAdmin()` — verifica sesión + rol admin; retorna `{ error, user, supabase }`
+- `verifyAuth()` — verifica sesión; retorna `{ error, user, supabase }`
+- Todos los endpoints mutantes usan uno de estos helpers antes de procesar
+
+### Rate Limiting (`lib/rate-limit.ts`)
+In-memory rate limiter (TTL map) — nota: no persiste entre instancias serverless.
+
+| Endpoint | Límite |
+|----------|--------|
+| POST /api/contact | 3 req/min por IP |
+| POST /api/newsletter | 3 req/min por IP |
+| POST /api/auth/welcome | 2 req/min por IP |
+
+### Validación y Sanitización
+- **Zod** — todos los endpoints públicos y autenticados validan el body antes de procesar
+- **sanitizeHtml()** — escapa `& < > " '` en emails de contacto (previene XSS en HTML de Resend)
+- **Slug vs UUID** — `GET /api/products/[id]` detecta formato UUID con regex; si no coincide, busca por slug (previene queries malformadas al RPC)
+
+### AuthProvider (`providers/AuthProvider.tsx`)
+- Un solo `supabase.auth.getUser()` al montar la app (evita múltiples requests de auth)
+- `onAuthStateChange` para reactividad a login/logout
+- Expone `useAuthContext()` con `{ user, profile, loading, isAdmin, signOut }`
+
+---
+
 ## Estado del Proyecto
 
 ### ✅ Completado
@@ -346,7 +421,7 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 - [x] Detalle de producto (galería zoom, variantes, tabs, reviews)
 - [x] Carrito descompuesto en 6 componentes + PayPal Checkout
 - [x] Checkout success page
-- [x] Perfil de usuario + editar configuración (nombre, contraseña)
+- [x] Perfil de usuario + editar configuración (nombre, contraseña, dirección)
 - [x] Historial de pedidos con detalles expandibles
 - [x] Wishlist conectada a backend (API-backed)
 - [x] Contacto conectado a `/api/contact`
@@ -359,7 +434,7 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 - [x] Panel Admin — Dashboard con gráficas (Recharts)
 - [x] Panel Admin — CRUD productos (crear, editar, eliminar)
 - [x] Panel Admin — Pedidos (lista, detalle, cambiar estado)
-- [x] Panel Admin — Categorías (crear) + link en sidebar
+- [x] Panel Admin — Categorías (crear, editar, eliminar con modal)
 - [x] Panel Admin — Inventario (stock, movimientos)
 - [x] Panel Admin — Proveedores CRUD + lista de compras
 - [x] Panel Admin — Empleados CRUD
@@ -367,7 +442,7 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 - [x] Panel Admin — Clientes
 - [x] AuthField y StatusMessage en `components/ui/`
 - [x] Toasts (sonner) en vez de `alert()`
-- [x] Google Analytics componente condicional
+- [x] Google Analytics componente condicional (ignora env vacía y placeholders)
 - [x] Responsive completo en todas las páginas
 - [x] Animaciones Framer Motion
 - [x] Header + Footer en `product/[id]`, `cart`, `checkout/success`
@@ -389,138 +464,136 @@ Plataforma e-commerce moderna con sistema de pagos real (PayPal), autenticación
 - [x] Indicador de stock bajo (< 10) con pulse amber en ProductInfo
 - [x] Shake periódico en botón "Añadir al carrito" cuando stock < 5
 - [x] Cursor personalizado en galería de producto (desktop)
-- [x] Panel Admin — Categorías con editar/eliminar (modal)
-- [x] Header reestructurado: nav links (Tienda, Categorías, Novedades, Ofertas, Soporte), search inline con debounce, dropdown usuario con Dashboard/Perfil/Pedidos/Cerrar sesión, badge Admin para admin/employee
-- [x] Dots de navegación solo iluminan el link activo (no todos a la vez)
+- [x] Header reestructurado: nav links, search inline, dropdown usuario, badge Admin
+- [x] Dots de navegación solo iluminan el link activo
 - [x] SessionManager con detección de sesión activa en login
 - [x] Dashboard link en dropdown de perfil para admin/employee
 - [x] Dark mode toggle en dashboard admin
 - [x] Logout funcional en AdminTopbar → redirige a /auth/login
 - [x] CategoryBannersSection reorganizado (Electrónica full-width)
-- [x] Carousel de productos destacados con animación spring
+- [x] Carousel de productos destacados con animación spring estilo Netflix
 - [x] Footer crédito "Desarrollado por Kodexa Solutions" con link
 - [x] Links reales de redes sociales en Footer (WhatsApp, Instagram, Email)
 - [x] Botón "Cargar más productos" funcional en catálogo (offset+limit, estado loading)
-- [x] Quitar badge "ADMIN" visible del header (solo en dropdown)
-- [x] Fix letras invisibles en dark mode admin (títulos, inputs, selects, modales)
-- [x] Logo dashboard en sidebar (`public/logo/logo-dashboard.png`)
-- [x] Crear/editar producto como modal (AdminModal inline, POST/PUT, sin página separada)
-- [x] Rediseño página de perfil — 4 secciones: header con avatar y 3 stats cards (miembro desde, pedidos, wishlist), info personal desde `user_metadata`, 6 acciones rápidas con `whileHover` spring, banner admin
-- [x] Rediseño editar perfil — 2 secciones: datos personales expandidos (nombre, teléfono, dirección, ciudad, país, código postal, email readonly) + seguridad; guarda vía `supabase.auth.updateUser({ data })`
-- [x] Hero grande en página del carrito (full-width h-36/h-48, gradiente, dot grid, Framer Motion)
-- [x] Panel Admin — Iconos de categoría por tipo (`getCategoryIcon`): Electrónica→`ComputerDesktopIcon`, Audio→`SpeakerWaveIcon`, Gaming→`PuzzlePieceIcon`, Accesorios→`WrenchScrewdriverIcon`, Hogar→`HomeModernIcon`, Wearables→`ClockIcon`, fallback→`TagIcon`; el icono usa `accent_color` como color
-- [x] Panel Admin — Dark mode auditado y completado en todos los módulos: `pedidos/[id]`, `categorias`, `inventario`, `proveedores`, `empleados`, `compras`, `facturación`, `reportes`, `clientes` (textos, cards, tablas, selects, botones, divisores)
-- [x] Panel Admin — Error handling con `try/catch` + `toast.error/success` en todos los CRUD: proveedores (fetch, create, update, delete), empleados (fetch, create, update, delete), inventario (submit movimiento), facturación (fetch), compras (fetch), clientes (fetch)
-- [x] Panel Admin — `window.location.href` reemplazado por `useRouter` + `router.push` en proveedores (`/compras`), compras (back), reportes (back)
-- [x] Panel Admin — `pedidos/page.tsx`: textos de tabla con `dark:text-*` en cliente, fecha y total
-- [x] Panel Admin — `bg-dot-pattern` y `skeleton-shimmer` estandarizados; `animate-pulse` reemplazado en product detail
-- [x] Remover `[key: string]: any` en AppIcon y AppImage — tipado estricto con SVGProps/props explícitas
+- [x] Rediseño página de perfil — header con avatar, stats, 6 acciones rápidas, banner admin
+- [x] Rediseño editar perfil — datos personales + seguridad; guarda vía `supabase.auth.updateUser`
+- [x] Hero grande en página del carrito (full-width, gradiente, dot grid, Framer Motion)
+- [x] Panel Admin — Iconos de categoría por tipo (getCategoryIcon)
+- [x] Panel Admin — Dark mode auditado y completado en todos los módulos
+- [x] Panel Admin — Error handling con try/catch + toast en todos los CRUD
+- [x] Panel Admin — `window.location.href` reemplazado por `useRouter` en navegaciones admin
+- [x] Panel Admin — bg-dot-pattern y skeleton-shimmer estandarizados
+- [x] Remover `[key: string]: any` en AppIcon y AppImage — tipado estricto
 - [x] Eliminar `console.error()` residual en CartPayPalButton
-- [x] Agregar `.catch()` con toast en fetches sin error handling (ProductGridSection, ProductFiltersSection, Header búsqueda, profile/orders, product/[id] relacionados, ProductTabs reviews, auth/register welcome email)
-- [x] Reemplazar `<img>` con eslint-disable por `AppImage` en Header y profile/page
+- [x] Agregar `.catch()` con toast en fetches sin error handling
+- [x] Reemplazar `<img>` con AppImage en Header y profile/page
 - [x] Dark mode en AuthField (inputs login/register/contacto)
 - [x] Dark mode en cart summary background
-- [x] Reemplazar `#0F0F0F` hardcodeado por `nova-fg` en ProductActions y ProductInfo
-- [x] toast.error en profile/orders fetch de pedidos
-- [x] Guard `if (!item.product) return null` en CartItemCard
-- [x] Validación de estructura en admin/page stats fetch
-- [x] Typos: "Suscríbete", "confirmación", "Escríbenos", "página", "más" en Newsletter y Contacto
-- [x] Botón "Cargar más" con indicador de cantidad (+PAGE_SIZE) en ProductGridSection
-- [x] `rel="noopener noreferrer"` en links externos del Footer (Instagram, WhatsApp, Kodexa)
 - [x] Toast con undo al eliminar ítem del carrito (CartItemCard)
-- [x] ARIA `role="menu"` / `role="menuitem"` en dropdown de usuario (Header)
+- [x] ARIA `role="menu"` / `role="menuitem"` en dropdown de usuario
 - [x] Checkbox "Recordar email" en login controla persistencia en localStorage
 - [x] Paginación server-side conectada en admin (clientes, proveedores, empleados, compras)
 - [x] Manejo de 429 (rate limiting) en contacto y newsletter con toast amigable
-- [x] Enums de estado de pedido unificados en constants/index.ts (7 estados: pending, processing, paid, shipped, delivered, completed, cancelled)
-- [x] Flechas carousel productos destacados rediseñadas estilo Netflix (bg-black/50, backdrop-blur, rounded-full, aparecen en hover, centradas verticalmente)
-- [x] Reseñas — modal con estrellas interactivas + comentario opcional, POST /api/reviews, toast.success (código frontend completo; pendiente fix backend verifyAuth para usuarios normales)
-- [x] Hero del carrito extendido detrás del header (-mt-[72px] pt-[72px], h-56/h-72, imagen de fondo)
-- [x] "HOME" agregado al header como primer link de navegación (href="/homepage")
-- [x] Hero de wishlist con gradiente slate-800 a blue-900, breadcrumb INICIO > WISHLIST, tipografía editorial blanca
-- [x] Descripciones dinámicas por categoría en /products (Accesorios, Audio, Electrónica, Gaming, Hogar, Wearables + default)
-- [x] Rol badge arriba del avatar en profile (rounded-full, color según rol, uppercase, icono ShieldCheck)
-- [x] Quitado "Powered by PayPal" del carrito (tagline: false en PayPalButtons)
-- [x] Modal "Mis pedidos" en profile — fetch /api/orders, lista con badge de estado, expandir para ver ítems, botón "Ver todos"
-- [x] Modal "Wishlist" en profile — fetch /api/wishlist, grid 2 col con imagen/precio, botón Quitar con DELETE + toast
-- [x] Modal "Mis reseñas" en profile — consulta Supabase por user_id, StarRating readOnly, eliminar reseña con DELETE /api/reviews/[id] + toast
+- [x] Flechas carousel productos redeseñadas estilo Netflix
+- [x] Hero del carrito extendido detrás del header
+- [x] "HOME" en header como primer link de navegación
+- [x] Hero de wishlist con gradiente slate-800 a blue-900
+- [x] Descripciones dinámicas por categoría en /products
+- [x] Rol badge arriba del avatar en profile
+- [x] Quitado "Powered by PayPal" del carrito (tagline: false)
+- [x] Modal "Mis pedidos" en profile — fetch /api/orders, lista con badge de estado
+- [x] Modal "Wishlist" en profile — grid 2 col con imagen/precio, botón Quitar
+- [x] Modal "Mis reseñas" en profile — StarRating readOnly, eliminar con DELETE /api/reviews/[id]
+- [x] F-01 — Hydration mismatch: suppressHydrationWarning en `<html>`
+- [x] F-02 — /products mostraba "0 PRODUCTOS": fetches desacoplados con error state + Reintentar
+- [x] F-03 — /checkout en blanco: redirect('/cart') en Server Component
+- [x] F-04 — Wishlist no sincroniza: useAuth + diagnóstico de timing
+- [x] F-05 — Redirect /login → /auth/login y /register → /auth/register (permanent)
+- [x] F-06 — Redirect /orders → /profile/orders (permanent)
+- [x] F-07 — Perfil mostraba "Sin completar" en pedidos: value={String(orderCount ?? 0)}
+- [x] F-08 — Estadísticas hardcodeadas: comentarios // Valores editoriales
+- [x] F-09 — Newsletter texto truncado: tildes y separador miles corregidos
+- [x] F-10 — URLs con slug: href=/product/${slug || id} en todos los componentes
+- [x] F-11 — Acciones rápidas del ProfileModal: 5 acciones completas
+- [x] F-13 — Reviews (0) ocultos en homepage: estrellas envueltas en {reviewCount > 0 && ...}
+- [x] F-14 — Fallback de imagen: AppImage con estado doubleFailed + icono SVG
+- [x] F-15 — Categorías dropdown vacío: Header con categoriesError + Reintentar
+- [x] F-16 — Redirect / → /homepage en next.config.mjs
+- [x] F-17 — Dev overlay "1 Issue": resuelto por F-01
+- [x] F-18 — Tildes en /devoluciones: 10 correcciones
+- [x] F-19 — Búsquedas populares: comentario // Términos editoriales
+- [x] F-20 — Instagram: href mantenido como demo
+- [x] F-21 — Variantes: ProductVariants.tsx con guard if (variants.length === 0) return null
 
 **Backend (Anderson):**
 - [x] GET/POST `/api/products` + Zod + verificación admin
 - [x] GET/PUT/DELETE `/api/products/[id]` + Zod + verificación admin
 - [x] GET/POST `/api/categories` + Zod + verificación admin
-- [x] GET `/api/orders` (pedidos del usuario autenticado)
+- [x] PUT/DELETE `/api/categories/[id]` + Zod + guard de productos
+- [x] GET `/api/orders` (pedidos del usuario autenticado, usa verifyAuth)
 - [x] PUT `/api/orders/[id]/status` + Zod + admin
 - [x] POST `/api/paypal/create-order` + `capture-order`
-- [x] POST `/api/auth/welcome` (protegido con auth)
-- [x] POST `/api/contact` + Zod
-- [x] POST `/api/newsletter` + Zod
+- [x] POST `/api/auth/welcome` (protegido con auth + rate-limit 2/min)
+- [x] POST `/api/contact` + Zod + rate-limit + sanitizeHtml (XSS)
+- [x] POST `/api/newsletter` + Zod + rate-limit
+- [x] POST `/api/newsletter/subscribe` (alias re-exportado)
 - [x] GET/POST/DELETE `/api/reviews` + Zod
 - [x] GET/POST/DELETE `/api/wishlist` + Zod
 - [x] GET `/api/admin/stats`
 - [x] APIs admin completas (orders, inventory, suppliers, purchases, employees, invoices, reports, customers)
-- [x] `verifyAdmin` helper reutilizable
+- [x] `verifyAdmin` + `verifyAuth` + `requireAdmin` en `lib/auth/verify-admin.ts`
 - [x] `getAccessToken` extraído a `lib/paypal/api.ts`
-- [x] Validación Zod en endpoints públicos
+- [x] Validación Zod en todos los endpoints con body
 - [x] Interfaces TypeScript (Review, Invoice, Employee, Supplier, etc.)
 - [x] Esquemas Zod centralizados en `lib/validations/`
-- [x] 🔴 Corregir `variant_id: ''` → `null` en capture-order
-- [x] 🔴 Comparar `serverTotal` vs monto capturado por PayPal en `capture-order`
-- [x] 🔴 Agregar error handling en `getAccessToken()` (`lib/paypal/api.ts`)
-- [x] 🔴 Sanitizar HTML en email de contacto (prevenir XSS)
-- [x] 🔴 Eliminar `ignoreBuildErrors: true` en `next.config.mjs` (producción)
+- [x] Corregir `variant_id: ''` → `null` en capture-order
+- [x] Comparar `serverTotal` vs monto capturado por PayPal en `capture-order`
+- [x] Error handling en `getAccessToken()` (`lib/paypal/api.ts`)
+- [x] Sanitizar HTML en email de contacto (prevenir XSS)
+- [x] Eliminar `ignoreBuildErrors: true` en `next.config.mjs`
 - [x] Agregar Zod en PayPal create/capture order
 - [x] Agregar Zod en admin endpoints (inventory, suppliers, employees, purchases)
-- [x] Mover email hardcodeado a variable de entorno (`contact/route.ts`)
-- [x] Consolidar `lib/admin.ts` y `lib/auth/verify-admin.ts` en un solo módulo
-- [x] Agregar `phone` y `subject` al `contactSchema` y procesarlos en el API
-- [x] Agregar field filtering en PUT de suppliers (evitar inyección de columnas)
-- [x] Remover imports no usados (`startOfWeek`/`startOfMonth` en reports)
-- [x] Paginación en admin endpoints (customers, suppliers, employees, purchases) con helper reutilizable
-- [x] Rate limiting en endpoints críticos (welcome 2/min, contact 3/min, newsletter 3/min)
-- [x] Logging estructurado con `logger.ts` (JSON entries, reemplaza console.error)
-- [x] Enums de estado de pedido centralizados en `lib/constants/order-status.ts`
-- [x] RLS policies en Supabase (11 tablas: products, categories, orders, order_items, reviews, wishlist, cart_items, coupons, product_images, product_variants, newsletter_subscribers)
-- [x] Sprint 1 Admin: estados de pedido unificados (7 estados), endpoint PUT/DELETE categorías, role en empleados, toast errors, logger en endpoints admin
-- [x] Sprint 2 Admin: paginación en orders/invoices/inventory, modales confirmación (proveedores, empleados), AppImage, skeleton shimmer
-- [x] Sprint 3 Admin: exportar CSV en 8 tablas, búsqueda en empleados/proveedores/compras/facturas, breadcrumbs dinámicos, UI crear compras
-- [x] AdminLoader premium con SVG animado (anillos gradiente, punto pulsante, barra de progreso) aplicado en 12 páginas admin
+- [x] Mover email hardcodeado a variable de entorno `CONTACT_EMAIL`
+- [x] Consolidar `lib/admin.ts` en `lib/auth/verify-admin.ts`
+- [x] Agregar `phone` y `subject` al `contactSchema`
+- [x] Agregar field filtering en PUT de suppliers
+- [x] Remover imports no usados en reports
+- [x] Paginación en admin endpoints con helper `lib/pagination.ts`
+- [x] Rate limiting en endpoints críticos (`lib/rate-limit.ts`)
+- [x] Logging estructurado con `lib/logger.ts` (JSON, reemplaza console.error)
+- [x] Enums de estado centralizados en `lib/constants/order-status.ts`
+- [x] RLS policies en 11 tablas (`migrations/rls-policies.sql`)
+- [x] Sprint 1 Admin: estados de pedido unificados, PUT/DELETE categorías, toast errors, logger
+- [x] Sprint 2 Admin: paginación en orders/invoices/inventory, modales confirmación, AppImage
+- [x] Sprint 3 Admin: exportar CSV en 8 tablas (`lib/export-csv.ts`), búsqueda, breadcrumbs, UI compras
+- [x] AdminLoader premium con SVG animado aplicado en 12 páginas admin
 - [x] AdminPageTransition con Framer Motion en layout admin
 - [x] Optimización: Promise.all en fetches paralelos (productos, inventario, compras)
 - [x] Optimización: cache headers en GET /api/products y /api/categories
 - [x] Optimización: useDebounce hook aplicado en 5 páginas de búsqueda admin
 - [x] Optimización: AppImage sizes default para thumbnails admin
 - [x] Fix: foreign key orders → profiles para JOIN en admin pedidos
+- [x] B-01 — Cache headers en /api/categories solo en respuesta exitosa (error path sin cache)
+- [x] B-03 — products/[id] soporta slug además de UUID (detección por regex)
+- [x] B-05 — products/[id] retorna objeto (data[0]) en vez de array
+- [x] B-06 — /api/products responde `{ products, total, page, limit, totalPages }` + count paralelo
+- [x] B-08 — GoogleAnalytics ignora placeholder `'your-google-analytics-id-here'`
+- [x] B-09 — /api/newsletter/subscribe creado como alias re-exportado
+- [x] B-11 — AuthProvider con un solo getUser() al montar + onAuthStateChange reactivo
+- [x] B-13 — /api/products acepta `?sort=newest` y ordena por created_at DESC
+- [x] B-13 — migrations/fix-timestamps.sql para dispersar timestamps del seed
+- [x] B-15 — Parámetros limit (1-100) y offset (≥0) validados con Math.max/min
+- [x] B-16 — GET /api/orders usa verifyAuth() en vez de check manual
 
 ### 🚧 Pendiente
 
-**Diego (Frontend):**
+Ningún pendiente abierto. El proyecto está feature-complete para portafolio/producción.
 
-✅ Frontend completo — QA cerrado
-
-- [x] F-01/F-12 — Hydration mismatch: `suppressHydrationWarning` agregado al `<html>` en `layout.tsx`
-- [x] F-02 — /products mostraba "0 PRODUCTOS": fetch de categorías y productos desacoplados con `try/catch` independientes; error state con botón Reintentar en ProductGridSection; toast "Error al cargar categorías" en ProductFiltersSection; retry en dropdown Header
-- [x] F-03 — /checkout en blanco: `redirect('/cart')` en Server Component verificado y funcional
-- [x] F-04 — Wishlist no sincroniza: `useAuth` + `console.info` diagnóstico agregados en `wishlist/page.tsx` para verificar timing de autenticación
-- [x] F-05 — Redirect /login → /auth/login y /register → /auth/register (permanent) en `next.config.mjs`
-- [x] F-06 — Redirect /orders → /profile/orders (permanent) en `next.config.mjs`; `/profile/orders/page.tsx` confirmado existente
-- [x] F-07 — Perfil mostraba "Sin completar" en pedidos: `value={String(orderCount ?? 0)}` — siempre muestra un número
-- [x] F-08 — Estadísticas hardcodeadas: comentarios `// Valores editoriales` en `ProductsHeroSection.tsx` y `// Marketing — valores fijos para demo/portafolio` en `HeroSection.tsx`
-- [x] F-09 — Newsletter texto truncado: corregido `politica` → `política`, `8.000` → `8,000` en `NewsletterSection.tsx`; link ya apuntaba a `/privacidad`
-- [x] F-10 — URLs con slug: todos los `href=/product/${id}` → `href=/product/${slug || id}` en FeaturedProductsSection, SearchModal, RelatedProducts, ProductGridSection (×3), wishlist (×2); `product/[id]/page.tsx` con fallback slug via `/api/products?search=`
-- [x] F-11 — Acciones rápidas del ProfileModal: añadida acción "Editar perfil" (`PencilSquareIcon` → `setEditMode('personal')`); 5 acciones completas: Pedidos, Wishlist, Reseñas, Editar perfil, Ver perfil
-- [x] F-13 — Reviews (0) ocultos en homepage: `FeaturedProductsSection.tsx` envuelve estrellas + contador en `{reviewCount > 0 && (...)}`
-- [x] F-14 — Fallback de imagen: `AppImage.tsx` con estado `doubleFailed`; cuando imagen original y fallback fallan → div gris con icono SVG de imagen rota (fill y non-fill)
-- [x] F-15 — Categorías dropdown vacío: `Header.tsx` con `categoriesError` state + `fetchCategories` callback; dropdown muestra "Error al cargar" + botón Reintentar
-- [x] F-16 — Redirect / → /homepage ya existía en `next.config.mjs`; confirmado
-- [x] F-17 — Dev overlay "1 Issue": resuelto por F-01 (`suppressHydrationWarning` en `<html>`)
-- [x] F-18 — Tildes en /devoluciones: 10 correcciones (`página`, `cómo`, `devolución` ×4, `política` ×2, `validación` ×2, `acompañamiento`, `¿Necesitas`, `envíos`)
-- [x] F-19 — Búsquedas populares: comentario `// Términos editoriales — actualizar según catálogo real` en `ProductsHeroSection.tsx`; valores mantenidos
-- [x] F-20 — Instagram: mantenido como demo (`href="https://instagram.com/kodexasolutions"`)
-- [x] F-21 — Variantes de producto: `ProductVariants.tsx:18` ya tenía `if (variants.length === 0) return null`; confirmado correcto
-
-**Anderson (Backend):**
-✅ Todas las tareas de backend completadas.
+**Mejoras opcionales (post-MVP):**
+- [ ] Rate limiting persistente con Redis/Upstash (el actual in-memory no sobrevive cold starts serverless)
+- [ ] Rate limiting en `/api/reviews` y `/api/wishlist` para prevenir spam en producción
+- [ ] Migrar a `/wishlist` en middleware para protección a nivel de ruta (actualmente solo protege la API)
+- [ ] Tests de integración (Playwright/Vitest) para flujo de checkout y auth
 
 ---
 
@@ -533,6 +606,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=
 NEXT_PUBLIC_PAYPAL_CLIENT_ID=
 PAYPAL_CLIENT_SECRET=
 RESEND_API_KEY=
+CONTACT_EMAIL=
 NEXT_PUBLIC_GA_MEASUREMENT_ID=
 NEXT_PUBLIC_SITE_URL=http://localhost:4028
 ```
@@ -543,6 +617,7 @@ NEXT_PUBLIC_SITE_URL=http://localhost:4028
 | Supabase URL + Anon Key | [supabase.com](https://supabase.com) → Settings → API |
 | PayPal Client ID + Secret | [developer.paypal.com](https://developer.paypal.com) → Apps & Credentials → Sandbox |
 | Resend API Key | [resend.com](https://resend.com) → API Keys |
+| CONTACT_EMAIL | Email destino para formulario de contacto (ej: tu@empresa.com) |
 | GA Measurement ID | [analytics.google.com](https://analytics.google.com) → Admin → Data Streams |
 
 ---
