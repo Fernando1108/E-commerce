@@ -404,6 +404,9 @@ In-memory rate limiter (TTL map) — nota: no persiste entre instancias serverle
 - **sanitizeHtml()** — escapa `& < > " '` en emails de contacto (previene XSS en HTML de Resend)
 - **Slug vs UUID** — `GET /api/products/[id]` detecta formato UUID con regex; si no coincide, busca por slug (previene queries malformadas al RPC)
 
+### Middleware ubicación
+- **El middleware DEBE estar en `src/middleware.ts`** (no en la raíz) cuando el proyecto usa `src/` directory — Next.js solo reconoce el middleware dentro de `src/` si esa carpeta existe
+
 ### AuthProvider (`providers/AuthProvider.tsx`)
 - Un solo `supabase.auth.getUser()` al montar la app (evita múltiples requests de auth)
 - `onAuthStateChange` para reactividad a login/logout
@@ -584,6 +587,10 @@ In-memory rate limiter (TTL map) — nota: no persiste entre instancias serverle
 - [x] B-13 — migrations/fix-timestamps.sql para dispersar timestamps del seed
 - [x] B-15 — Parámetros limit (1-100) y offset (≥0) validados con Math.max/min
 - [x] B-16 — GET /api/orders usa verifyAuth() en vez de check manual
+- [x] Fix seguridad: middleware movido a src/ (Next.js con src/ directory requiere middleware dentro de src/)
+- [x] Fix seguridad: usuarios no-admin bloqueados de /admin — redirige a /homepage
+- [x] AuthProvider centralizado para reducir llamadas duplicadas a Supabase Auth
+- [x] Bugs B-01 a B-16 corregidos (cache 503, slug support, paginación metadata, GA placeholder, newsletter subscribe alias)
 
 ### 🚧 Pendiente
 
