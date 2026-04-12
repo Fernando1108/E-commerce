@@ -6,12 +6,33 @@ import { productSchema } from '@/lib/validations';
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc('get_product_by_id', { p_id: id });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  if (!data || data.length === 0)
-    return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
-  return NextResponse.json(data);
+  // Detect UUID vs slug
+  const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+
+  try {
+    if (isUUID) {
+      const { data, error } = await supabase.rpc('get_product_by_id', { p_id: id });
+      if (error) throw error;
+      if (!data || data.length === 0) {
+        return NextResponse.json({ error: 'Producto no encontrado' }, { status: 404 });
+      }
+      return NextResponse.json(data[0]);
+    } else {
+      // Search by slug
+      const { data, error } = await supabase
+        .from('products')
+        .select('*, categories(name)')
+        .eq('slug', id)
+        .single();
+      if (error || !data) {
+        return NextResponse.json({ error: 'Producto no encontrado' }, { status: 404 });
+      }
+      return NextResponse.json(data);
+    }
+  } catch {
+    return NextResponse.json({ error: 'Producto no encontrado' }, { status: 404 });
+  }
 }
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {

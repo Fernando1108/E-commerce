@@ -5,6 +5,7 @@ import { Toaster } from 'sonner';
 import GoogleAnalytics from '@/components/GoogleAnalytics';
 import SessionManager from '@/components/SessionManager';
 import ScrollProgress from '@/components/ui/ScrollProgress';
+import { AuthProvider } from '@/providers/AuthProvider';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -37,7 +38,9 @@ export default function RootLayout({
         <ScrollProgress />
         <GoogleAnalytics />
         <SessionManager />
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
         <Toaster position="bottom-right" richColors closeButton />
       </body>
     </html>

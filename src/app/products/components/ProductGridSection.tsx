@@ -354,7 +354,8 @@ export default function ProductGridSection({
     if (search.trim()) params.set('search', search.trim());
     fetch(`/api/products?${params}`)
       .then((r) => r.json())
-      .then((data: Product[]) => {
+      .then((response) => {
+        const data: Product[] = Array.isArray(response) ? response : (response.products || []);
         setProducts(data);
         setHasMore(data.length === PAGE_SIZE);
         setLoading(false);
@@ -382,7 +383,8 @@ export default function ProductGridSection({
       if (searchQuery.trim()) params.set('search', searchQuery.trim());
       if (activeSort && activeSort !== 'featured') params.set('sort', activeSort);
       const res = await fetch(`/api/products?${params}`);
-      const data: Product[] = await res.json();
+      const response = await res.json();
+      const data: Product[] = Array.isArray(response) ? response : (response.products || []);
       setProducts((prev) => [...prev, ...data]);
       setOffset(nextOffset);
       setHasMore(data.length === PAGE_SIZE);
